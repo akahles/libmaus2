@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <set>
 #include <libmaus2/types/types.hpp>
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/util/NumberSerialisation.hpp>
@@ -42,6 +43,8 @@ namespace libmaus2
 			static void serialiseStringVector ( std::ostream & out, std::vector < std::string > const & V );
 			static std::vector < std::string > deserialiseStringVector ( std::istream & in );
 			static std::vector < std::string > deserialiseStringVector ( std::string const & in );
+			static void serialiseStringSet ( std::ostream & out, std::set < std::string > const & V );
+			static std::set < std::string > deserialiseStringSet ( std::istream & in );
 			static void serialiseStringVectorVector ( std::ostream & out, std::vector < std::vector < std::string > > const & V );
 			static void serialiseStringVectorDeque ( std::ostream & out, std::deque < std::vector < std::string > > const & V );
 			static std::vector < std::vector < std::string > > deserialiseStringVectorVector ( std::istream & in );

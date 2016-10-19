@@ -74,6 +74,23 @@ std::vector < std::string > libmaus2::util::StringSerialisation::deserialiseStri
 	return strings;
 }
 
+void libmaus2::util::StringSerialisation::serialiseStringSet ( std::ostream & out, std::set < std::string > const & S )
+{
+	serialiseNumber ( out,S.size() );
+	for ( std::set < std::string > :: iterator it = S.begin(); it != S.end(); ++it )
+		serialiseString(out,*it);
+}
+std::set < std::string > libmaus2::util::StringSerialisation::deserialiseStringSet ( std::istream & in )
+{
+	uint64_t const numstrings = deserialiseNumber(in);
+	std::set < std::string > strings;
+
+	for ( uint64_t i = 0; i < numstrings; ++i )
+		strings.insert ( deserialiseString(in) );
+
+	return strings;
+}
+
 std::vector < std::string > libmaus2::util::StringSerialisation::deserialiseStringVector ( std::string const & in )
 {
 	std::istringstream istr(in);

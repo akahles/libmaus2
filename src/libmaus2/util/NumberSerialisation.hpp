@@ -23,6 +23,7 @@
 #include <ostream>
 #include <istream>
 #include <stdexcept>
+#include <deque>
 #include <iomanip>
 #include <libmaus2/types/types.hpp>
 #include <libmaus2/exception/LibMausException.hpp>
@@ -35,31 +36,66 @@ namespace libmaus2
 		struct NumberSerialisation
 		{
 
-		        static std::string formatNumber(uint64_t const n, unsigned int const w)
-		        {
-		                std::ostringstream ostr;
-		                ostr << std::setw(w) << std::setfill('0') << n;
-		                return ostr.str();
-		        }
+			static std::string formatNumber(uint64_t const n, unsigned int const w)
+			{
+				std::ostringstream ostr;
+				ostr << std::setw(w) << std::setfill('0') << n;
+				return ostr.str();
+			}
 
-		        template<typename stream_type>
+			template<typename stream_type>
 			static uint64_t serialiseNumber(stream_type & out, uint64_t const n, uint64_t const k)
 			{
-			        for ( uint64_t i = 0; i < k; ++i )
-			                out.put ((n >> (k-i-1)*8) & 0xFF );
+				for ( uint64_t i = 0; i < k; ++i )
+					out.put ((n >> (k-i-1)*8) & 0xFF );
 
 				if ( ! out )
 				{
-				        ::libmaus2::exception::LibMausException se;
+					::libmaus2::exception::LibMausException se;
 					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber()";
 					se.finish();
 					throw se;
-                                }
+				}
 
-                                return k;
+				return k;
 			}
 
-                        template<typename stream_type>
+			template<typename stream_type>
+			static uint64_t serialiseNumber16(stream_type & out, uint16_t const n, uint64_t const k)
+			{
+				for ( uint64_t i = 0; i < k; ++i )
+					out.put ((n >> (k-i-1)*8) & 0xFF );
+
+				if ( ! out )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber16()";
+					se.finish();
+					throw se;
+				}
+
+				return k;
+			}
+
+            template<typename stream_type>
+			static uint64_t serialiseNumber32(stream_type & out, uint32_t const n, uint64_t const k)
+			{
+				for ( uint64_t i = 0; i < k; ++i )
+					out.put ((n >> (k-i-1)*8) & 0xFF );
+
+				if ( ! out )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber32()";
+					se.finish();
+					throw se;
+				}
+
+				return k;
+			}
+
+
+			template<typename stream_type>
 			static uint64_t serialiseNumber(stream_type & out, uint64_t const n)
 			{
 				out.put ( (n >>  (7*8)) & 0xFF);
@@ -73,48 +109,198 @@ namespace libmaus2
 
 				if ( ! out )
 				{
-				        ::libmaus2::exception::LibMausException se;
+					::libmaus2::exception::LibMausException se;
 					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber()";
 					se.finish();
 					throw se;
-                                }
+				}
 
-                                return 8;
+				return 8;
+			}
+
+			template<typename stream_type>
+			static uint64_t serialiseNumber16(stream_type & out, uint16_t const n)
+			{
+				out.put ( (n >>  (1*8)) & 0xFF);
+				out.put ( (n >>  (0*8)) & 0xFF);
+
+				if ( ! out )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber16()";
+					se.finish();
+					throw se;
+				}
+
+				return 2;
+			}
+
+			template<typename stream_type>
+			static uint64_t serialiseNumber32(stream_type & out, uint32_t const n)
+			{
+				out.put ( (n >>  (3*8)) & 0xFF);
+				out.put ( (n >>  (2*8)) & 0xFF);
+				out.put ( (n >>  (1*8)) & 0xFF);
+				out.put ( (n >>  (0*8)) & 0xFF);
+
+				if ( ! out )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "failure in ::libmaus2::util::NumberSerialisation::serialiseNumber32()";
+					se.finish();
+					throw se;
+				}
+
+				return 4;
+			}
+
+
+
+			template<typename N>
+			static uint64_t serialiseNumberVector(std::ostream & out, std::vector<N> const & V)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, V.size());
+
+				for ( uint64_t i = 0; i < V.size(); ++i )
+					s += serialiseNumber(out, V[i]);
+
+				return s;
 			}
 
 			template<typename N>
-		        static uint64_t serialiseNumberVector(std::ostream & out, std::vector<N> const & V)
-		        {
-		        	uint64_t  s = 0;
-		        	s += serialiseNumber(out, V.size());
-		                for ( uint64_t i = 0; i < V.size(); ++i )
-					s += serialiseNumber(out, V[i]);
+			static uint64_t serialiseNumber16Vector(std::ostream & out, std::vector<N> const & V)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, V.size());
+
+				for ( uint64_t i = 0; i < V.size(); ++i )
+					s += serialiseNumber16(out, V[i]);
+
 				return s;
-		        }
+			}
+
+			template<typename N>
+			static uint64_t serialiseNumbe32Vector(std::ostream & out, std::vector<N> const & V)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, V.size());
+
+				for ( uint64_t i = 0; i < V.size(); ++i )
+					s += serialiseNumber32(out, V[i]);
+
+				return s;
+			}
+
+
+
+			template<typename N>
+			static uint64_t serialiseNumberDeque(std::ostream & out, std::deque<N> const & D)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, D.size());
+
+				for ( uint64_t i = 0; i < D.size(); ++i )
+					s += serialiseNumber(out, D[i]);
+
+				return s;
+			}
+
+			template<typename N>
+			static uint64_t serialiseNumber16Deque(std::ostream & out, std::deque<N> const & D)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, D.size());
+
+				for ( uint64_t i = 0; i < D.size(); ++i )
+					s += serialiseNumber16(out, D[i]);
+
+				return s;
+			}
+
+			template<typename N>
+			static uint64_t serialiseNumber32Deque(std::ostream & out, std::deque<N> const & D)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, D.size());
+
+				for ( uint64_t i = 0; i < D.size(); ++i )
+					s += serialiseNumber32(out, D[i]);
+
+				return s;
+			}
 
 
 			template<typename stream_type>
 			static uint64_t deserialiseNumber(stream_type & in, uint64_t const k)
 			{
-			        uint64_t v = 0;
+				uint64_t v = 0;
 
-			        for ( uint64_t i = 0; i < k; ++i )
-			        {
-			                int const c = in.get();
-			                if ( c < 0 )
-			                {
-                                                ::libmaus2::exception::LibMausException se;
-                                                se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber()";
-                                                se.finish();
-                                                throw se;
-			                }
-			                uint64_t const u = c;
-			                v <<= 8;
-			                v |= u;
-			        }
+				for ( uint64_t i = 0; i < k; ++i )
+				{
+					int const c = in.get();
+					if ( c < 0 )
+					{
+                    	::libmaus2::exception::LibMausException se;
+                    	se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber()";
+                    	se.finish();
+                    	throw se;
+					}
+					uint64_t const u = c;
+					v <<= 8;
+					v |= u;
+				}
 
-			        return v;
+				return v;
 			}
+
+			template<typename stream_type>
+			static uint16_t deserialiseNumber16(stream_type & in, uint64_t const k)
+			{
+				uint16_t v = 0;
+
+				for ( uint64_t i = 0; i < k; ++i )
+				{
+					int const c = in.get();
+					if ( c < 0 )
+					{
+                    	::libmaus2::exception::LibMausException se;
+                    	se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber16()";
+                    	se.finish();
+                    	throw se;
+					}
+					uint16_t const u = c;
+					v <<= 8;
+					v |= u;
+				}
+
+				return v;
+			}
+
+			template<typename stream_type>
+			static uint32_t deserialiseNumber32(stream_type & in, uint64_t const k)
+			{
+				uint32_t v = 0;
+
+				for ( uint64_t i = 0; i < k; ++i )
+				{
+					int const c = in.get();
+					if ( c < 0 )
+					{
+                    	::libmaus2::exception::LibMausException se;
+                    	se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber32()";
+                    	se.finish();
+                    	throw se;
+					}
+					uint32_t const u = c;
+					v <<= 8;
+					v |= u;
+				}
+
+				return v;
+			}
+
+
 
 			template<typename stream_type>
 			static uint64_t deserialiseNumber(stream_type & in)
@@ -130,11 +316,11 @@ namespace libmaus2
 
 				if (  c0 < 0 || c1 < 0 || c2 < 0 || c3 < 0 || c4 < 0 || c5 < 0 || c6 < 0 || c7 < 0 )
 				{
-				        ::libmaus2::exception::LibMausException se;
+					::libmaus2::exception::LibMausException se;
 					se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber()";
 					se.finish();
 					throw se;
-                                }
+				}
 
 				uint64_t const u0 = c0;
 				uint64_t const u1 = c1;
@@ -160,6 +346,64 @@ namespace libmaus2
 			}
 
 			template<typename stream_type>
+			static uint16_t deserialiseNumber16(stream_type & in)
+			{
+				int const c0 = in.get();
+				int const c1 = in.get();
+
+				if (  c0 < 0 || c1 < 0 )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber16()";
+					se.finish();
+					throw se;
+				}
+
+				uint16_t const u0 = c0;
+				uint16_t const u1 = c1;
+
+				uint16_t const u =
+					  (u0 << (1*8))
+					| (u1 << (0*8))
+					;
+
+				return u;
+			}
+
+			template<typename stream_type>
+			static uint32_t deserialiseNumber32(stream_type & in)
+			{
+				int const c0 = in.get();
+				int const c1 = in.get();
+				int const c2 = in.get();
+				int const c3 = in.get();
+
+				if (  c0 < 0 || c1 < 0 || c2 < 0 || c3 < 0 )
+				{
+					::libmaus2::exception::LibMausException se;
+					se.getStream() << "EOF/failure in ::libmaus2::util::NumberSerialisation::deserialiseNumber32()";
+					se.finish();
+					throw se;
+				}
+
+				uint32_t const u0 = c0;
+				uint32_t const u1 = c1;
+				uint32_t const u2 = c2;
+				uint32_t const u3 = c3;
+
+				uint32_t const u =
+					  (u0 << (3*8))
+					| (u1 << (2*8))
+					| (u2 << (1*8))
+					| (u3 << (0*8))
+					;
+
+				return u;
+			}
+
+
+
+			template<typename stream_type>
 			static uint64_t deserialiseNumberCount(stream_type & in, uint64_t & s)
 			{
 				s += 8;
@@ -169,39 +413,110 @@ namespace libmaus2
 			template<typename N>
 			static std::vector<N> deserialiseNumberVector(std::istream & in)
 			{
-			        uint64_t const n = deserialiseNumber(in);
-			        std::vector < N > V;
-			        for ( uint64_t i = 0; i < n; ++i )
-			                V.push_back(deserialiseNumber(in));
-                                return V;
+				uint64_t const n = deserialiseNumber(in);
+				std::vector < N > V;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					V.push_back(deserialiseNumber(in));
+
+				return V;
 			}
 
-                        template<typename stream_type>
+			template<typename N>
+			static std::vector<N> deserialiseNumber16Vector(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::vector < N > V;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					V.push_back(deserialiseNumber16(in));
+
+				return V;
+			}
+
+			template<typename N>
+			static std::vector<N> deserialiseNumber32Vector(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::vector < N > V;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					V.push_back(deserialiseNumber32(in));
+
+				return V;
+			}
+
+			template<typename N>
+			static std::deque<N> deserialiseNumberDeque(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::deque < N > D;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					D.push_back(deserialiseNumber(in));
+
+				return D;
+			}
+
+			template<typename N>
+			static std::deque<N> deserialiseNumber16Deque(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::deque < N > D;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					D.push_back(deserialiseNumber16(in));
+
+				return D;
+			}
+
+			template<typename N>
+			static std::deque<N> deserialiseNumber32Deque(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::deque < N > D;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					D.push_back(deserialiseNumber32(in));
+
+				return D;
+			}
+
+
+
+			template<typename stream_type>
 			static uint64_t serialiseDouble(stream_type & out, double const d)
 			{
 				serialiseNumber(out,::libmaus2::math::DoubleCode::encodeDouble(d));
 				return 8;
 			}
+
 			template<typename stream_type>
 			static double deserialiseDouble(stream_type & in)
 			{
 				return ::libmaus2::math::DoubleCode::decodeDouble(deserialiseNumber(in));
 			}
-		        static uint64_t serialiseDoubleVector(std::ostream & out, std::vector<double> const & V)
-		        {
-		        	uint64_t  s = 0;
-		        	s += serialiseNumber(out, V.size());
-		                for ( uint64_t i = 0; i < V.size(); ++i )
+
+			static uint64_t serialiseDoubleVector(std::ostream & out, std::vector<double> const & V)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, V.size());
+
+				for ( uint64_t i = 0; i < V.size(); ++i )
 					s += serialiseDouble(out, V[i]);
+
 				return s;
-		        }
+			}
+
 			static std::vector<double> deserialiseDoubleVector(std::istream & in)
 			{
-			        uint64_t const n = deserialiseNumber(in);
-			        std::vector < double > V;
-			        for ( uint64_t i = 0; i < n; ++i )
-			                V.push_back(deserialiseDouble(in));
-                                return V;
+				uint64_t const n = deserialiseNumber(in);
+				std::vector < double > V;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					V.push_back(deserialiseDouble(in));
+
+				return V;
 			}
 
 			static unsigned int countBytes(uint64_t n)

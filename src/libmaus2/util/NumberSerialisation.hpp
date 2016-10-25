@@ -24,6 +24,7 @@
 #include <istream>
 #include <stdexcept>
 #include <deque>
+#include <set>
 #include <iomanip>
 #include <libmaus2/types/types.hpp>
 #include <libmaus2/exception/LibMausException.hpp>
@@ -181,7 +182,7 @@ namespace libmaus2
 			}
 
 			template<typename N>
-			static uint64_t serialiseNumbe32Vector(std::ostream & out, std::vector<N> const & V)
+			static uint64_t serialiseNumber32Vector(std::ostream & out, std::vector<N> const & V)
 			{
 				uint64_t  s = 0;
 				s += serialiseNumber(out, V.size());
@@ -191,6 +192,41 @@ namespace libmaus2
 
 				return s;
 			}
+
+			static uint64_t serialiseNumberSet(std::ostream & out, std::set<uint64_t> const & S)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, S.size());
+
+                for (std::set<uint64_t> :: iterator it = S.begin(); it != S.end(); ++it)
+                    s += serialiseNumber(out, *it); 
+
+				return s;
+			}
+
+
+			static uint64_t serialiseNumber16Set(std::ostream & out, std::set<uint16_t> const & S)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, S.size());
+
+                for (std::set<uint16_t> :: iterator it = S.begin(); it != S.end(); ++it)
+                    s += serialiseNumber16(out, *it); 
+
+				return s;
+			}
+
+			static uint64_t serialiseNumber32Set(std::ostream & out, std::set<uint32_t> const & S)
+			{
+				uint64_t  s = 0;
+				s += serialiseNumber(out, S.size());
+
+                for (std::set<uint32_t> :: iterator it = S.begin(); it != S.end(); ++it)
+                    s += serialiseNumber32(out, *it); 
+
+				return s;
+			}
+
 
 
 
@@ -445,6 +481,43 @@ namespace libmaus2
 
 				return V;
 			}
+
+            template<typename N>
+			static std::set<N> deserialiseNumberSet(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::set < N > S;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					S.insert(deserialiseNumber(in));
+
+				return S;
+			}
+
+			template<typename N>
+			static std::set<N> deserialiseNumber16Set(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::set < N > S;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					S.insert(deserialiseNumber16(in));
+
+				return S;
+			}
+
+			template<typename N>
+			static std::set<N> deserialiseNumber32Set(std::istream & in)
+			{
+				uint64_t const n = deserialiseNumber(in);
+				std::set < N > S;
+
+				for ( uint64_t i = 0; i < n; ++i )
+					S.insert(deserialiseNumber32(in));
+
+				return S;
+			}
+
 
 			template<typename N>
 			static std::deque<N> deserialiseNumberDeque(std::istream & in)

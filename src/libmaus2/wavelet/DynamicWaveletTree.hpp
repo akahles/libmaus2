@@ -65,6 +65,12 @@ namespace libmaus2
 
 			}
 
+            DynamicWaveletTree(::libmaus2::bitbtree::BitBTree<k,w> * rR, uint64_t const rb, uint64_t const rn)
+            : R(rR), b(rb), n(rn)
+            {
+
+            }
+
 			void serialise(std::ostream & out) const
 			{
 				R->serialise(out);

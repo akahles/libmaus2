@@ -25,6 +25,7 @@
 #include <libmaus2/lcs/AlignmentStatistics.hpp>
 #include <libmaus2/math/lowbits.hpp>
 #include <libmaus2/rank/popcnt.hpp>
+#include <libmaus2/math/numbits.hpp>
 
 #include <set>
 #include <map>
@@ -240,6 +241,194 @@ namespace libmaus2
 				return maxerr;
 			}
 
+			struct WindowErrorLargeResult
+			{
+				double maxerr;
+				step_type const * t0;
+				step_type const * t1;
+
+				WindowErrorLargeResult() {}
+				WindowErrorLargeResult(double const rmaxerr, step_type const * rt0, step_type const * rt1)
+				: maxerr(rmaxerr), t0(rt0), t1(rt1) {}
+			};
+
+			static WindowErrorLargeResult windowErrorLargeDetail(step_type const * ta, step_type const * te, uint64_t const w)
+			{
+				uint64_t c = 0;
+				uint64_t e = 0;
+
+				step_type const * t0 = ta;
+				step_type const * t1 = ta;
+
+				// accumulate positions until we reach w
+				while ( t1 != te && c < w )
+				{
+					switch ( *t1++ )
+					{
+						case STEP_DEL:
+						case STEP_MISMATCH:
+							c++;
+							e++;
+							break;
+						case STEP_MATCH:
+							c++;
+							break;
+						case STEP_INS:
+							e++;
+							break;
+						default:
+							break;
+					}
+				}
+
+				// set first window error
+				double maxerr = e / static_cast<double>(c);
+				step_type const * maxt0 = t0;
+				step_type const * maxt1 = t1;
+
+				// add more trace points
+				while ( t1 != te )
+				{
+					switch ( *t1++ )
+					{
+						case STEP_DEL:
+						case STEP_MISMATCH:
+							c++;
+							e++;
+							break;
+						case STEP_MATCH:
+							c++;
+							break;
+						case STEP_INS:
+							e++;
+							break;
+						default:
+							break;
+					}
+
+					// remove from front of window until we reach w
+					while ( t0 != t1 && c > w )
+					{
+						switch ( *t0++ )
+						{
+							case STEP_DEL:
+							case STEP_MISMATCH:
+								--c;
+								--e;
+								break;
+							case STEP_MATCH:
+								--c;
+								break;
+							case STEP_INS:
+								--e;
+								break;
+							default:
+								break;
+						}
+					}
+					assert ( c == w );
+
+					// set new maximum
+					double const ed = e / static_cast<double>(c);
+					if ( ed > maxerr )
+					{
+						maxerr = ed;
+						maxt0 = t0;
+						maxt1 = t1;
+					}
+				}
+
+				return WindowErrorLargeResult(maxerr,maxt0,maxt1);
+			}
+
+			static double windowErrorLarge(step_type const * ta, step_type const * te, uint64_t const w)
+			{
+				uint64_t c = 0;
+				uint64_t e = 0;
+
+				step_type const * t0 = ta;
+				step_type const * t1 = ta;
+
+				// accumulate positions until we reach w
+				while ( t1 != te && c < w )
+				{
+					switch ( *t1++ )
+					{
+						case STEP_DEL:
+						case STEP_MISMATCH:
+							c++;
+							e++;
+							break;
+						case STEP_MATCH:
+							c++;
+							break;
+						case STEP_INS:
+							e++;
+							break;
+						default:
+							break;
+					}
+				}
+
+				// set first window error
+				double maxerr = e / static_cast<double>(c);
+
+				// add more trace points
+				while ( t1 != te )
+				{
+					switch ( *t1++ )
+					{
+						case STEP_DEL:
+						case STEP_MISMATCH:
+							c++;
+							e++;
+							break;
+						case STEP_MATCH:
+							c++;
+							break;
+						case STEP_INS:
+							e++;
+							break;
+						default:
+							break;
+					}
+
+					// remove from front of window until we reach w
+					while ( t0 != t1 && c > w )
+					{
+						switch ( *t0++ )
+						{
+							case STEP_DEL:
+							case STEP_MISMATCH:
+								--c;
+								--e;
+								break;
+							case STEP_MATCH:
+								--c;
+								break;
+							case STEP_INS:
+								--e;
+								break;
+							default:
+								break;
+						}
+					}
+					assert ( c == w );
+
+					// set new maximum
+					double const ed = e / static_cast<double>(c);
+					if ( ed > maxerr )
+						maxerr = ed;
+				}
+
+				return maxerr;
+			}
+
+			double windowErrorLarge(uint64_t const w) const
+			{
+				return windowErrorLarge(ta,te,w);
+			}
+
 			struct ClipPair
 			{
 				std::pair<uint64_t,uint64_t> A;
@@ -288,6 +477,297 @@ namespace libmaus2
 					return oa || ob;
 				}
 			};
+
+			static bool transitiveCross(
+				AlignmentTraceContainer const & AB,
+				size_t ABapos,
+				size_t ABbpos,
+				AlignmentTraceContainer const & BC,
+				size_t BCbpos,
+				size_t BCcpos,
+				AlignmentTraceContainer const & AC,
+				size_t ACapos,
+				size_t ACcpos
+			)
+			{
+				step_type const * ABtc = AB.ta;
+				step_type const * BCtc = BC.ta;
+				step_type const * ACtc = AC.ta;
+
+				#if 0
+				std::cerr << std::string(80,'-') << std::endl;
+				#endif
+
+				while ( ABtc != AB.te && BCtc != BC.te && ACtc != AC.te )
+				{
+					#if 0
+					std::cerr
+						<< "ABapos=" << ABapos << " ABbpos=" << ABbpos
+						<< "BCbpos=" << BCbpos << " BCcpos=" << BCcpos
+						<< "ACapos=" << ACapos << " ACcpos=" << ACcpos
+						<< std::endl;
+					#endif
+
+					if ( ABbpos < BCbpos )
+					{
+						switch ( *(ABtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								ABapos += 1;
+								ABbpos += 1;
+								break;
+							case STEP_INS:
+								ABbpos += 1;
+								break;
+							case STEP_DEL:
+								ABapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if ( BCbpos < ABbpos )
+					{
+						switch ( *(BCtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								BCbpos += 1;
+								BCcpos += 1;
+								break;
+							case STEP_INS:
+								BCcpos += 1;
+								break;
+							case STEP_DEL:
+								BCbpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if (
+						*ABtc != *BCtc
+						||
+						*ABtc != STEP_MATCH
+						||
+						ABapos < ACapos
+						||
+						BCcpos < ACcpos
+					)
+					{
+						switch ( *(ABtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								ABapos += 1;
+								ABbpos += 1;
+								break;
+							case STEP_INS:
+								ABbpos += 1;
+								break;
+							case STEP_DEL:
+								ABapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+						switch ( *(BCtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								BCbpos += 1;
+								BCcpos += 1;
+								break;
+							case STEP_INS:
+								BCcpos += 1;
+								break;
+							case STEP_DEL:
+								BCbpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if (
+						ACapos < ABapos
+						||
+						ACcpos < BCcpos
+						||
+						*ACtc != STEP_MATCH
+					)
+					{
+						switch ( *(ACtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								ACapos += 1;
+								ACcpos += 1;
+								break;
+							case STEP_INS:
+								ACcpos += 1;
+								break;
+							case STEP_DEL:
+								ACapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else
+					{
+						assert ( ABbpos == BCbpos );
+						assert ( *ABtc == *BCtc );
+						assert ( *ABtc == STEP_MATCH );
+						assert ( ACapos == ABapos );
+						assert ( ACcpos == BCcpos );
+						assert ( *ACtc == STEP_MATCH );
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			// A, B
+			// C, A
+			// C, B
+			static bool tripleCross(
+				AlignmentTraceContainer const & AB,
+				size_t ABapos,
+				size_t ABbpos,
+				AlignmentTraceContainer const & CA,
+				size_t CAcpos,
+				size_t CAapos,
+				AlignmentTraceContainer const & CB,
+				size_t CBcpos,
+				size_t CBbpos
+			)
+			{
+				step_type const * ABtc = AB.ta;
+				step_type const * CAtc = CA.ta;
+				step_type const * CBtc = CB.ta;
+
+				while ( ABtc != AB.te && CAtc != CA.te && CBtc != CB.te )
+				{
+					if ( CAcpos < CBcpos )
+					{
+						switch ( *(CAtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								CAcpos += 1;
+								CAapos += 1;
+								break;
+							case STEP_INS:
+								CAapos += 1;
+								break;
+							case STEP_DEL:
+								CAcpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+
+						}
+					}
+					else if ( CBcpos < CAcpos )
+					{
+						switch ( *(CBtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								CBcpos += 1;
+								CBbpos += 1;
+								break;
+							case STEP_INS:
+								CBbpos += 1;
+								break;
+							case STEP_DEL:
+								CBcpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if (
+						*CAtc != *CBtc
+						||
+						*CAtc != STEP_MATCH
+						||
+						CAapos < ABapos
+						||
+						CBbpos < ABbpos
+					)
+					{
+						switch ( *(CAtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								CAcpos += 1;
+								CAapos += 1;
+								break;
+							case STEP_INS:
+								CAapos += 1;
+								break;
+							case STEP_DEL:
+								CAcpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+
+						}
+						switch ( *(CBtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								CBcpos += 1;
+								CBbpos += 1;
+								break;
+							case STEP_INS:
+								CBbpos += 1;
+								break;
+							case STEP_DEL:
+								CBcpos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if ( ABapos < CAapos || ABbpos < CBbpos || *ABtc != STEP_MATCH )
+					{
+						switch ( *(ABtc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								ABapos += 1;
+								ABbpos += 1;
+								break;
+							case STEP_INS:
+								ABbpos += 1;
+								break;
+							case STEP_DEL:
+								ABapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else
+					{
+						assert ( CAcpos == CBcpos );
+						assert ( CAapos == ABapos );
+						assert ( CBbpos == ABbpos );
+						assert ( *CAtc == STEP_MATCH );
+						assert ( *CBtc == STEP_MATCH );
+						assert ( *ABtc == STEP_MATCH );
+
+						return true;
+					}
+				}
+
+				return false;
+			}
 
 			static bool cross(
 				AlignmentTraceContainer const & A,
@@ -464,6 +944,105 @@ namespace libmaus2
 				return (Aapos == Bapos);
 			}
 
+			static bool a_sync_match(
+				AlignmentTraceContainer const & A,
+				size_t Aapos,
+				uint64_t & offseta,
+				AlignmentTraceContainer const & B,
+				size_t Bapos,
+				uint64_t & offsetb
+			)
+			{
+				step_type const * Atc = A.ta;
+				step_type const * Btc = B.ta;
+
+				while (
+					(Atc != A.te) && (Btc != B.te)
+				)
+				{
+					// std::cerr << Aapos << "," << Abpos << " " << Bapos << "," << Bbpos << std::endl;
+
+					if ( (Aapos < Bapos) )
+					{
+						switch ( *(Atc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								Aapos += 1;
+								break;
+							case STEP_INS:
+								break;
+							case STEP_DEL:
+								Aapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if ( (Bapos < Aapos) )
+					{
+						switch ( *(Btc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								Bapos += 1;
+								break;
+							case STEP_INS:
+								break;
+							case STEP_DEL:
+								Bapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else if ( *Atc != STEP_MATCH || *Btc != STEP_MATCH )
+					{
+						switch ( *(Atc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								Aapos += 1;
+								break;
+							case STEP_INS:
+								break;
+							case STEP_DEL:
+								Aapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+						switch ( *(Btc++) )
+						{
+							case STEP_MATCH:
+							case STEP_MISMATCH:
+								Bapos += 1;
+								break;
+							case STEP_INS:
+								break;
+							case STEP_DEL:
+								Bapos += 1;
+								break;
+							case STEP_RESET:
+								break;
+						}
+					}
+					else
+					{
+						assert ( Aapos == Bapos );
+						assert ( *Atc == STEP_MATCH );
+						assert ( *Btc == STEP_MATCH );
+
+						offseta = Atc - A.ta;
+						offsetb = Btc - B.ta;
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+
 			static bool b_sync(
 				AlignmentTraceContainer const & A,
 				size_t Abpos,
@@ -597,17 +1176,29 @@ namespace libmaus2
 					{
 						case STEP_INS:
 							cur -= 1;
-							to = std::max(to,cur);
 							break;
 						case STEP_DEL:
 							cur += 1;
+							break;
+						case STEP_MATCH:
 							from = std::min(from,cur);
+							to = std::max(to,cur);
 							break;
 						default:
 							break;
 
 					}
 				}
+			}
+
+			std::pair<int64_t,int64_t> getDiagonalBand(int64_t const apos = 0, int64_t const bpos = 0) const
+			{
+				std::pair<int64_t,int64_t> P;
+				int64_t const d = apos-bpos;
+				getDiagonalBand(ta,te,P.first,P.second);
+				P.first += d;
+				P.second += d;
+				return P;
 			}
 
 			static void swapRoles(step_type * ta, step_type * te)
@@ -1055,7 +1646,7 @@ namespace libmaus2
 
 				if ( pre + oth > trace.size() )
 				{
-					trace.resize(pre + oth);
+					trace.resize(libmaus2::math::nextTwoPow(pre + oth));
 
 					ta = trace.begin();
 					te = trace.begin()+pre;
@@ -1210,6 +1801,46 @@ namespace libmaus2
 						case STEP_RESET:
 							break;
 					}
+				}
+
+				return std::pair<uint64_t,uint64_t>(bpos,tc-ta);
+			}
+
+
+			// compute how many operations we consume when going adv steps forward on b
+			static std::pair<uint64_t,uint64_t> advanceMaxB(step_type const * ta, step_type const * te, uint64_t const adv)
+			{
+				uint64_t apos = 0, bpos = 0;
+				step_type const * tc = ta;
+
+				for ( ; bpos < adv && tc != te; ++tc )
+				{
+					switch ( *tc )
+					{
+						case STEP_MATCH:
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_MISMATCH:
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_INS:
+							bpos += 1;
+							break;
+						case STEP_DEL:
+							apos += 1;
+							break;
+						case STEP_RESET:
+							break;
+					}
+				}
+
+				// can me move further in the trace without incrementing bpos?
+				while ( bpos == adv && tc != te && *tc == STEP_DEL )
+				{
+					apos++;
+					tc++;
 				}
 
 				return std::pair<uint64_t,uint64_t>(bpos,tc-ta);
@@ -1523,6 +2154,84 @@ namespace libmaus2
 				}
 			}
 
+			static uint64_t getAOffsets(
+				step_type const * ta,
+				step_type const * te,
+				libmaus2::autoarray::AutoArray < std::pair<uint64_t,uint64_t> > & R,
+				uint64_t const off_a = 0, uint64_t const off_b = 0,
+				uint64_t o = 0
+			)
+			{
+				uint64_t apos = off_a, bpos = off_b;
+
+				for ( step_type const * tc = ta; tc != te; ++tc )
+				{
+					switch ( *tc )
+					{
+						case STEP_MATCH:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_MISMATCH:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_INS:
+							bpos += 1;
+							break;
+						case STEP_DEL:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							apos += 1;
+							break;
+						case STEP_RESET:
+							break;
+					}
+				}
+
+				return o;
+			}
+
+			static uint64_t getBOffsets(
+				step_type const * ta,
+				step_type const * te,
+				libmaus2::autoarray::AutoArray < std::pair<uint64_t,uint64_t> > & R,
+				uint64_t const off_a = 0, uint64_t const off_b = 0,
+				uint64_t o = 0
+			)
+			{
+				uint64_t apos = off_a, bpos = off_b;
+
+				for ( step_type const * tc = ta; tc != te; ++tc )
+				{
+					switch ( *tc )
+					{
+						case STEP_MATCH:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_MISMATCH:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							apos += 1;
+							bpos += 1;
+							break;
+						case STEP_INS:
+							R.push(o,std::pair<uint64_t,uint64_t>(apos,bpos));
+							bpos += 1;
+							break;
+						case STEP_DEL:
+							apos += 1;
+							break;
+						case STEP_RESET:
+							break;
+					}
+				}
+
+				return o;
+			}
+
 			struct Match
 			{
 				uint64_t apos;
@@ -1724,6 +2433,112 @@ namespace libmaus2
 			bool operator!=(AlignmentTraceContainer const & o) const
 			{
 				return ! operator==(o);
+			}
+
+			struct MapElement
+			{
+				uint64_t apos;
+				int64_t adif;
+				uint64_t bpos;
+				int64_t bdif;
+				step_type step;
+
+				MapElement() {}
+				MapElement(
+					uint64_t const rapos,
+					int64_t const radif,
+					uint64_t const rbpos,
+					int64_t const rbdif,
+					step_type const rstep
+				) : apos(rapos), adif(radif), bpos(rbpos), bdif(rbdif), step(rstep)
+				{
+
+				}
+
+				std::ostream & print(std::ostream & out) const
+				{
+					return out << "MapElement("
+						<< "apos=" << apos << ","
+						<< "adif=" << adif << ","
+						<< "bpos=" << bpos << ","
+						<< "bdif=" << bdif << ","
+						<< "step=" << step << ")";
+				}
+
+				std::string toString() const
+				{
+					std::ostringstream ostr;
+					print(ostr);
+					return ostr.str();
+				}
+			};
+
+			static uint64_t fillMapping(
+				step_type const * uta, step_type const * ute,
+				uint64_t const apos,
+				uint64_t const bpos,
+				libmaus2::autoarray::AutoArray<MapElement> & A
+			)
+			{
+				std::pair<uint64_t,uint64_t> const SL = getStringLengthUsed(uta,ute);
+
+				uint64_t aipos = apos+SL.first;
+				uint64_t bipos = bpos+SL.second;
+				int64_t aidif = 0;
+				int64_t bidif = 0;
+				uint64_t f = 0;
+
+				while ( ute != uta )
+				{
+					libmaus2::lcs::AlignmentTraceContainer::step_type const step = *(--ute);
+
+					switch ( step )
+					{
+						case libmaus2::lcs::AlignmentTraceContainer::STEP_MATCH:
+						case libmaus2::lcs::AlignmentTraceContainer::STEP_MISMATCH:
+						{
+							--aipos;
+							--bipos;
+							aidif = 0;
+							bidif = 0;
+
+							A.push(f,MapElement(aipos,aidif,bipos,bidif,step));
+
+							break;
+						}
+						case libmaus2::lcs::AlignmentTraceContainer::STEP_INS:
+						{
+							--bipos;
+							bidif = 0;
+							--aidif;
+
+							A.push(f,MapElement(aipos,aidif,bipos,bidif,step));
+
+							break;
+						}
+						case libmaus2::lcs::AlignmentTraceContainer::STEP_DEL:
+						{
+							--aipos;
+							aidif = 0;
+							--bidif;
+
+							A.push(f,MapElement(aipos,aidif,bipos,bidif,step));
+
+							break;
+						}
+						default:
+						{
+							break;
+						}
+					}
+				}
+
+				assert ( aipos == apos );
+				assert ( bipos == bpos );
+
+				std::reverse(A.begin(),A.begin()+f);
+
+				return f;
 			}
 		};
 

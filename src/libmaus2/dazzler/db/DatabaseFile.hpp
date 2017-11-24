@@ -24,6 +24,11 @@
 #include <libmaus2/aio/InputStreamFactoryContainer.hpp>
 #include <libmaus2/dazzler/db/Read.hpp>
 #include <libmaus2/rank/ImpCacheLineRank.hpp>
+#include <libmaus2/bitio/CompactArray.hpp>
+#include <libmaus2/math/numbits.hpp>
+#include <libmaus2/util/TempFileRemovalContainer.hpp>
+#include <libmaus2/aio/ArrayFileSet.hpp>
+#include <libmaus2/util/PrefixSums.hpp>
 
 namespace libmaus2
 {
@@ -59,6 +64,8 @@ namespace libmaus2
 				uint64_t indexoffset;
 
 				std::string bpspath;
+
+				libmaus2::rank::ImpCacheLineRank::unique_ptr_type Ptrim;
 
 				struct PairFirstComparator
 				{
@@ -230,7 +237,6 @@ namespace libmaus2
 
 
 
-				libmaus2::rank::ImpCacheLineRank::unique_ptr_type Ptrim;
 
 				static std::string getPath(std::string const & s)
 				{
@@ -310,6 +316,36 @@ namespace libmaus2
 					return false;
 				}
 
+				size_t decodeRead(
+					std::istream & idxstream,
+					std::istream & bpsstream,
+					uint64_t const id,
+					libmaus2::autoarray::AutoArray<char> & A
+				) const
+				{
+					uint64_t const mappedindex = Ptrim->select1(id);
+					idxstream.seekg(indexoffset + mappedindex * Read::serialisedSize);
+					Read R(idxstream);
+					bpsstream.seekg(R.boff,std::ios::beg);
+					decodeRead(bpsstream,A,R.rlen);
+					return R.rlen;
+				}
+
+				size_t decodeReadAndRC(
+					std::istream & idxstream,
+					std::istream & bpsstream,
+					uint64_t const id,
+					libmaus2::autoarray::AutoArray<char> & A
+				) const
+				{
+					uint64_t const mappedindex = Ptrim->select1(id);
+					idxstream.seekg(indexoffset + mappedindex * Read::serialisedSize);
+					Read R(idxstream);
+					bpsstream.seekg(R.boff,std::ios::beg);
+					decodeReadAndRC(bpsstream,A,R.rlen);
+					return R.rlen;
+				}
+
 				static size_t decodeRead(
 					std::istream & bpsstream,
 					libmaus2::autoarray::AutoArray<char> & A,
@@ -319,6 +355,17 @@ namespace libmaus2
 					if ( static_cast<int32_t>(A.size()) < rlen )
 						A = libmaus2::autoarray::AutoArray<char>(rlen,false);
 					return decodeRead(bpsstream,A.begin(),rlen);
+				}
+
+				static size_t decodeReadAndRC(
+					std::istream & bpsstream,
+					libmaus2::autoarray::AutoArray<char> & A,
+					int32_t const rlen
+				)
+				{
+					if ( static_cast<int32_t>(A.size()) < 2*rlen )
+						A = libmaus2::autoarray::AutoArray<char>(2*rlen,false);
+					return decodeReadAndRC(bpsstream,A.begin(),rlen);
 				}
 
 				static size_t decodeRead(
@@ -365,6 +412,230 @@ namespace libmaus2
 						if ( rest )
 						{
 							*(o++) = libmaus2::fastx::remapChar((v >> 2)&3);
+							rest--;
+						}
+					}
+
+					return rlen;
+				}
+
+				static size_t decodeReadNoDecode(
+					std::istream & bpsstream,
+					char * const C,
+					int32_t const rlen
+				)
+				{
+					bpsstream.read(C + (rlen - (rlen+3)/4),(rlen+3)/4);
+					if ( bpsstream.gcount() != (rlen+3)/4 )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "libmaus2::dazzler::db::Read::decode(): input failure" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					unsigned char * p = reinterpret_cast<unsigned char *>(C + ( rlen - ((rlen+3)>>2) ));
+					char * o = C;
+					for ( int32_t i = 0; i < (rlen>>2); ++i )
+					{
+						unsigned char v = *(p++);
+
+						*(o++) = ((v >> 6)&3);
+						*(o++) = ((v >> 4)&3);
+						*(o++) = ((v >> 2)&3);
+						*(o++) = ((v >> 0)&3);
+					}
+					if ( rlen & 3 )
+					{
+						unsigned char v = *(p++);
+						size_t rest = rlen - ((rlen>>2)<<2);
+
+						if ( rest )
+						{
+							*(o++) = ((v >> 6)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(o++) = ((v >> 4)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(o++) = ((v >> 2)&3);
+							rest--;
+						}
+					}
+
+					return rlen;
+				}
+
+				static size_t decodeReadRC(
+					std::istream & bpsstream,
+					char * const C,
+					int32_t const rlen
+				)
+				{
+					int64_t const inbytes = (rlen+3)/4;
+					bpsstream.read(C,inbytes);
+					if ( bpsstream.gcount() != inbytes )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "libmaus2::dazzler::db::Read::decode(): input failure" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+					std::reverse(C,C+inbytes);
+
+					unsigned char * p = reinterpret_cast<unsigned char *>(C+inbytes);
+					char * o = C + rlen;
+					for ( int32_t i = 0; i < (rlen>>2); ++i )
+					{
+						unsigned char v = (*(--p)) ^ 0xFF;
+
+						*(--o) = libmaus2::fastx::remapChar((v >> 6)&3);
+						*(--o) = libmaus2::fastx::remapChar((v >> 4)&3);
+						*(--o) = libmaus2::fastx::remapChar((v >> 2)&3);
+						*(--o) = libmaus2::fastx::remapChar((v >> 0)&3);
+					}
+					if ( rlen & 3 )
+					{
+						unsigned char v = (*(--p)) ^ 0xFF;
+						size_t rest = rlen - ((rlen>>2)<<2);
+
+						if ( rest )
+						{
+							*(--o) = libmaus2::fastx::remapChar((v >> 6)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(--o) = libmaus2::fastx::remapChar((v >> 4)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(--o) = libmaus2::fastx::remapChar((v >> 2)&3);
+							rest--;
+						}
+					}
+
+					return rlen;
+				}
+
+				static size_t decodeReadRCNoDecode(
+					std::istream & bpsstream,
+					char * const C,
+					int32_t const rlen
+				)
+				{
+					int64_t const inbytes = (rlen+3)/4;
+					bpsstream.read(C,inbytes);
+					if ( bpsstream.gcount() != inbytes )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "libmaus2::dazzler::db::Read::decode(): input failure" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+					std::reverse(C,C+inbytes);
+
+					unsigned char * p = reinterpret_cast<unsigned char *>(C+inbytes);
+					char * o = C + rlen;
+					for ( int32_t i = 0; i < (rlen>>2); ++i )
+					{
+						unsigned char v = (*(--p)) ^ 0xFF;
+
+						*(--o) = ((v >> 6)&3);
+						*(--o) = ((v >> 4)&3);
+						*(--o) = ((v >> 2)&3);
+						*(--o) = ((v >> 0)&3);
+					}
+					if ( rlen & 3 )
+					{
+						unsigned char v = (*(--p)) ^ 0xFF;
+						size_t rest = rlen - ((rlen>>2)<<2);
+
+						if ( rest )
+						{
+							*(--o) = ((v >> 6)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(--o) = ((v >> 4)&3);
+							rest--;
+						}
+						if ( rest )
+						{
+							*(--o) = ((v >> 2)&3);
+							rest--;
+						}
+					}
+
+					return rlen;
+				}
+
+				static size_t decodeReadAndRC(
+					std::istream & bpsstream,
+					char * const C,
+					int32_t const rlen
+				)
+				{
+					bpsstream.read(C + (rlen - (rlen+3)/4),(rlen+3)/4);
+					if ( bpsstream.gcount() != (rlen+3)/4 )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "libmaus2::dazzler::db::Read::decode(): input failure" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					unsigned char * p = reinterpret_cast<unsigned char *>(C + ( rlen - ((rlen+3)>>2) ));
+					char * o = C;
+					char * r = C + 2*rlen;
+					for ( int32_t i = 0; i < (rlen>>2); ++i )
+					{
+						unsigned char v = *(p++);
+
+						uint8_t const c3 = (v >> 6)&3;
+						*(o++) = libmaus2::fastx::remapChar(c3);
+						*(--r) = libmaus2::fastx::remapChar(c3^3);
+						uint8_t const c2 = (v >> 4)&3;
+						*(o++) = libmaus2::fastx::remapChar(c2);
+						*(--r) = libmaus2::fastx::remapChar(c2^3);
+						uint8_t const c1 = (v >> 2)&3;
+						*(o++) = libmaus2::fastx::remapChar(c1);
+						*(--r) = libmaus2::fastx::remapChar(c1^3);
+						uint8_t const c0 = (v >> 0)&3;
+						*(o++) = libmaus2::fastx::remapChar(c0);
+						*(--r) = libmaus2::fastx::remapChar(c0^3);
+					}
+					if ( rlen & 3 )
+					{
+						unsigned char v = *(p++);
+						size_t rest = rlen - ((rlen>>2)<<2);
+
+						if ( rest )
+						{
+							uint8_t const c3 = (v >> 6)&3;
+							*(o++) = libmaus2::fastx::remapChar(c3);
+							*(--r) = libmaus2::fastx::remapChar(c3^3);
+
+							rest--;
+						}
+						if ( rest )
+						{
+							uint8_t const c2 = (v >> 4)&3;
+							*(o++) = libmaus2::fastx::remapChar(c2);
+							*(--r) = libmaus2::fastx::remapChar(c2^3);
+							rest--;
+						}
+						if ( rest )
+						{
+							uint8_t const c1 = (v >> 2)&3;
+							*(o++) = libmaus2::fastx::remapChar(c1);
+							*(--r) = libmaus2::fastx::remapChar(c1^3);
 							rest--;
 						}
 					}
@@ -500,7 +771,7 @@ namespace libmaus2
 					else
 					{
 						libmaus2::exception::LibMausException lme;
-						lme.getStream() << "Cannot find database file" << std::endl;
+						lme.getStream() << "Cannot find database file " << s << std::endl;
 						lme.finish();
 						throw lme;
 					}
@@ -718,6 +989,292 @@ namespace libmaus2
 					}
 				}
 
+				struct DBFileSet
+				{
+					typedef DBFileSet this_type;
+					typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+					typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+
+					std::string fn;
+					std::string idxfn;
+					std::string bpsfn;
+					bool deleteondeconstruct;
+
+					DBFileSet() : deleteondeconstruct(false) {}
+					DBFileSet(
+						std::string const & rfn,
+						std::string const & ridxfn,
+						std::string const & rbpsfn,
+						bool const rdeleteondeconstruct
+					) : fn(rfn), idxfn(ridxfn), bpsfn(rbpsfn), deleteondeconstruct(rdeleteondeconstruct) {}
+
+					~DBFileSet()
+					{
+						if ( deleteondeconstruct )
+						{
+							libmaus2::aio::FileRemoval::removeFile(fn);
+							libmaus2::aio::FileRemoval::removeFile(idxfn);
+							libmaus2::aio::FileRemoval::removeFile(bpsfn);
+						}
+					}
+				};
+
+				struct DBArrayFileSet
+				{
+					typedef DBArrayFileSet this_type;
+					typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+					typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+
+					libmaus2::autoarray::AutoArray<char> Adb;
+					libmaus2::autoarray::AutoArray<char> Aidx;
+					libmaus2::autoarray::AutoArray<char> Abps;
+
+					typedef
+					std::map <
+						std::string,
+						std::pair <
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type,
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type
+						>
+					> Mtrack_type;
+					Mtrack_type Mtrack;
+
+					libmaus2::aio::ArrayFileSet<char const *>::unique_ptr_type PAFS;
+
+					DBArrayFileSet(
+						libmaus2::autoarray::AutoArray<char> & rAdb,
+						libmaus2::autoarray::AutoArray<char> & rAidx,
+						libmaus2::autoarray::AutoArray<char> & rAbps,
+						Mtrack_type rMtrack
+					) : Adb(rAdb), Aidx(rAidx), Abps(rAbps), Mtrack(rMtrack)
+					{
+						std::vector< std::pair<char const *,char const *> > Vdata;
+						Vdata.push_back(std::pair<char const *,char const *>(Adb.begin(),Adb.end()));
+						Vdata.push_back(std::pair<char const *,char const *>(Aidx.begin(),Aidx.end()));
+						Vdata.push_back(std::pair<char const *,char const *>(Abps.begin(),Abps.end()));
+						std::vector< std::string > Vfn;
+						Vfn.push_back("readsdir/reads.db");
+						Vfn.push_back("readsdir/.reads.idx");
+						Vfn.push_back("readsdir/.reads.bps");
+
+						for ( Mtrack_type::const_iterator ita = Mtrack.begin(); ita != Mtrack.end(); ++ita )
+						{
+							Vdata.push_back(
+								std::pair<char const *,char const *>(
+									ita->second.first->begin(),
+									ita->second.first->end()
+								)
+							);
+							Vfn.push_back(std::string("readsdir/.reads.") + ita->first + ".anno");
+							Vdata.push_back(
+								std::pair<char const *,char const *>(
+									ita->second.second->begin(),
+									ita->second.second->end()
+								)
+							);
+							Vfn.push_back(std::string("readsdir/.reads.") + ita->first + ".data");
+						}
+
+						libmaus2::aio::ArrayFileSet<char const *>::unique_ptr_type tptr(
+							new libmaus2::aio::ArrayFileSet<char const *>(Vdata,Vfn)
+						);
+
+						PAFS = UNIQUE_PTR_MOVE(tptr);
+					}
+
+					~DBArrayFileSet()
+					{
+					}
+
+					std::string getDBURL() const
+					{
+						return PAFS->getURL(0);
+					}
+				};
+
+				static DBArrayFileSet::unique_ptr_type copyToArrays(
+					std::string const & s,
+					std::vector<std::string> const * tracklist = 0
+				)
+				{
+					if ( ! libmaus2::util::GetFileSize::fileExists(s) )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToArrays: file " << s << " does not exist or is not accessible" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					bool const isdb = endsOn(s,".db");
+					bool const isdam = endsOn(s,".dam");
+					bool const issup = isdb || isdam;
+
+					if ( ! issup )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToArrays: file " << s << " is not supported (file name does not end in .db or .dam)" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					std::string const path = getPath(s);
+					std::string const root = isdam ? getRoot(s,".dam") : getRoot(s,".db");
+
+					std::string dbpath;
+
+					if ( libmaus2::aio::InputStreamFactoryContainer::tryOpen(path + "/" + root + ".db") )
+						dbpath = path + "/" + root + ".db";
+					else if ( libmaus2::aio::InputStreamFactoryContainer::tryOpen(path + "/" + root + ".dam") )
+						dbpath = path + "/" + root + ".dam";
+					else
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToPrefix: cannot construct db file name" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					std::string const idxpath = path + "/." + root + ".idx";
+					std::string const bpspath = path + "/." + root + ".bps";
+
+					libmaus2::autoarray::AutoArray<char> Adb = libmaus2::autoarray::AutoArray<char>::readFile(dbpath);
+					libmaus2::autoarray::AutoArray<char> Aidx = libmaus2::autoarray::AutoArray<char>::readFile(idxpath);
+					libmaus2::autoarray::AutoArray<char> Abps = libmaus2::autoarray::AutoArray<char>::readFile(bpspath);
+
+					std::map <
+						std::string,
+						std::pair <
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type,
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type
+						>
+					> Mtrack;
+
+					if ( tracklist )
+					{
+						for ( uint64_t i = 0; i < tracklist->size(); ++i )
+						{
+							std::string const & trackname = tracklist->at(i);
+
+							std::string const annosrc = path + "/." + root + "." + trackname + ".anno";
+							std::string const datasrc = path + "/." + root + "." + trackname + ".data";
+
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type Aanno(new libmaus2::autoarray::AutoArray<char>);
+							*Aanno = libmaus2::autoarray::AutoArray<char>::readFile(annosrc);
+							libmaus2::autoarray::AutoArray<char>::shared_ptr_type Adata(new libmaus2::autoarray::AutoArray<char>);
+							*Adata = libmaus2::autoarray::AutoArray<char>::readFile(datasrc);
+
+							Mtrack [ trackname ] = std::pair <
+								libmaus2::autoarray::AutoArray<char>::shared_ptr_type,
+								libmaus2::autoarray::AutoArray<char>::shared_ptr_type
+							>(Aanno,Adata);
+						}
+					}
+
+					DBArrayFileSet::unique_ptr_type PAFS(new DBArrayFileSet(Adb,Aidx,Abps,Mtrack));
+
+					#if 0
+					if ( tracklist )
+					{
+						for ( uint64_t i = 0; i < tracklist->size(); ++i )
+						{
+							std::string const & trackname = tracklist->at(i);
+							std::string const annosrc = path + "/." + root + "." + trackname + ".anno";
+							std::string const datasrc = path + "/." + root + "." + trackname + ".data";
+						}
+					}
+					#endif
+
+					return UNIQUE_PTR_MOVE(PAFS);
+				}
+				static DBFileSet::unique_ptr_type copyToPrefix(
+					std::string const & s, std::string const & dstprefix, bool const registertmp = true,
+					std::vector<std::string> const * tracklist = 0
+				)
+				{
+					if ( ! libmaus2::util::GetFileSize::fileExists(s) )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToPrefix: file " << s << " does not exist or is not accessible" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					bool const isdb = endsOn(s,".db");
+					bool const isdam = endsOn(s,".dam");
+					bool const issup = isdb || isdam;
+
+					if ( ! issup )
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToPrefix: file " << s << " is not supported (file name does not end in .db or .dam)" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					std::string const path = getPath(s);
+					std::string const root = isdam ? getRoot(s,".dam") : getRoot(s,".db");
+
+					std::string dbpath;
+
+					if ( libmaus2::aio::InputStreamFactoryContainer::tryOpen(path + "/" + root + ".db") )
+						dbpath = path + "/" + root + ".db";
+					else if ( libmaus2::aio::InputStreamFactoryContainer::tryOpen(path + "/" + root + ".dam") )
+						dbpath = path + "/" + root + ".dam";
+					else
+					{
+						libmaus2::exception::LibMausException lme;
+						lme.getStream() << "DatabaseFile::copyToPrefix: cannot construct db file name" << std::endl;
+						lme.finish();
+						throw lme;
+					}
+
+					std::string const idxpath = path + "/." + root + ".idx";
+					std::string const bpspath = path + "/." + root + ".bps";
+
+					std::string const dstfn = dstprefix + "/" + root + (isdam ? ".dam" : ".db");
+					std::string const dstidx = dstprefix + "/." + root + ".idx";
+					std::string const dstbps = dstprefix + "/." + root + ".bps";
+
+					libmaus2::util::GetFileSize::copy(s,dstfn);
+					libmaus2::util::GetFileSize::copy(idxpath,dstidx);
+					libmaus2::util::GetFileSize::copy(bpspath,dstbps);
+
+					if ( tracklist )
+					{
+						for ( uint64_t i = 0; i < tracklist->size(); ++i )
+						{
+							std::string const & trackname = tracklist->at(i);
+
+							std::string const annosrc = path + "/." + root + "." + trackname + ".anno";
+							std::string const annodst = dstprefix + "/." + root + "." + trackname + ".anno";
+							std::string const datasrc = path + "/." + root + "." + trackname + ".data";
+							std::string const datadst = dstprefix + "/." + root + "." + trackname + ".data";
+
+							if ( registertmp )
+								libmaus2::util::TempFileRemovalContainer::addTempFile(annodst);
+
+							libmaus2::util::GetFileSize::copy(annosrc,annodst);
+
+							if ( registertmp )
+								libmaus2::util::TempFileRemovalContainer::addTempFile(datadst);
+
+							libmaus2::util::GetFileSize::copy(datasrc,datadst);
+						}
+					}
+
+					if ( registertmp )
+					{
+						libmaus2::util::TempFileRemovalContainer::addTempFile(dstfn);
+						libmaus2::util::TempFileRemovalContainer::addTempFile(dstidx);
+						libmaus2::util::TempFileRemovalContainer::addTempFile(dstbps);
+					}
+
+					DBFileSet::unique_ptr_type tptr(new DBFileSet(dstfn,dstidx,dstbps,registertmp));
+
+					return UNIQUE_PTR_MOVE(tptr);
+				}
+
+
 				uint64_t readIdToFileId(uint64_t const readid) const
 				{
 					if ( readid >= fileoffsets.back() )
@@ -858,6 +1415,31 @@ namespace libmaus2
 					{
 						uint64_t const h = Ptrim->rank1(n-1);
 						SR.push_back(SplitResultElement(l,h,s));
+					}
+
+					return SR;
+				}
+
+				static SplitResult splitDbRL(uint64_t const maxmem, std::vector<uint64_t> const & RL)
+				{
+					SplitResult SR;
+
+					if ( RL.size() )
+					{
+						uint64_t low = 0;
+
+						while ( low < RL.size() )
+						{
+							uint64_t s = RL[low];
+							uint64_t high = low+1;
+
+							while ( high < RL.size() && s+RL[high] <= maxmem )
+								s += RL[high++];
+
+							SR.push_back(SplitResultElement(low,high,s));
+
+							low = high;
+						}
 					}
 
 					return SR;
@@ -1199,6 +1781,237 @@ namespace libmaus2
 					return std::pair<uint64_t,uint64_t>(h,m);
 				}
 
+				uint64_t getReadLengthSumInterval(uint64_t const low, uint64_t const high) const
+				{
+					libmaus2::aio::InputStream::unique_ptr_type Pidxfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(idxpath));
+					std::istream & idxfile = *Pidxfile;
+					uint64_t s = 0;
+
+					for ( uint64_t j = low; j < high; ++j )
+					{
+						uint64_t const mappedindex = Ptrim->select1(j);
+
+						if ( static_cast<int64_t>(idxfile.tellg()) != static_cast<int64_t>(indexoffset + mappedindex * Read::serialisedSize) )
+							idxfile.seekg(indexoffset + mappedindex * Read::serialisedSize);
+
+						Read const R(*Pidxfile);
+						s += R.rlen;
+					}
+
+					return s;
+				}
+
+				uint64_t getReadLengthSum() const
+				{
+					return getReadLengthSumInterval(0,size());
+				}
+
+				double getAverageReadLength() const
+				{
+					return static_cast<double>(getReadLengthSum()) / size();
+				}
+
+				template<typename it>
+				uint64_t getReadLengthArray(uint64_t const low, uint64_t const high, it A) const
+				{
+					libmaus2::aio::InputStream::unique_ptr_type Pidxfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(idxpath));
+					std::istream & idxfile = *Pidxfile;
+
+					uint64_t maxlen = 0;
+					for ( uint64_t j = low; j < high; ++j )
+					{
+						uint64_t const mappedindex = Ptrim->select1(j);
+
+						if ( static_cast<int64_t>(idxfile.tellg()) != static_cast<int64_t>(indexoffset + mappedindex * Read::serialisedSize) )
+							idxfile.seekg(indexoffset + mappedindex * Read::serialisedSize);
+
+						Read const R(*Pidxfile);
+						A[j-low] = R.rlen;
+						maxlen = std::max(maxlen,static_cast<uint64_t>(R.rlen));
+					}
+
+					return maxlen;
+				}
+
+				template<typename it>
+				uint64_t getReadLengthArrayParallel(
+					uint64_t const low,
+					uint64_t const high,
+					it A,
+					uint64_t const numthreads
+				) const
+				{
+					uint64_t const size = high-low;
+					uint64_t const packsize = (size + numthreads - 1)/numthreads;
+					uint64_t maxlen = 0;
+					libmaus2::parallel::PosixSpinLock lock;
+
+					#if defined(_OPENMP)
+					#pragma omp parallel for schedule(dynamic,1) num_threads(numthreads)
+					#endif
+					for ( uint64_t t = 0; t < numthreads; ++t )
+					{
+						uint64_t const l = std::min(low + t * packsize,high);
+						uint64_t const h = std::min(l + packsize,high);
+						uint64_t const lmaxlen = getReadLengthArray(l,h,A + (l-low));
+
+						lock.lock();
+						maxlen = std::max(maxlen,lmaxlen);
+						lock.unlock();
+					}
+
+					return maxlen;
+				}
+
+				template<typename it>
+				uint64_t getReadLengthArrayParallel(it A, uint64_t const numthreads) const
+				{
+					uint64_t const low = 0;
+					uint64_t const high = size();
+					uint64_t const size = high-low;
+					uint64_t const packsize = (size + numthreads - 1)/numthreads;
+					uint64_t maxlen = 0;
+					libmaus2::parallel::PosixSpinLock lock;
+
+					#if defined(_OPENMP)
+					#pragma omp parallel for schedule(dynamic,1) num_threads(numthreads)
+					#endif
+					for ( uint64_t t = 0; t < numthreads; ++t )
+					{
+						uint64_t const l = std::min(low + t * packsize,high);
+						uint64_t const h = std::min(l + packsize,high);
+						uint64_t const lmaxlen = getReadLengthArray(l,h,A + (l-low));
+
+						lock.lock();
+						maxlen = std::max(maxlen,lmaxlen);
+						lock.unlock();
+					}
+
+					return maxlen;
+				}
+
+				libmaus2::autoarray::AutoArray<uint64_t> getReadLengthArrayParallel(uint64_t const numthreads) const
+				{
+					libmaus2::autoarray::AutoArray<uint64_t> A(size(),false);
+					getReadLengthArrayParallel(A.begin(),numthreads);
+					return A;
+				}
+
+				struct ReadDataRange
+				{
+					typedef ReadDataRange this_type;
+					typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+					typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+
+					libmaus2::autoarray::AutoArray<uint8_t> D;
+					libmaus2::autoarray::AutoArray<uint64_t> L;
+					uint64_t n;
+					uint64_t maxlen;
+
+					uint64_t byteSize() const
+					{
+						return D.byteSize() + L.byteSize() + sizeof(n) + sizeof(maxlen);
+					}
+
+					ReadDataRange() : n(0), maxlen(0) {}
+
+					std::string operator[](uint64_t const i) const
+					{
+						std::pair<uint8_t const *, uint8_t const *> P = get(i);
+						return std::string(P.first,P.second);
+					}
+
+					std::pair<uint8_t const *, uint8_t const *> get(uint64_t const i) const
+					{
+						assert ( i < size() );
+
+						uint8_t const * p = D.begin() + L[i] + 2*i + 1;
+						uint64_t const l = L[i+1]-L[i];
+
+						return std::pair<uint8_t const *, uint8_t const *>(p,p + l);
+					}
+
+					uint64_t size() const
+					{
+						return n;
+					}
+				};
+
+				template<bool rc>
+				void decodeReadDataInterval(
+					ReadDataRange & R,
+					uint64_t const base,
+					uint64_t const low,
+					uint64_t const high,
+					uint8_t const termval
+				) const
+				{
+					libmaus2::aio::InputStream::unique_ptr_type Pidxfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(idxpath));
+					std::istream & idxfile = *Pidxfile;
+					libmaus2::aio::InputStream::unique_ptr_type Pbasestr(openBaseStream());
+					std::istream & basestr = *Pbasestr;
+
+					uint8_t * p = R.D.begin() + R.L[low] + 2*low;
+
+					for ( uint64_t j = low; j < high; ++j )
+					{
+						uint64_t const mappedindex = Ptrim->select1(base + j);
+
+						if ( static_cast<int64_t>(idxfile.tellg()) != static_cast<int64_t>(indexoffset + mappedindex * Read::serialisedSize) )
+							idxfile.seekg(indexoffset + mappedindex * Read::serialisedSize);
+
+						Read const RE(*Pidxfile);
+
+						if ( static_cast<int64_t>(basestr.tellg()) != RE.boff )
+							basestr.seekg(RE.boff,std::ios::beg);
+
+						assert ( static_cast<int64_t>(RE.rlen) == static_cast<int64_t>(R.L[j+1] - R.L[j]) );
+
+						*(p++) = termval;
+						if ( rc )
+							decodeReadRCNoDecode(basestr,reinterpret_cast<char * >(p),RE.rlen);
+						else
+							decodeReadNoDecode(basestr,reinterpret_cast<char * >(p),RE.rlen);
+						p += RE.rlen;
+						*(p++) = termval;
+					}
+
+					assert ( p == R.D.begin() + R.L[high] + 2*high );
+				}
+
+				ReadDataRange::unique_ptr_type decodeReadIntervalParallel(
+					uint64_t const low,
+					uint64_t const high,
+					uint64_t const numthreads,
+					bool const rc,
+					uint8_t const termval
+				) const
+				{
+					ReadDataRange::unique_ptr_type tptr(new ReadDataRange);
+					tptr->n = high-low;
+					tptr->L.resize(tptr->n + 1);
+					tptr->maxlen = getReadLengthArrayParallel(low,high,tptr->L.begin(),numthreads);
+					libmaus2::util::PrefixSums::parallelPrefixSums(tptr->L.begin(),tptr->L.end(),numthreads);
+					tptr->D.resize(tptr->L[tptr->n]+2*tptr->n);
+
+					uint64_t const size = high-low;
+					uint64_t const packsize = (size+numthreads-1)/numthreads;
+					#if defined(_OPENMP)
+					#pragma omp parallel for schedule(dynamic,1) num_threads(numthreads)
+					#endif
+					for ( uint64_t i = 0; i < numthreads; ++i )
+					{
+						uint64_t const l = std::min(i*packsize,size);
+						uint64_t const h = std::min(l+packsize,size);
+						if ( rc )
+							decodeReadDataInterval<true>(*tptr,low,l,h,termval);
+						else
+							decodeReadDataInterval<false>(*tptr,low,l,h,termval);
+					}
+
+					return UNIQUE_PTR_MOVE(tptr);
+				}
+
 				template<typename iterator>
 				iterator getReadDataVectorMemInterval(
 					iterator ita, iterator ite,
@@ -1281,6 +2094,62 @@ namespace libmaus2
 						R.deserialise(*Pidxfile);
 						V[i-low] = R.rlen;
 					}
+				}
+
+				#if defined(LIBMAUS2_HAVE_SYNC_OPS)
+				typedef ::libmaus2::bitio::SynchronousCompactArray read_length_array_type;
+				#else
+				typedef ::libmaus2::bitio::CompactArray read_length_array_type;
+				#endif
+
+				typedef read_length_array_type::unique_ptr_type read_length_array_ptr_type;
+
+				read_length_array_ptr_type getReadLengthArray(uint64_t const numthreads) const
+				{
+					uint64_t const b = libmaus2::math::numbits(indexbase.maxlen);
+					uint64_t const n = size();
+
+					uint64_t const readsperthread = (n + numthreads - 1)/numthreads;
+
+					read_length_array_ptr_type tptr(new read_length_array_type(n,b,0/*pad*/,0/*erase*/));
+
+					#if !defined(LIBMAUS2_HAVE_SYNC_OPS)
+					libmaus2::parallel::OMPLock lock;
+					#endif
+
+					#if defined(_OPENMP)
+					#pragma omp parallel for num_threads(numthreads)
+					#endif
+					for ( uint64_t t = 0; t < numthreads ; ++t )
+					{
+						uint64_t const low = t * readsperthread;
+						uint64_t const high = std::min(low+readsperthread,n);
+
+						libmaus2::aio::InputStreamInstance idxfile(idxpath);
+						libmaus2::dazzler::db::Read R;
+
+						for ( uint64_t i = low; i < high; ++i )
+						{
+							uint64_t const mappedindex = Ptrim->select1(i);
+
+							if (
+								static_cast<int64_t>(idxfile.tellg()) != static_cast<int64_t>(indexoffset + mappedindex * Read::serialisedSize)
+							)
+								idxfile.seekg(indexoffset + mappedindex * Read::serialisedSize);
+
+							R.deserialise(idxfile);
+
+							#if defined(LIBMAUS2_HAVE_SYNC_OPS)
+							tptr->set(i,R.rlen);
+							#else
+							libmaus2::parallel::ScopeLock slock(lock);
+							tptr->set(i,R.rlen);
+							#endif
+						}
+
+					}
+
+					return UNIQUE_PTR_MOVE(tptr);
 				}
 
 				void getAllReads(std::vector<Read> & V) const
@@ -1479,11 +2348,32 @@ namespace libmaus2
 					return UNIQUE_PTR_MOVE(Pbpsfile);
 				}
 
+				libmaus2::aio::InputStream::unique_ptr_type openIndexStream() const
+				{
+					libmaus2::aio::InputStream::unique_ptr_type Pidxfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(idxpath));
+					return UNIQUE_PTR_MOVE(Pidxfile);
+				}
+
 				std::string operator[](size_t const i) const
 				{
 					libmaus2::autoarray::AutoArray<char> A;
 					size_t const rlen = decodeRead(i,A);
 					return std::string(A.begin(),A.begin()+rlen);
+				}
+
+				std::basic_string<uint8_t> getu(size_t const i, bool const inv = false) const
+				{
+					libmaus2::autoarray::AutoArray<char> A;
+					size_t const rlen = decodeRead(i,A);
+
+					if ( inv )
+					{
+						std::reverse(A.begin(),A.begin()+rlen);
+						for ( size_t i = 0; i < rlen; ++i )
+							A[i] = libmaus2::fastx::invertUnmapped(A[i]);
+					}
+
+					return std::basic_string<uint8_t>(A.begin(),A.begin()+rlen);
 				}
 
 				std::string decodeRead(size_t const i, bool const inv) const
@@ -1715,6 +2605,11 @@ namespace libmaus2
 					uint64_t offset = 0;
 					int32_t tracklen = InputBase::getLittleEndianInteger4(anno,offset);
 					int32_t size = InputBase::getLittleEndianInteger4(anno,offset);
+					uint64_t const tsize = size;
+
+					// mask track
+					if ( size == 0 )
+						size = 8;
 
 					libmaus2::aio::InputStream::unique_ptr_type Pdata;
 					if ( libmaus2::aio::InputStreamFactoryContainer::tryOpen(dataname) )
@@ -1834,7 +2729,7 @@ namespace libmaus2
 					}
 					// incomplete
 
-					Track::unique_ptr_type track(new Track(trackname,PDanno,Adata));
+					Track::unique_ptr_type track(new Track(trackname,PDanno,Adata,tsize));
 
 					return UNIQUE_PTR_MOVE(track);
 				}

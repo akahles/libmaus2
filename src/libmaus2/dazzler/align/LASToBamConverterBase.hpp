@@ -214,6 +214,23 @@ namespace libmaus2
 					}
 				};
 
+				struct AuxTagCopyAddRequest : public AuxTagAddRequest
+				{
+					uint8_t const * d;
+					uint64_t l;
+
+					AuxTagCopyAddRequest() : d(0), l(0) {}
+					AuxTagCopyAddRequest(
+						uint8_t const * rd,
+						uint64_t const rl
+					) : d(rd), l(rl) {}
+
+					virtual void operator()(::libmaus2::fastx::UCharBuffer & tbuffer) const
+					{
+						tbuffer.put(d,l);
+					}
+				};
+
 				void convert(
 					// the overlap
 					uint8_t const * OVL,
@@ -517,7 +534,11 @@ namespace libmaus2
 					// buffer for storing bam record,
 					libmaus2::bambam::parallel::FragmentAlignmentBufferFragment & FABR,
 					// header
-					libmaus2::bambam::BamHeader const & bamheader
+					libmaus2::bambam::BamHeader const & bamheader,
+					// aux tag add requests
+					AuxTagAddRequest const ** aux_a,
+					// aux tag add requests end
+					AuxTagAddRequest const ** aux_e
 				)
 				{
 					// reallocate quality value buffer if necessary
@@ -567,6 +588,9 @@ namespace libmaus2
 
 					if ( rgid.size() )
 						libmaus2::bambam::BamAlignmentEncoderBase::putAuxString(tbuffer,"RG",rgid.c_str());
+
+					for ( AuxTagAddRequest const ** aux_c = aux_a; aux_c != aux_e; ++aux_c )
+						(**aux_c)(tbuffer);
 
 					FABR.pushAlignmentBlock(tbuffer.begin(),tbuffer.end() - tbuffer.begin());
 

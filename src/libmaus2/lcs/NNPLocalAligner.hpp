@@ -108,6 +108,8 @@ namespace libmaus2
 			libmaus2::autoarray::AutoArray < NNPLocalAlignerKmerMatches * > Alastnext;
 			// last position for scoring
 			libmaus2::autoarray::AutoArray < int64_t > Alastp;
+			// active band markers
+			libmaus2::autoarray::AutoArray < uint8_t > Aactive;
 
 			// maximum number of matches to be stored/computed
 			uint64_t const maxmatches;
@@ -152,6 +154,24 @@ namespace libmaus2
 			libmaus2::autoarray::AutoArray< uint64_t > Ashare;
 			libmaus2::autoarray::AutoArray< uint8_t > Amodified;
 
+			struct HeapResultComparator
+			{
+				bool operator()(
+					std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type> const & A,
+					std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type> const & B) const
+				{
+					int64_t const la = A.first.aepos-A.first.abpos;
+					int64_t const lb = B.first.aepos-B.first.abpos;
+					return la < lb;
+				}
+			};
+
+			uint64_t const maxalign;
+			libmaus2::util::FiniteSizeHeap<
+				std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type>,
+				HeapResultComparator
+			> AQ;
+
 			/**
 			 * local aligner constructor
 			 *
@@ -165,7 +185,10 @@ namespace libmaus2
 				unsigned int const ranak,
 				uint64_t const rmaxmatches,
 				int64_t const rminbandscore,
-				int64_t const rminlength
+				int64_t const rminlength,
+				uint64_t const rmaxalign = std::numeric_limits<uint64_t>::max(),
+				unsigned int const rmaxwerr = NNP::getDefaultMaxWindowError(),
+				int64_t const rmaxback = NNP::getDefaultMaxBack()
 			)
 			:
 				bucketlog(rbucketlog),
@@ -177,8 +200,11 @@ namespace libmaus2
 				Ahistlow(histlow+1),
 				minbandscore(rminbandscore),
 				minlength(rminlength),
+				nnp(rmaxwerr,rmaxback),
 				Q(1024),
-				alloccount(0)
+				alloccount(0),
+				maxalign(rmaxalign),
+				AQ(0)
 			{
 				assert ( anak );
 			}
@@ -868,6 +894,7 @@ namespace libmaus2
 					Alastp.ensureSize(allocbuckets);
 					Alastscore.ensureSize(allocbuckets);
 					Alastnext.ensureSize(allocbuckets);
+					Aactive.ensureSize(allocbuckets);
 
 					uint64_t const newsize = Alasta.size();
 
@@ -875,6 +902,7 @@ namespace libmaus2
 					std::fill(Alastp.begin() + oldsize,     Alastp.begin() + newsize    , -static_cast<int64_t>(2*anak));
 					std::fill(Alastscore.begin() + oldsize, Alastscore.begin() + newsize, 0);
 					std::fill(Alastnext.begin() + oldsize,  Alastnext.begin()+newsize   , lastnextnull);
+					std::fill(Aactive.begin() + oldsize,     Aactive.begin() + newsize    , 0                            );
 				}
 
 				#if 0
@@ -895,6 +923,7 @@ namespace libmaus2
 				int64_t * const lastp = Alastp.begin() - (minbucket-1);
 				uint64_t * const lastscore = Alastscore.begin() - (minbucket-1);
 				NNPLocalAlignerKmerMatches ** const lastnext = Alastnext.begin() - (minbucket-1);
+				uint8_t * const active = Aactive.begin() - (minbucket-1);
 
 				#if 0
 				// check seeds
@@ -938,10 +967,22 @@ namespace libmaus2
 					m_c->score = lastscore[bucket-1] + lastscore[bucket] + lastscore[bucket+1];
 					m_c->next = lastnext[bucket];
 
-					if ( (! lastnext[bucket]) && m_c->score >= minbandscore )
-						++activebands;
+					if ( m_c->score >= minbandscore )
+						active[bucket] = 1;
 
 					lastnext[bucket] = &cur;
+				}
+
+				for ( NNPLocalAlignerKmerMatches * m_c = m_e; m_c != m_a; )
+				{
+					NNPLocalAlignerKmerMatches & cur = *(--m_c);
+					int64_t const bucket = cur.getDiag() >> bucketlog;
+
+					if ( active[bucket] )
+					{
+						activebands++;
+						active[bucket] = 0;
+					}
 				}
 
 				Q.ensureSize(activebands);
@@ -1044,7 +1085,6 @@ namespace libmaus2
 							ldbmin = std::min(ldbmin,DB.first);
 							ldbmax = std::max(ldbmax,DB.second);
 
-
 							#if 0
 							tracecontainer.printTraceLines(
 								std::cerr,
@@ -1057,17 +1097,46 @@ namespace libmaus2
 							);
 							#endif
 
-							libmaus2::lcs::NNPTraceContainer::shared_ptr_type tracecopy = getAlignment();
-							tracecopy->copyFrom(tracecontainer);
-
-							VR.push_back(
-								std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type>(
-									algnres,
-									tracecopy
+							if (
+								AQ.f < maxalign
+								||
+								(
+									AQ.f == maxalign
+									&&
+									(
+										static_cast<int64_t>(algnres.aepos - algnres.abpos)
+										>
+										static_cast<int64_t>(AQ.top().first.aepos - AQ.top().first.abpos)
+									)
 								)
-							);
+							)
+							{
+								if ( AQ.f == maxalign )
+								{
+									std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type> P = AQ.pop();
+									returnAlignment(P);
+								}
+
+								assert ( AQ.f < maxalign );
+
+								libmaus2::lcs::NNPTraceContainer::shared_ptr_type tracecopy = getAlignment();
+								tracecopy->copyFrom(tracecontainer);
+
+								AQ.pushBump(
+									std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type>(
+										algnres,
+										tracecopy
+									)
+								);
+							}
 						}
 					}
+				}
+
+				while ( !AQ.empty() )
+				{
+					std::pair<libmaus2::lcs::NNPAlignResult,libmaus2::lcs::NNPTraceContainer::shared_ptr_type> P = AQ.pop();
+					VR.push_back(P);
 				}
 
 				// reset lastp, lastscore, lastnext, lasta

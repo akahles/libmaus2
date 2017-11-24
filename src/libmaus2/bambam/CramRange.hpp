@@ -20,6 +20,7 @@
 #define LIBMAUS2_BAMBAM_CRAMRANGE_HPP
 
 #include <string>
+#include <cassert>
 #include <libmaus2/exception/LibMausException.hpp>
 #include <libmaus2/types/types.hpp>
 
@@ -76,7 +77,7 @@ namespace libmaus2
 			CramRange(std::string const & range)
 			: rangeref(), rangestart(-1), rangeend(-1)
 			{
-				std::size_t const colpos = range.find(":");
+				std::size_t const colpos = range.find_last_of(':');
 				// just ref seq name
 				if ( colpos == std::string::npos )
 				{
@@ -87,7 +88,6 @@ namespace libmaus2
 				else
 				{
 					rangeref = range.substr(0,colpos);
-
 					std::string rangerest = range.substr(colpos+1);
 					std::size_t const minpos = rangerest.find("-");
 

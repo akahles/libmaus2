@@ -469,7 +469,10 @@ namespace libmaus2
 					std::string const & rtempfileprefix,
 					std::string const & rhash,
 					bool const rfixmates = true,
-					bool const rdupmarksupport = true
+					bool const rdupmarksupport = true,
+					unsigned int const roptminpixeldif = 100,
+					uint64_t const rparsebuffersize = getParseBufferSize(),
+					bool const rrcsupport = true
 				)
 				:
 					procrtc(true),
@@ -490,7 +493,7 @@ namespace libmaus2
 					BLMCWPDid(STP.getNextDispatcherId()),
 					WBWPD(*this,*this,*this),
 					WBWPDid(STP.getNextDispatcherId()),
-					FABRWPD(*this,*this,*this,*this,rfixmates /* fix mates */,rdupmarksupport /* dup mark support */),
+					FABRWPD(*this,*this,*this,*this,rfixmates /* fix mates */,rdupmarksupport /* dup mark support */,rrcsupport /* add rc tag */),
 					FABRWPDid(STP.getNextDispatcherId()),
 					FABROWPD(*this,*this),
 					FABROWPDid(STP.getNextDispatcherId()),
@@ -504,7 +507,7 @@ namespace libmaus2
 					PRECFWPDid(STP.getNextDispatcherId()),
 					FREMWPD(*this,*this,*this),
 					FREMWPDid(STP.getNextDispatcherId()),
-					PREMWPD(*this,*this,*this),
+					PREMWPD(*this,*this,*this,roptminpixeldif),
 					PREMWPDid(STP.getNextDispatcherId()),
 					SPWPD(*this,*this,*this,*this,*this),
 					SPWPDid(STP.getNextDispatcherId()),
@@ -514,7 +517,7 @@ namespace libmaus2
 					parseBlockFreeList(
 						new parse_block_free_list_type(
 							std::min(STP.getNumThreads(),static_cast<uint64_t>(8)),
-							AlignmentBufferAllocator(getParseBufferSize(),1 /* pointer multiplier */)
+							AlignmentBufferAllocator(rparsebuffersize,1 /* pointer multiplier */)
 						)
 					),
 					lastParseBlockSeen(false),
@@ -878,6 +881,7 @@ namespace libmaus2
 								SPP,
 								deblock
 							);
+							package->subid = SPP.absid;
 							STP.enque(package);
 						}
 					}
@@ -963,6 +967,7 @@ namespace libmaus2
 							libmaus2::bambam::parallel::GenericInputControlReadWorkPackage * package = genericInputReadWorkPackages.getPackage();
 							*package = libmaus2::bambam::parallel::GenericInputControlReadWorkPackage(
 								0 /* prio */, GICRPDid, &inputreadbase);
+							package->subid = inputreadbase.getBlockId();
 							STP.enque(package);
 						}
 				}
@@ -1114,7 +1119,8 @@ namespace libmaus2
 					for ( uint64_t i = 0; i < V.size(); ++i )
 					{
 						FragReadEndsContainerFlushWorkPackage * pack = fragReadContainerFlushPackages.getPackage();
-						*pack = FragReadEndsContainerFlushWorkPackage(V[i],0,FRECFWPDid);
+						*pack = FragReadEndsContainerFlushWorkPackage(V[i],0 /* prio */,FRECFWPDid);
+						pack->subid = i;
 						STP.enque(pack);
 					}
 				}
@@ -1127,7 +1133,8 @@ namespace libmaus2
 					for ( uint64_t i = 0; i < V.size(); ++i )
 					{
 						PairReadEndsContainerFlushWorkPackage * pack = pairReadContainerFlushPackages.getPackage();
-						*pack = PairReadEndsContainerFlushWorkPackage(V[i],0,PRECFWPDid);
+						*pack = PairReadEndsContainerFlushWorkPackage(V[i],0 /* prio */,PRECFWPDid);
+						pack->subid = i;
 						STP.enque(pack);
 					}
 				}
@@ -1285,6 +1292,7 @@ namespace libmaus2
 						ReadEndsMergeRequest req(Pdupbitvec.get(),MI,SMI[i]);
 						FragReadEndsMergeWorkPackage * package = fragReadEndsMergeWorkPackages.getPackage();
 						*package = FragReadEndsMergeWorkPackage(req,0/*prio*/,FREMWPDid);
+						package->subid = i;
 						STP.enque(package);
 					}
 					if ( verbose )
@@ -1344,6 +1352,7 @@ namespace libmaus2
 						ReadEndsMergeRequest req(Pdupbitvec.get(),MI,SMI[i]);
 						PairReadEndsMergeWorkPackage * package = pairReadEndsMergeWorkPackages.getPackage();
 						*package = PairReadEndsMergeWorkPackage(req,0/*prio*/,PREMWPDid);
+						package->subid = i;
 						STP.enque(package);
 					}
 					if ( verbose )
@@ -1819,6 +1828,7 @@ namespace libmaus2
 				{
 					libmaus2::bambam::parallel::GenericInputControlReadWorkPackage * package = genericInputReadWorkPackages.getPackage();
 					*package = libmaus2::bambam::parallel::GenericInputControlReadWorkPackage(0 /* prio */, GICRPDid, &inputreadbase);
+					package->subid = 0; // serial, so no subid required for prioritising
 					STP.enque(package);
 				}
 
@@ -2009,6 +2019,7 @@ namespace libmaus2
 							&parseInfo,
 							PBWPDid
 						);
+						package->subid = obj.first;
 						STP.enque(package);
 					}
 					// do we have a buffer in the free list
@@ -2035,6 +2046,7 @@ namespace libmaus2
 							&parseInfo,
 							PBWPDid
 						);
+						package->subid = obj.first;
 						STP.enque(package);
 					}
 					#if 1
@@ -2122,6 +2134,7 @@ namespace libmaus2
 						uint64_t const high = std::min((p+1)*readsPerPackage,f);
 						ValidateBlockFragmentWorkPackage * package = validateBlockFragmentWorkPackages.getPackage();
 						*package = ValidateBlockFragmentWorkPackage(0/*prio*/,ValidationFragment(low,high,algn),VBFWPDid);
+						package->subid = algn->id;
 						STP.enque(package);
 					}
 				}
@@ -2291,6 +2304,7 @@ namespace libmaus2
 					{
 						WriteBlockWorkPackage * package = writeWorkPackages.getPackage();
 						*package = WriteBlockWorkPackage(0,writePendingQueue.top(),WBWPDid);
+						package->subid = 0; // serial, so no prioritising necessary
 						writePendingQueue.pop();
 						STP.enque(package);
 						// enque work package
@@ -2364,7 +2378,9 @@ namespace libmaus2
 							if ( haveObject )
 							{
 								BgzfLinearMemCompressWorkPackage * package = bgzfWorkPackages.getPackage();
-								*package = BgzfLinearMemCompressWorkPackage(0,obj,obuf,BLMCWPDid);
+								*package = BgzfLinearMemCompressWorkPackage(0 /* priority */,obj,obuf,BLMCWPDid);
+								assert ( obj.blockid >= - 1 );
+								package->subid = static_cast<uint64_t>(obj.blockid+1) || obj.subid;
 								STP.enque(package);
 							}
 							else
@@ -2547,6 +2563,7 @@ namespace libmaus2
 								{
 									libmaus2::bambam::parallel::FragmentAlignmentBufferReorderWorkPackage * pack = reorderPackages.getPackage();
 									*pack = libmaus2::bambam::parallel::FragmentAlignmentBufferReorderWorkPackage(reqs[i],0 /* prio */,FABROWPDid);
+									pack->subid = (FAB->id << 32) | i;
 									STP.enque(pack);
 								}
 
@@ -2693,6 +2710,7 @@ namespace libmaus2
 										parseInfo.Pheader.get(),
 										FABRWPDid
 									);
+									pack->subid = (algn->id << 32) | j;
 
 									STP.enque(pack);
 								}

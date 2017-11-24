@@ -50,13 +50,19 @@ void testBgzfRandom()
 	std::istringstream ristr(zostr.str());
 	::libmaus2::lz::BgzfInflateStream rSW(ristr);
 	int c = 0;
+	#if ! defined(NDEBUG)
 	uint64_t rp = 0;
+	#endif
 	while ( (c=rSW.get()) >= 0 )
 	{
+		#if ! defined(NDEBUG)
 		assert ( rp < R.size() );
 		assert ( c == R[rp++] );
+		#endif
 	}
+	#if ! defined(NDEBUG)
 	assert ( rp == R.size() );
+	#endif
 }
 
 void testBgzfMono()
@@ -73,13 +79,19 @@ void testBgzfMono()
 	std::istringstream ristr(zostr.str());
 	::libmaus2::lz::BgzfInflateStream rSW(ristr);
 	int c = 0;
+	#if ! defined(NDEBUG)
 	uint64_t rp = 0;
+	#endif
 	while ( (c=rSW.get()) >= 0 )
 	{
+		#if ! defined(NDEBUG)
 		assert ( rp < R.size() );
 		assert ( c == R[rp++] );
+		#endif
 	}
+	#if ! defined(NDEBUG)
 	assert ( rp == R.size() );
+	#endif
 }
 
 #include <libmaus2/lz/BgzfInflateParallelStream.hpp>
@@ -191,6 +203,7 @@ void maskBamDuplicateFlag(std::istream & in, std::ostream & out, bool const verb
 					*pa &= dupflagmask;
 					state = state_post_skip;
 					// intented fall through to post_skip case
+					libmaus2_fallthrough;
 				/* skip data after part we modify */
 				case state_post_skip:
 				{
@@ -269,10 +282,14 @@ void testlz4()
 			int c;
 			dec.clear();
 			dec.seekg(i);
+			#if ! defined(NDEBUG)
 			uint64_t j = i;
+			#endif
 			while ( (c=dec.get()) > 0 )
 			{
+				#if ! defined(NDEBUG)
 				assert ( c == static_cast<uint8_t>(C[j++]) );
+				#endif
 			}
 		}
 
@@ -280,10 +297,14 @@ void testlz4()
 		int c;
 		dec.clear();
 		dec.seekg(i);
+		#if ! defined(NDEBUG)
 		uint64_t j = i;
+		#endif
 		while ( (c=dec.get()) > 0 )
 		{
+			#if ! defined(NDEBUG)
 			assert ( c == static_cast<uint8_t>(C[j++]) );
+			#endif
 		}
 	}
 
@@ -308,7 +329,9 @@ void testlz4()
 void testGzip()
 {
 	libmaus2::aio::InputStreamInstance CIS("configure");
+	#if ! defined(NDEBUG)
 	uint64_t t = 0;
+	#endif
 	std::ostringstream ostr;
 	{
 		libmaus2::lz::GzipOutputStream GZOS(ostr);
@@ -316,13 +339,18 @@ void testGzip()
 		while ( ( c = CIS.get() ) >= 0 )
 			GZOS.put(c);
 
-		t = GZOS.terminate();
+		#if ! defined(NDEBUG)
+		t =
+		#endif
+			GZOS.terminate();
 	}
 
 	CIS.clear();
 	CIS.seekg(0);
 
+	#if ! defined(NDEBUG)
 	assert ( t == ostr.str().size() );
+	#endif
 
 	std::istringstream istr(ostr.str());
 	libmaus2::lz::BufferedGzipStream BGS(istr);
@@ -330,8 +358,13 @@ void testGzip()
 	int c = -1;
 	while ( (c=CIS.get()) >= 0 )
 	{
-		int d = BGS.get();
+		#if ! defined(NDEBUG)
+		int d =
+		#endif
+			BGS.get();
+		#if ! defined(NDEBUG)
 		assert ( d == c );
+		#endif
 	}
 	assert ( BGS.get() < 0 );
 }
@@ -530,8 +563,13 @@ int main(int argc, char *argv[])
 	uint64_t const decpos = message.size() / 3;
 	::libmaus2::lz::BlockInflate BI(testfilename,decpos);
 	::libmaus2::autoarray::AutoArray<uint8_t> dmessage (message.size(),false);
-	uint64_t const red = BI.read(dmessage.begin()+decpos,dmessage.size());
+	#if ! defined(NDEBUG)
+	uint64_t const red =
+	#endif
+		BI.read(dmessage.begin()+decpos,dmessage.size());
+	#if ! defined(NDEBUG)
 	assert ( red == dmessage.size()-decpos );
+	#endif
 
 	std::cerr << "(";
 	for ( uint64_t i = decpos; i < message.size(); ++i )

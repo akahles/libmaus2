@@ -19,6 +19,7 @@
 #if ! defined(LIBMAUS2_BAMBAM_BAMALIGNMENTDECODERBASE_HPP)
 #define LIBMAUS2_BAMBAM_BAMALIGNMENTDECODERBASE_HPP
 
+#include <libmaus2/bambam/CigarDecoder.hpp>
 #include <libmaus2/bambam/BamAuxSortingBuffer.hpp>
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/bambam/AlignmentValidity.hpp>
@@ -402,6 +403,42 @@ namespace libmaus2
 
 					return p;
 				}
+			}
+
+			template<typename data_type>
+			static uint64_t putNumberDecimal(libmaus2::autoarray::AutoArray<data_type> & A, uint64_t o, uint64_t rank)
+			{
+				if ( ! rank )
+				{
+					A.push(o,'0');
+				}
+				else
+				{
+					// 20 decimal digits is enough for a 64 bit number
+					#if defined(_MSC_VER) || defined(__MINGW32__)
+					uint8_t * S = reinterpret_cast<uint8_t *>(_alloca(20));
+					#else
+					uint8_t * S = reinterpret_cast<uint8_t *>(alloca(20));
+					#endif
+
+					uint8_t * SA = S;
+
+					// generate digits
+					while ( rank )
+					{
+						*(S++) = rank % 10;
+						rank /= 10;
+					}
+
+					assert ( ! rank );
+
+					// write them out
+					while ( S != SA )
+						A.push(o,(*(--S)) + '0');
+				}
+
+				return o;
+
 			}
 
 			/**
@@ -977,7 +1014,7 @@ namespace libmaus2
 						if ( getPos(D) < 0 )
 							return 4680; // reg2bin(-1,0)
 						else
-							return BamAlignmentReg2Bin::reg2bin(getPos(D),0);
+							return BamAlignmentReg2Bin::reg2bin(getPos(D),getPos(D)+1);
 					}
 					else
 						// compute bin from alignment data
@@ -1048,6 +1085,22 @@ namespace libmaus2
 			 * @return code of i'th cigar operation from D
 			 **/
 			static uint32_t getCigarFieldOp(uint8_t const * D, uint64_t const i) {  return (getCigarField(D,i) >> 0) & ((1ull<<(4))-1); }
+
+			/**
+			 * get a CIGAR vector decoder for an alignment block
+			 *
+			 * @param D alignment block
+			 * @return cigar decoder
+			 **/
+			static CigarRunLengthDecoder getCigarRunLengthDecoder(uint8_t const * D)
+			{
+				return CigarRunLengthDecoder(getCigar(D),getNCigar(D));
+			}
+
+			static CigarDecoder getCigarDecoder(uint8_t const * D)
+			{
+				return CigarDecoder(CigarRunLengthDecoder(getCigar(D),getNCigar(D)));
+			}
 
 			/**
 			 * get number of insertions(+)/padding(+)/deletions(-) before first matching/mismatching base
@@ -1652,6 +1705,36 @@ namespace libmaus2
 			}
 
 			/**
+			 * get number of bases clipped of the front of query sequence by cigar operations H in alignment block D
+			 *
+			 * @param D alignment block
+			 * @return number of bases clipped of the front of query sequence by cigar operations S in alignment block D
+			 **/
+			static uint64_t getFrontHardClipping(uint8_t const * D)
+			{
+				uint32_t const ncigar = getNCigar(D);
+				uint8_t const * cigar = getCigar(D);
+				uint64_t frontclip = 0;
+
+				for ( uint32_t i = 0; i < ncigar; ++i, cigar+=4 )
+				{
+					uint32_t const v = getLEInteger(cigar,4);
+					uint8_t const op = v & ((1ull<<(4))-1);
+
+					if (
+						op == libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CHARD_CLIP
+					)
+					{
+						frontclip += static_cast<int64_t>((v >> 4) & ((1ull<<(32-4))-1));
+					}
+					else
+						break;
+				}
+
+				return frontclip;
+			}
+
+			/**
 			 * get number of bases clipped of the back of the query sequence by cigar operations H or S in alignment block D
 			 *
 			 * @param D alignment block
@@ -1732,6 +1815,34 @@ namespace libmaus2
 						if ( op == libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CSOFT_CLIP )
 							backclip += static_cast<int64_t>((v >> 4) & ((1ull<<(32-4))-1));
 					}
+					else
+						break;
+				}
+
+				return backclip;
+			}
+
+			/**
+			 * get number of bases clipped of the back of the query sequence by cigar operations H in alignment block D
+			 *
+			 * @param D alignment block
+			 * @return number of bases clipped of the back of the query sequence by cigar operations S in alignment block D
+			 **/
+			static uint64_t getBackHardClipping(uint8_t const * D)
+			{
+				uint32_t const ncigar = getNCigar(D);
+				uint8_t const * cigar = getCigar(D) + 4*ncigar - 4;
+				uint64_t backclip = 0;
+
+				for ( uint32_t i = 0; i < ncigar; ++i, cigar-=4 )
+				{
+					uint32_t const v = getLEInteger(cigar,4);
+					uint8_t const op = v & ((1ull<<(4))-1);
+
+					if (
+						op == libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CHARD_CLIP
+					)
+						backclip += static_cast<int64_t>((v >> 4) & ((1ull<<(32-4))-1));
 					else
 						break;
 				}
@@ -2804,6 +2915,19 @@ namespace libmaus2
 				return std::string(A.begin(),A.begin()+seqlen);
 			}
 			/**
+			 * decode query sequence in alignment block D
+			 *
+			 * @param D alignment block
+			 * @param A output array
+			 * @return string object containing the decode query sequence
+			 **/
+			static std::string decodeReadS(uint8_t const * e)
+			{
+				::libmaus2::autoarray::AutoArray<char> A;
+				uint64_t const seqlen = decodeRead(e,A);
+				return std::string(A.begin(),A.begin()+seqlen);
+			}
+			/**
 			 * decode reverse complement of query sequence in alignment block D to array A; A is extended if it is too small;
 			 * the decoded sequence is returned as a string object
 			 *
@@ -2981,6 +3105,88 @@ namespace libmaus2
 				}
 
 				return 0;
+			}
+
+			struct AuxInfo
+			{
+				uint8_t tag[2];
+				uint64_t o;
+				uint64_t l;
+
+				AuxInfo(uint8_t const rta = 0, uint8_t const rtb = 0, uint64_t ro = 0, uint64_t rl = 0)
+				: o(ro), l(rl)
+				{
+					tag[0] = rta;
+					tag[1] = rtb;
+				}
+			};
+
+			/**
+			 * enumerate aux tags in array A; A will be resized if needed
+			 *
+			 * @param E alignment block
+			 * @param blocksize size of alignment block
+			 * @param A array for storing aux tag info
+			 * @return number of markers stored
+			 **/
+			static uint64_t enumerateAuxTags(
+				uint8_t const * E, uint64_t const blocksize,
+				libmaus2::autoarray::AutoArray < AuxInfo > & A
+			)
+			{
+				uint8_t const * aux = getAux(E);
+				uint64_t cnt = 0;
+
+				while ( aux < E+blocksize )
+				{
+					if ( cnt == A.size() )
+						A.resize(std::max(static_cast<uint64_t>(1),2*A.size()));
+
+					assert ( cnt < A.size() );
+
+					uint64_t l = getAuxLength(aux);
+
+					A[cnt++] = AuxInfo(aux[0],aux[1],aux-E,l);
+
+					aux = aux + l;
+				}
+
+				return cnt;
+			}
+
+			/**
+			 * enumerate aux tags in array A; A will be resized if needed
+			 *
+			 * @param E alignment block
+			 * @param blocksize size of alignment block
+			 * @param A array for storing aux tag info
+			 * @return number of markers stored
+			 **/
+			static uint64_t enumerateAuxTagsFilterOut(
+				uint8_t const * E, uint64_t const blocksize,
+				libmaus2::autoarray::AutoArray < AuxInfo > & A,
+				BamAuxFilterVector const & tags
+			)
+			{
+				uint8_t const * aux = getAux(E);
+				uint64_t cnt = 0;
+
+				while ( aux < E+blocksize )
+				{
+					uint64_t l = getAuxLength(aux);
+
+					if ( !tags(aux[0],aux[1]) )
+					{
+						if ( cnt == A.size() )
+							A.resize(std::max(static_cast<uint64_t>(1),2*A.size()));
+						assert ( cnt < A.size() );
+						A[cnt++] = AuxInfo(aux[0],aux[1],aux-E,l);
+					}
+
+					aux = aux + l;
+				}
+
+				return cnt;
 			}
 
 			/**
@@ -3161,6 +3367,8 @@ namespace libmaus2
 
 						for ( uint64_t i = 0; i < l; ++i, q += 1 )
 							V.push_back(static_cast<int8_t>(*q));
+
+						break;
 					}
 					case 'C':
 					{
@@ -3168,6 +3376,8 @@ namespace libmaus2
 
 						for ( uint64_t i = 0; i < l; ++i, q += 1 )
 							V.push_back(static_cast<uint8_t>(*q));
+
+						break;
 					}
 					case 's':
 					{
@@ -3180,6 +3390,8 @@ namespace libmaus2
 									(static_cast<uint16_t>(q[1]) << 8)
 								)
 							);
+
+						break;
 					}
 					case 'S':
 					{
@@ -3192,6 +3404,8 @@ namespace libmaus2
 									(static_cast<uint16_t>(q[1]) << 8)
 								)
 							);
+
+						break;
 					}
 					case 'i':
 					{
@@ -3206,6 +3420,8 @@ namespace libmaus2
 									(static_cast<uint32_t>(q[3]) << 24)
 								)
 							);
+
+						break;
 					}
 					case 'I':
 					{
@@ -3220,6 +3436,8 @@ namespace libmaus2
 									(static_cast<uint32_t>(q[3]) << 24)
 								)
 							);
+
+						break;
 					}
 					case 'f':
 					{
@@ -3239,6 +3457,8 @@ namespace libmaus2
 							np.uvalue = v;
 							V.push_back ( np.fvalue );
 						}
+
+						break;
 					}
 					default:
 					{
@@ -3818,7 +4038,9 @@ namespace libmaus2
 				ostr.write(rn,lrn);
 				ostr.put('\t');
 
-				printNumber16(ostr,flags);
+				printNumber16(ostr,
+					(flags & (~libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FCIGAR32))
+				);
 				ostr.put('\t');
 
 				char const * refidname = header.getRefIDName(getRefID(E));
@@ -4041,6 +4263,7 @@ namespace libmaus2
 				decodeRead(B, readdata);
 				char const * it_r = readdata.begin();
 				uint64_t readpos = 0;
+				uint64_t cigoff = 0;
 
 				for ( ; i < numcigin && (! calmd_preterm[cigopin[i].first]); ++i )
 				{
@@ -4048,6 +4271,7 @@ namespace libmaus2
 					int32_t const len = cigopin[i].second;
 					readpos += calmd_readadvance[op] * len;
 					it_r += calmd_readadvance[op] * len;
+					cigoff += len;
 				}
 
 				std::vector< PileVectorElement > Vout;
@@ -4071,7 +4295,8 @@ namespace libmaus2
 									-len+i,
 									readpos+i,
 									static_cast<int32_t>(readdata.size() - (readpos+i)) - 1,
-									it_r[i]
+									it_r[i],
+									cigoff++
 								);
 								Vout.push_back(PP);
 							}
@@ -4081,7 +4306,7 @@ namespace libmaus2
 						{
 							for ( int64_t i = 0; i < len; ++i )
 							{
-								PileVectorElement PP(refid,readid,refpos+i,0,readpos,static_cast<int32_t>(readdata.size()-readpos)-1,'-');
+								PileVectorElement PP(refid,readid,refpos+i,0,readpos,static_cast<int32_t>(readdata.size()-readpos)-1,'-',cigoff++);
 								Vout.push_back(PP);
 							}
 							break;
@@ -4100,12 +4325,16 @@ namespace libmaus2
 									0,
 									readpos+i,
 									static_cast<int32_t>(readdata.size() - (readpos+i)) - 1,
-									it_r[i]
+									it_r[i],
+									cigoff++
 								);
 								Vout.push_back(PP);
 							}
 							break;
 						}
+						default:
+							cigoff += len;
+							break;
 					}
 
 					refpos += calmd_refadvance[op] * len;
@@ -4115,6 +4344,141 @@ namespace libmaus2
 				}
 
 				return Vout;
+			}
+
+			static uint64_t getPileVector(
+				libmaus2::autoarray::AutoArray < PileVectorElement > & Vout,
+				uint8_t const * B,
+				libmaus2::autoarray::AutoArray<cigar_operation> & cigopin,
+				libmaus2::autoarray::AutoArray<char> & readdata,
+				uint64_t const readid = 0
+			)
+			{
+				static const bool calmd_preterm[] =
+				{
+					true, // LIBMAUS2_BAMBAM_CMATCH = 0,
+					false, // LIBMAUS2_BAMBAM_CINS = 1,
+					false, // LIBMAUS2_BAMBAM_CDEL = 2,
+					false, // LIBMAUS2_BAMBAM_CREF_SKIP = 3,
+					false, // LIBMAUS2_BAMBAM_CSOFT_CLIP = 4,
+					false, // LIBMAUS2_BAMBAM_CHARD_CLIP = 5,
+					false, // LIBMAUS2_BAMBAM_CPAD = 6,
+					true, // LIBMAUS2_BAMBAM_CEQUAL = 7,
+					true // LIBMAUS2_BAMBAM_CDIFF = 8
+				};
+				static const uint8_t calmd_readadvance[] =
+				{
+					1, // LIBMAUS2_BAMBAM_CMATCH = 0,
+					1, // LIBMAUS2_BAMBAM_CINS = 1,
+					0, // LIBMAUS2_BAMBAM_CDEL = 2,
+					0, // LIBMAUS2_BAMBAM_CREF_SKIP = 3,
+					1, // LIBMAUS2_BAMBAM_CSOFT_CLIP = 4,
+					0, // LIBMAUS2_BAMBAM_CHARD_CLIP = 5,
+					0, // LIBMAUS2_BAMBAM_CPAD = 6,
+					1, // LIBMAUS2_BAMBAM_CEQUAL = 7,
+					1 // LIBMAUS2_BAMBAM_CDIFF = 8
+				};
+
+				static const uint8_t calmd_refadvance[] =
+				{
+					1, // LIBMAUS2_BAMBAM_CMATCH = 0,
+					0, // LIBMAUS2_BAMBAM_CINS = 1,
+					1, // LIBMAUS2_BAMBAM_CDEL = 2,
+					1, // LIBMAUS2_BAMBAM_CREF_SKIP = 3,
+					0, // LIBMAUS2_BAMBAM_CSOFT_CLIP = 4,
+					0, // LIBMAUS2_BAMBAM_CHARD_CLIP = 5,
+					0, // LIBMAUS2_BAMBAM_CPAD = 6,
+					1, // LIBMAUS2_BAMBAM_CEQUAL = 7,
+					1 // LIBMAUS2_BAMBAM_CDIFF = 8
+				};
+
+				uint32_t const numcigin = getCigarOperations(B,cigopin);
+				uint64_t i = 0;
+				int64_t refpos = getPos(B);
+				int64_t const refid = getRefID(B);
+				decodeRead(B, readdata);
+				char const * it_r = readdata.begin();
+				uint64_t readpos = 0;
+				uint64_t cigoff = 0;
+
+				for ( ; i < numcigin && (! calmd_preterm[cigopin[i].first]); ++i )
+				{
+					int32_t const op = cigopin[i].first;
+					int32_t const len = cigopin[i].second;
+					readpos += calmd_readadvance[op] * len;
+					it_r += calmd_readadvance[op] * len;
+					cigoff += len;
+				}
+
+				uint64_t o = 0;
+				for ( ; i < numcigin; ++i )
+				{
+					int32_t const op = cigopin[i].first;
+					int32_t const len = cigopin[i].second;
+
+					switch ( op )
+					{
+						case libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CINS:
+						{
+							for ( int64_t i = 0; i < len; ++i )
+							{
+								PileVectorElement PP
+								(
+									refid,
+									readid,
+									refpos,
+									-len+i,
+									readpos+i,
+									static_cast<int32_t>(readdata.size() - (readpos+i)) - 1,
+									it_r[i],
+									cigoff++
+								);
+								Vout.push(o,PP);
+							}
+							break;
+						}
+						case libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CDEL:
+						{
+							for ( int64_t i = 0; i < len; ++i )
+							{
+								PileVectorElement PP(refid,readid,refpos+i,0,readpos,static_cast<int32_t>(readdata.size()-readpos)-1,'-',cigoff++);
+								Vout.push(o,PP);
+							}
+							break;
+						}
+						case libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CMATCH:
+						case libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CEQUAL:
+						case libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_CDIFF:
+						{
+							for ( int64_t i = 0; i < len; ++i )
+							{
+								PileVectorElement PP
+								(
+									refid,
+									readid,
+									refpos+i,
+									0,
+									readpos+i,
+									static_cast<int32_t>(readdata.size() - (readpos+i)) - 1,
+									it_r[i],
+									cigoff++
+								);
+								Vout.push(o,PP);
+							}
+							break;
+						}
+						default:
+							cigoff += len;
+							break;
+					}
+
+					refpos += calmd_refadvance[op] * len;
+					readpos += calmd_readadvance[op] * len;
+					// itref += calmd_refadvance[op] * len;
+					it_r += calmd_readadvance[op] * len;
+				}
+
+				return o;
 			}
 
 			template<typename it_a>
@@ -4243,7 +4607,7 @@ namespace libmaus2
 				}
 
 				assert ( readpos == getLseq(B) );
-				assert ( refpos == getPos(B) + getReferenceAdvance(B) );
+				assert ( refpos == static_cast<int64_t>(getPos(B)) + static_cast<int64_t>(getReferenceAdvance(B)) );
 
 				if ( Vout.size() > cigopin.size() )
 					cigopin.resize(Vout.size());
@@ -5164,10 +5528,22 @@ namespace libmaus2
 			 **/
 			static uint64_t computeBin(uint8_t const * D)
 			{
-				uint64_t const rbeg = getPos(D);
-				uint64_t const rend = rbeg + getReferenceLength(D);
-				uint64_t const bin = ::libmaus2::bambam::BamAlignmentReg2Bin::reg2bin(rbeg,rend);
-				return bin;
+				uint16_t const flags = getFlags(D);
+				int64_t const rbeg = getPos(D);
+
+				if ( flags & LIBMAUS2_BAMBAM_FUNMAP )
+				{
+					if ( rbeg < 0 )
+						return 4680; // reg2bin(-1,0)
+					else
+						return ::libmaus2::bambam::BamAlignmentReg2Bin::reg2bin(rbeg,rbeg+1);
+				}
+				else
+				{
+					uint64_t const rend = rbeg + getReferenceLength(D);
+					uint64_t const bin = ::libmaus2::bambam::BamAlignmentReg2Bin::reg2bin(rbeg,rend);
+					return bin;
+				}
 			}
 
 			/**

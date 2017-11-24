@@ -1,3 +1,1165 @@
+libmaus2 (2.0.420-1) unstable; urgency=medium
+
+  * add splitDbRL function in DatabaseFile
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 16 Nov 2017 17:17:07 +0100
+
+libmaus2 (2.0.419-1) unstable; urgency=medium
+
+  * add computeTracePart variant in OverlapData
+  * add parallel sorting options in SortingBufferedOutputFile
+  * add enumerate method in IntervalTree
+  * add subset check function in IntegerInterval
+  * add aint and bint in Path/Overlap
+  * add parallel buffer sorting option in BufferedOutput
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 16 Nov 2017 10:06:46 +0100
+
+libmaus2 (2.0.418-1) unstable; urgency=medium
+
+  * add reduceParallel method in SortingBufferedOutputFile
+  * use unit weights in suffixPositive calls of NNPCor
+  * add const modifiers in IntervalTree
+  * add NNPCorLocalAligner
+  * pass NNP arguments on construction of NNPLocalAligner
+  * loosen check on Path output
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 15 Nov 2017 11:48:54 +0100
+
+libmaus2 (2.0.417-1) unstable; urgency=medium
+
+  * add DB_ADAPTER_BEFORE and DB_ADAPTER_AFTER flags in Read class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 10 Nov 2017 13:36:56 +0100
+
+libmaus2 (2.0.416-1) unstable; urgency=medium
+
+  * turn failed assertion into exception in Overlap::computeTrace
+  * add check for correct aid in LasRangeDecoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 09 Nov 2017 20:05:40 +0100
+
+libmaus2 (2.0.415-1) unstable; urgency=medium
+
+  * add checks in Overlap class and avoid code duplication
+  * add getErrorSum in Path class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 09 Nov 2017 17:40:49 +0100
+
+libmaus2 (2.0.414-1) unstable; urgency=medium
+
+  * add canonical method in IndexBase class
+  * add canonical method in Read class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 09 Nov 2017 14:35:27 +0100
+
+libmaus2 (2.0.413-1) unstable; urgency=medium
+
+  * add modifyEquidist function DNABaseNoiseSpiker
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 08 Nov 2017 11:12:04 +0100
+
+libmaus2 (2.0.412-1) unstable; urgency=medium
+
+  * add NNPCorL class
+  * add alignForward/reset methods in NNPCor class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 07 Nov 2017 16:35:39 +0100
+
+libmaus2 (2.0.411-1) unstable; urgency=medium
+
+  * add missing aid/aread parameter in LasRangeDecoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 06 Nov 2017 11:23:24 +0100
+
+libmaus2 (2.0.410-1) unstable; urgency=medium
+
+  * improve error message in bounds checking of Path
+  * fix order check in bin indexing of OverlapIndexer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 03 Nov 2017 15:29:58 +0100
+
+libmaus2 (2.0.409-1) unstable; urgency=medium
+
+  * add checkBSpan method in Overlap
+  * check size of values in Path output
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 03 Nov 2017 11:23:16 +0100
+
+libmaus2 (2.0.408-1) unstable; urgency=medium
+
+  * fix EOF issue with LasRangeDecoder and allow pass through of index decoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 02 Nov 2017 22:19:07 +0100
+
+libmaus2 (2.0.407-1) unstable; urgency=medium
+
+  * add missing include directive in OverlapData
+  * add computeTracePart function in OverlapData
+  * add OverlapDataInterface class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 02 Nov 2017 15:14:51 +0100
+
+libmaus2 (2.0.406-1) unstable; urgency=medium
+
+  * add LasRangeDecoder class
+  * add BinIndexDecoder class
+  * add bin indexing function in OverlapIndexer
+  * add bin related functions in Path/Overlap
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 02 Nov 2017 09:02:11 +0100
+
+libmaus2 (2.0.405-1) unstable; urgency=medium
+
+  * add getMaxDif function in Overlap class
+  * add flags in filtering of GraphDecoder
+  * add flag encoding in GraphEncoder/GraphDecoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 01 Nov 2017 13:52:41 +0100
+
+libmaus2 (2.0.404-1) unstable; urgency=medium
+
+  * use exception instead of assertion when checking vor NaN in DoubleCode
+  * add cutTrace method in NP and NPL
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 25 Oct 2017 11:36:04 +0200
+
+libmaus2 (2.0.403-1) unstable; urgency=medium
+
+ * fix overflow check in binom class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 19 Oct 2017 15:29:49 +0200
+
+libmaus2 (2.0.402-1) unstable; urgency=medium
+
+  * add option maxalign in NNPLocalAligner
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 17 Oct 2017 14:44:14 +0200
+
+libmaus2 (2.0.401-1) unstable; urgency=medium
+
+  * add computeTrace function in OverlapData
+  * change active band counting in NNPLocalAligner
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 17 Oct 2017 10:20:35 +0200
+
+libmaus2 (2.0.400-1) unstable; urgency=medium
+
+  * add test for large indices in NPL
+  * avoid index overflow by changing type in NPL
+  * add putNumberDecimal variant for AutoArray in BamAlignmentDecoderBase
+  * fix formatting in AlignmentPrint
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 16 Oct 2017 15:28:00 +0200
+
+libmaus2 (2.0.399-1) unstable; urgency=medium
+
+  * report names of broken files in GraphEncoder
+  * add checkSymmetryParallel in AlignmentFileSymmetryCheck
+  * add getMerger method in SortingBufferedOutputFile header
+  * add LasIntervals class
+  * add AlignmentFileCat class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 11 Oct 2017 15:28:34 +0200
+
+libmaus2 (2.0.398-1) unstable; urgency=medium
+
+  * avoid endless recursion loop in DecoderBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 06 Oct 2017 11:01:54 +0200
+
+libmaus2 (2.0.397-1) unstable; urgency=medium
+
+  * disable padding in tar writing
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 05 Oct 2017 17:43:42 +0200
+
+libmaus2 (2.0.396-1) unstable; urgency=medium
+
+  * fix comparison and improve cleanup in AlignmentFileSymmetryCheck
+  * improve cleanup in SortingBufferedOutputFile
+  * delete temp files in GraphEncoder while merging them
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 05 Oct 2017 12:02:55 +0200
+
+libmaus2 (2.0.395-1) unstable; urgency=medium
+
+  * add support for mask tracks in DatabaseFile
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Oct 2017 17:36:32 +0200
+
+libmaus2 (2.0.394-1) unstable; urgency=medium
+
+  * fix compilation without libarchive
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Oct 2017 14:41:33 +0200
+
+libmaus2 (2.0.393-1) unstable; urgency=medium
+
+  * remove debug messages in TarWriter
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Oct 2017 13:26:10 +0200
+
+libmaus2 (2.0.392-1) unstable; urgency=medium
+
+  * add TarWriter class based on libarchive
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Oct 2017 12:38:43 +0200
+
+libmaus2 (2.0.391-1) unstable; urgency=medium
+
+  * make verbosity optional in AlignmentFileSymmetryCheck
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 29 Sep 2017 15:17:40 +0200
+
+libmaus2 (2.0.390-1) unstable; urgency=medium
+
+  * fix SerialisingSortingBufferedOutputFileArray
+  * add swappedStraight method in OverlapInfo
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 29 Sep 2017 14:32:01 +0200
+
+libmaus2 (2.0.389-1) unstable; urgency=medium
+
+  * add AlignmentFileSymmetryCheck class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 29 Sep 2017 09:08:58 +0200
+
+libmaus2 (2.0.388-1) unstable; urgency=medium
+
+  * add SerialisingSortingBufferedOutputFileArray class
+  * parallelise GraphEncoder class
+  * implement method variants using preloaded index in OverlapIndexer
+  * fix computation of number of index entries in DalignerIndexDecoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 28 Sep 2017 10:12:22 +0200
+
+libmaus2 (2.0.387-1) unstable; urgency=medium
+
+  * fix comparison in BamEntryContainer
+  * add BamAlignmentTagComparator and update API accordingly
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 27 Sep 2017 10:10:27 +0200
+
+libmaus2 (2.0.386-1) unstable; urgency=medium
+
+  * do not fail on >16 bit cigar field length in BamAlignmentEncoderBase
+  * filter out 32 bit cigar flag when formatting BamAlignment for SAM output
+  * call computeBin in BamAlignment::getBin when 32 bit cigar field flag is set
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 26 Sep 2017 11:43:25 +0200
+
+libmaus2 (2.0.385-1) unstable; urgency=medium
+
+  * improve threshold comparison in Matrix::inverse
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 25 Sep 2017 15:06:01 +0200
+
+libmaus2 (2.0.384-1) unstable; urgency=medium
+
+  * add missing include directive in LogNormalRandom.hpp
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 25 Sep 2017 13:59:09 +0200
+
+libmaus2 (2.0.383-1) unstable; urgency=medium
+
+  * add computeParameters function in LogNormalRandom class
+  * add Matrix class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 25 Sep 2017 13:15:15 +0200
+
+libmaus2 (2.0.382-1) unstable; urgency=medium
+
+  * fix parameter estimation in LogNormalRandom
+  * fix comparator in OverlapInfo
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 22 Sep 2017 10:08:29 +0200
+
+libmaus2 (2.0.381-1) unstable; urgency=medium
+
+  * add init method in WaveletTree and several memory allocation optimisations
+  * add init method in ERank222B to allow reinitialisation without reallocation
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 14 Sep 2017 11:24:56 +0200
+
+libmaus2 (2.0.380-1) unstable; urgency=medium
+
+  * allow reinitialisation in QuickDynamicRMQ
+  * avoid memory reallocation in SimdX86GlobalAlignmentTemplate if possible
+  * round size to next power of two in AlignmentTraceContainer::push
+  * move Vlen array to class scope in AlignmentOneAgainstManyAVX2 to avoid reallocation
+  * pre allocate memory in computeTrace variants of Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 14 Sep 2017 08:54:14 +0200
+
+libmaus2 (2.0.379-1) unstable; urgency=medium
+
+  * fix compilation on Darwin
+
+ -- German Tischler <tischler@mpi-cbg.de>  Sun, 03 Sep 2017 20:33:35 +0200
+
+libmaus2 (2.0.378-1) unstable; urgency=medium
+
+  * add failids argument in CommandContainer::check
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 23 Aug 2017 09:47:28 +0200
+
+libmaus2 (2.0.377-1) unstable; urgency=medium
+
+  * avoid outputting empty string in RealTimeClock::formatTime
+  * store elapsed time as double in Command::dispatch
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 22 Aug 2017 21:20:00 +0200
+
+libmaus2 (2.0.376-1) unstable; urgency=medium
+
+  * append run-time in error file of Command object
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 22 Aug 2017 17:43:31 +0200
+
+libmaus2 (2.0.375-1) unstable; urgency=medium
+
+  * make directory removal in TempFileNameGenerator more efficient
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 22 Aug 2017 17:21:55 +0200
+
+libmaus2 (2.0.374-1) unstable; urgency=medium
+
+  * print failed commands in CommandContainer check
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 22 Aug 2017 16:43:59 +0200
+
+libmaus2 (2.0.373-1) unstable; urgency=medium
+
+  * add mem and threads fields in CommandContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Sun, 20 Aug 2017 22:39:13 +0200
+
+libmaus2 (2.0.372-1) unstable; urgency=medium
+
+  * change ArgParser interface to faciliate init by string vector
+  * implement indexing interface for serialised object sorting
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 17 Aug 2017 15:14:02 +0200
+
+libmaus2 (2.0.371-1) unstable; urgency=medium
+
+  * add maxattempt field in CommandContainer
+  * make dirmod and filemod settable parameters in TempFileNameGenerator
+  * add rdepid field in CommandContainer
+  * add check method for CommandContainer and id/attempt fields in CommandContainer
+  * add returncode field and output operator for Command class
+  * add ContainerDescription/ContainerDescriptionList
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 16 Aug 2017 14:38:20 +0200
+
+libmaus2 (2.0.370-1) unstable; urgency=medium
+
+  * add fcntl based advisory locking in PosixFdInputOutputStreamBuffer
+  * add detection for fcntl function
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 15 Aug 2017 12:12:50 +0200
+
+libmaus2 (2.0.369-1) unstable; urgency=medium
+
+  * add input operator for AlignmentStatistics
+  * use last colon in CramRange to delimit sequence name from interval
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 14 Aug 2017 19:48:20 +0200
+
+libmaus2 (2.0.368-1) unstable; urgency=medium
+
+  * add test program produce constant sum vectors in lexicographically increasing order
+  * add ConstantSumCombinatorics class
+  * add GmpInteger specialisation for Faulhaber class
+  * use BernoulliCache in Faulhaber class
+  * add RationalPolynomialSupport class
+  * reimplement operator- in GmpInteger
+  * make fillBinomialVector slightly less slow
+  * implement BernouilliNumber specialisation for GmpInteger and add BernoulliNumberCache class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 11 Aug 2017 16:06:13 +0200
+
+libmaus2 (2.0.367-1) unstable; urgency=medium
+
+  * pass through arguments in GraphEncoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 09 Aug 2017 14:49:02 +0200
+
+libmaus2 (2.0.366-1) unstable; urgency=medium
+
+  * parallelise gathering of statistics in GraphEncoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 09 Aug 2017 11:25:07 +0200
+
+libmaus2 (2.0.365-1) unstable; urgency=medium
+
+  * add rcsupport in FragmentAlignmentBufferRewriteWorkPackageDispatcher and FragmentAlignmentBufferRewriteReadEndsWorkPackageDispatcher
+  * pass through rcsupport flag in BlockControl class
+  * fix missing parameter pass-through in serialised sorting
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 08 Aug 2017 16:02:18 +0200
+
+libmaus2 (2.0.364-1) unstable; urgency=medium
+
+  * add OverlapInfoIndexer
+  * add single file sort interface in SortingOverlapOutputBuffer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 08 Aug 2017 13:05:27 +0200
+
+libmaus2 (2.0.363-1) unstable; urgency=medium
+
+  * add binomialCoefficientGmp function in Binom class
+  * add pow_ui, mul_2exp, div_2exp, log and exp methods in GmpFloat class
+  * add abs operator in GmpFloat and refactor unary operator-
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 07 Aug 2017 23:16:37 +0200
+
+libmaus2 (2.0.362-1) unstable; urgency=medium
+
+  * add fanin/number of thread arguments in AlignmentWriterArray::merge
+  * add sortAndMergeThread function in SortingOverlapOutputBuffer featuring separate arguments for number of sort and merge threads
+  * add serialisation in OverlapInfo class
+  * bug fix in difference function of IntegerInterval class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 04 Aug 2017 10:48:09 +0200
+
+libmaus2 (2.0.361-1) unstable; urgency=medium
+
+  * add mc field in opt duplicate marking
+  * add matecoordinate field in OptName class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 03 Aug 2017 11:40:07 +0200
+
+libmaus2 (2.0.360-1) unstable; urgency=medium
+
+  * add getFrontHardClipping and getBackHardClipping in BamAlignment/BamAlignmentDecoderBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 02 Aug 2017 08:51:35 +0200
+
+libmaus2 (2.0.359-1) unstable; urgency=medium
+
+  * complete removeFileAndIndex in SortingOverlapOutputBuffer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 01 Aug 2017 17:38:23 +0200
+
+libmaus2 (2.0.358-1) unstable; urgency=medium
+
+  * fix binomRowUpperGmpFloat for p=1
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 20 Jul 2017 13:38:54 +0200
+
+libmaus2 (2.0.357-1) unstable; urgency=medium
+
+  * fix error checking in parallel merging of SortingOverlapOutputBuffer
+  * fix for Darwin (lgamma not found in namespace std)
+  * add locking in error printing of MemoryFileAdapter
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 14 Jul 2017 16:05:21 +0200
+
+libmaus2 (2.0.356-1) unstable; urgency=medium
+
+  * remove useless argument from getSwapped in Overlap class
+  * add windowErrorLargeDetail function in AlignmentTraceContainer class
+  * update getSwapped method in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 13 Jul 2017 13:29:59 +0200
+
+libmaus2 (2.0.355-1) unstable; urgency=medium
+
+  * add a_sync_match function in AlignmentTraceContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 12 Jul 2017 10:44:22 +0200
+
+libmaus2 (2.0.354-1) unstable; urgency=medium
+
+  * replace assertion by exception in GraphDecoderContext
+  * replace --with-asan by --enable-asan in configure script
+  * add OverlapInfo class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 12 Jul 2017 10:11:01 +0200
+
+libmaus2 (2.0.353-1) unstable; urgency=medium
+
+  * add fillSpanHistogram/fillErrorHistogram variants in Overlap class
+  * add coordinates in AlignmentPrint class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 10 Jul 2017 16:54:58 +0200
+
+libmaus2 (2.0.352-1) unstable; urgency=medium
+
+  * add searchNoFailure method in LinearHashTrie
+
+ -- German Tischler <tischler@mpi-cbg.de>  Sat, 08 Jul 2017 15:43:47 +0200
+
+libmaus2 (2.0.351-1) unstable; urgency=medium
+
+  * add static printMultiLine function in Pattern class
+  * add getBforAOffset function in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 07 Jul 2017 17:05:43 +0200
+
+libmaus2 (2.0.350-1) unstable; urgency=medium
+
+  * add fillErrorHistogram with double errors in Overlap class
+  * fix error message about unsupported flags in PosixFdInputOutputStreamBuffer
+  * add sort/sortUnique in SortingBufferedOutputFile
+  * add InputOutputStreamInstance class and support classes
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 05 Jul 2017 23:01:57 +0200
+
+libmaus2 (2.0.349-1) unstable; urgency=medium
+
+  * update testgamma to reflect new merging interfaces
+  * improve error checking in BwtMergeSortTemplate
+  * add checking in mergeToDense method of SparseGammaGapMultiFileSet
+  * add checking in mergeToDense method of SparseGammaGapMultiFileLevelSet
+  * add getAlignmentAt function in OverlapIndexer class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 04 Jul 2017 12:32:41 +0200
+
+libmaus2 (2.0.348-1) unstable; urgency=medium
+
+  * add bbpos and bepos fields in ContainmentInfo
+  * add transitiveCross function in AlignmentTraceContainer
+  * add getu method in DatabaseFile
+  * add getAlignments functions in OverlapIndexer class
+  * add tripleCross function in AlignmentTraceContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 03 Jul 2017 15:38:25 +0200
+
+libmaus2 (2.0.347-1) unstable; urgency=medium
+
+  * add methods thresLow, thresLowInv, poissonViaLog, thresLowInvLog, getVectorViaLog, lowerSum and function gamma_q in Poisson class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 22 Jun 2017 22:58:58 +0200
+
+libmaus2 (2.0.346-1) unstable; urgency=medium
+
+  * remove libmaus2lsf from debian packaging files
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 20 Jun 2017 16:57:22 +0200
+
+libmaus2 (2.0.345-1) unstable; urgency=medium
+
+  * remove unused code 
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 20 Jun 2017 11:57:38 +0200
+
+libmaus2 (2.0.344-1) unstable; urgency=medium
+
+  * add toString method in DNAIndexMetaDataBigBandBiDir::Coordinates
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 02 Jun 2017 10:52:11 +0200
+
+libmaus2 (2.0.343-1) unstable; urgency=medium
+
+  * add fillMapping method in AlignmentTraceContainer
+  * add inv method in OverlapNode
+  * reorder fields in OverlapHeader class and add constructor by values
+  * add searchFrom and searchTo methods in StringGraph class
+  * add suffix parameter in get method of LocalTempContainer class
+  * remove unneeded length field from OverlapNodeBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 01 Jun 2017 11:27:55 +0200
+
+libmaus2 (2.0.342-1) unstable; urgency=medium
+
+  * add LocalTempFileContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 29 May 2017 16:03:53 +0200
+
+libmaus2 (2.0.341-1) unstable; urgency=medium
+
+  * add Poisson class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 24 May 2017 00:21:31 +0200
+
+libmaus2 (2.0.340-1) unstable; urgency=medium
+
+  * add operator== in OverlapHeader
+  * return 0 edges for nodes outside graph saved in GraphDecoder
+  * change gmp default from no to auto detect
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 23 May 2017 15:07:28 +0200
+
+libmaus2 (2.0.339-1) unstable; urgency=medium
+
+  * add Enumerator class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 22 May 2017 14:25:12 +0200
+
+libmaus2 (2.0.338-1) unstable; urgency=medium
+
+  * add LogNormalRandom class and test
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 12 May 2017 10:34:31 +0200
+
+libmaus2 (2.0.337-1) unstable; urgency=medium
+
+ * add getReadLengthSum/getReadLengthAverage in DatabaseFile class
+ * add getHeader method in Overlap class
+ * fix erroneous switch fall through
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 11 May 2017 15:57:32 +0200
+
+libmaus2 (2.0.336-1) unstable; urgency=medium
+
+  * comment out broken function calls in RlToHwtBase (fix compilation with gcc 7.1.0)
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 04 May 2017 11:41:50 +0200
+
+libmaus2 (2.0.335-1) unstable; urgency=medium
+
+  * add iseq and walk fields in Edge class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 28 Apr 2017 15:23:25 +0200
+
+libmaus2 (2.0.334-1) unstable; urgency=medium
+
+  * update getReferenceInterval function in BamAlignment to take fron deletions into account
+  * only use statfs output if f_iosize field is present for determining optimal block transfer size
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 26 Apr 2017 11:30:40 +0200
+
+libmaus2 (2.0.333-1) unstable; urgency=medium
+
+  * fix compilation on FreeBSD/NetBSD
+  * add shared_ptr_type typedef in SerialisedSortingBufferedOutputFile
+  * add ClusteredBernoulli class
+  * add GeneralisedClusterBernoulli class
+  * add GeneralisedBernoulli class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 25 Apr 2017 13:28:26 +0200
+
+libmaus2 (2.0.332-1) unstable; urgency=medium
+
+  * use LIBMAUS2_HAVE_STATFS_F_BSIZE and LIBMAUS2_HAVE_STATFS_F_IOSIZE in PosixFdInput
+  * detect f_bsize and f_iosize fields of statfs in configure.in
+  * change default arg for snappy in configure.in from no to empty
+  * add LIBMAUS2_HAVE_STATFS_F_BSIZE and LIBMAUS2_HAVE_STATFS_F_IOSIZE in LibMausConfig.hpp.in
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 21 Apr 2017 14:12:38 +0200
+
+libmaus2 (2.0.331-1) unstable; urgency=medium
+
+  * add dispatch method with filename parameter in CommandContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 11 Apr 2017 11:36:46 +0200
+
+libmaus2 (2.0.330-1) unstable; urgency=medium
+
+  * allow random access in CommandContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 10 Apr 2017 16:39:01 +0200
+
+libmaus2 (2.0.329-1) unstable; urgency=medium
+
+  * add Command/CommandContainer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 10 Apr 2017 16:22:52 +0200
+
+libmaus2 (2.0.328-1) unstable; urgency=medium
+
+  * add verbosity in SMEMProcessor
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 06 Apr 2017 14:17:00 +0200
+
+libmaus2 (2.0.327-1) unstable; urgency=medium
+
+  * add serialisation for NNPAlignResult
+  * add serialisation for DNAIndexMetaDataBigBandBiDir::Coordinates
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 05 Apr 2017 17:56:06 +0200
+
+libmaus2 (2.0.326-1) unstable; urgency=medium
+
+  * fix error occuring with empty files in GammaIntervalDecoder
+  * add getAlignments method in ChainNodeInfoSet and SMEMProcessor
+  * add TraversalElement class
+  * add getAOffsets and getBOffsets functions in AlignmentTraceContainer
+  * update template parameter for slide in NP class
+  * add ContainmentInfo class
+  * add push variant in AutoArray
+  * fix data type in NPL
+  * remove unneeded length field from terminal nodes of string graph edges
+  * fix warning about misguiding indentation in huffman.hpp
+  * fix NPL class for case of empty A or empty B string
+  * add string graph data structures
+  * add serialisation for block sorting merge tree
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 05 Apr 2017 17:20:02 +0200
+
+libmaus2 (2.0.325-1) unstable; urgency=medium
+
+  * add advanceMaxB function in AlignmentTraceContainer
+  * add methods baseMatch, baseMatchPrime, getReadPrime, getRefPosForReadPos, getRefStart, getReferenceUsed, getReferenceUsedPrime and getRefPosForReadPosChecked in BamAlignment class
+  * fix MD/NM calculation in case of delete operations ahead of the first match/mismatch
+  * add getReferenceRegionViaMd and checkCigar in BamAlignment
+  * make sure substituted base is not same as original base in DNABaseNoiseSpiker
+  * add decodeReadS function in BamAlignmentDecoderBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 23 Mar 2017 17:46:23 +0100
+
+libmaus2 (2.0.324-1) unstable; urgency=medium
+
+  * improve cleanup in GraphEncoder
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 16 Mar 2017 09:53:26 +0100
+
+libmaus2 (2.0.323-1) unstable; urgency=medium
+
+  * add decode variant for (a,b) pair in GraphDecoder
+  * add static trueOverlap variant in TrueOverlap class
+  * add getReadLengthArrayParallel variants in DatabaseFile
+  * add clear method setting new length in RangeSet
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 15 Mar 2017 13:59:35 +0100
+
+libmaus2 (2.0.322-1) unstable; urgency=medium
+
+  * add graph encoder/decoder
+  * add EscapeCanonicalEncoder constructor variant for symbol,freq maps
+  * add copyToArray function supporting tracks in DatabaseFile class
+  * fix null pointer dereferencing bug in CanonicalEncoder when alphabet is empty
+  * add binomVectorDouble function in Binom class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 14 Mar 2017 14:05:06 +0100
+
+libmaus2 (2.0.321-1) unstable; urgency=medium
+
+  * avoid using temporaries in BwtMergeTempFileNameSet, implement explicit assignment operator and copy constructor
+  * get explicit copy of histfn in BwtMergeSortTemplate before loading histogram
+  * avoid warning about shift larger than size of data type in FastWriteBitWriter
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 08 Mar 2017 12:01:26 +0100
+
+libmaus2 (2.0.320-1) unstable; urgency=medium
+
+  * add binomSingleGmp function in Binom class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 07 Mar 2017 16:05:26 +0100
+
+libmaus2 (2.0.319-1) unstable; urgency=medium
+
+  * Added AdapterInfo copy constructor to ensure pointer to C string is correctly maintained (patch by Andrew Whitwham)
+  * remove unnecessary typename keyword in KmerCount
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 07 Mar 2017 16:00:58 +0100
+
+libmaus2 (2.0.318-1) unstable; urgency=medium
+
+  * change BamAlignment::getRefPosForReadPos so it only returns a result one it is on an actual read position (not because it reached the respective query position)
+  * add debugging/verbosity code in NP class
+  * add index_type parameter in ConstIterator class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 23 Feb 2017 15:49:40 +0100
+
+libmaus2 (2.0.317-1) unstable; urgency=medium
+
+  * add clean method in IntervalTree class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 20 Feb 2017 16:21:51 +0100
+
+libmaus2 (2.0.316-1) unstable; urgency=medium
+
+  * add registerMatches method in NNPTraceContainer
+  * allow memory pool sharing in IntervalTree class
+  * fix detection of pthread getname/setname functions in configure.ac
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 20 Feb 2017 15:52:48 +0100
+
+libmaus2 (2.0.315-1) unstable; urgency=medium
+
+  * add IntervalTree class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Sat, 18 Feb 2017 13:21:36 +0100
+
+libmaus2 (2.0.314-1) unstable; urgency=medium
+
+  * add KmerCount class plus test
+  * delete temporary file at end of SerialisingSortingBufferedOutputFile::reduce
+  * add constructor variant accepting file name in LineBufferFastAReader
+  * add stack protection/asan for debugging in configure.ac
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 16 Feb 2017 12:29:33 +0100
+
+libmaus2 (2.0.313-1) unstable; urgency=medium
+
+  * add NNPCor class (NNP plus clipping at furthest reaching points satisfying a correlation bound)
+  * return number of clipped bases on A and B sequence in NNPTraceContainer::suffixPositive
+  * add byteSize method in DatabaseFile::ReadDataRange
+  * add clipEndWindowError method in NNPTraceContainer class
+  * restore previous default for local error threshold in NNP
+  * fix off by one error when checking maximum local error count in NNP
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 10 Feb 2017 16:03:36 +0100
+
+libmaus2 (2.0.312-1) unstable; urgency=medium
+
+  * add unique term val option for NNP class
+  * add termval option for decodeReadIntervalParallel method in DatabaseFile
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 08 Feb 2017 00:17:07 +0100
+
+libmaus2 (2.0.311-1) unstable; urgency=medium
+
+  * add parallel decoding in DatabaseFile
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 07 Feb 2017 18:01:24 +0100
+
+libmaus2 (2.0.310-1) unstable; urgency=medium
+
+  * do not recode underscore symbol in argument list of ArgParser
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 02 Feb 2017 11:20:36 +0100
+
+libmaus2 (2.0.309-1) unstable; urgency=medium
+
+  * allow adding aux tags in convertUnmapped function of LASToBamConverterBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 01 Feb 2017 12:55:58 +0100
+
+libmaus2 (2.0.308-1) unstable; urgency=medium
+
+  * add AuxTagCopyAddRequest class in LASToBamConverterBase
+  * add enumerateAuxTags variants in BamAlignmentDecoderBase
+  * add commandlinecoded attribute in ArgParser class
+  * add pointer types in LineBufferFastAReader
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 31 Jan 2017 16:27:58 +0100
+
+libmaus2 (2.0.307-1) unstable; urgency=medium
+
+  * implement SimpleThreadPool based parallelism in InterleavedRadixSort
+  * add removeDispatcher method in SimpleThreadPool class
+  * change threading in parallel decoding of FastaBPDecoder from OpenMP to thread pooling via SimpleThreadPool
+  * add locking to dispatcher handling in SimpleThreadPool
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 31 Jan 2017 13:15:19 +0100
+
+libmaus2 (2.0.306-1) unstable; urgency=medium
+
+  * avoid failure in rename over device boundaries in PosixFdOutputStreamFactory
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 30 Jan 2017 13:56:21 +0100
+
+libmaus2 (2.0.305-1) unstable; urgency=medium
+
+  * add HD line field merging in BamCatHeader
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 27 Jan 2017 11:21:54 +0100
+
+libmaus2 (2.0.304-1) unstable; urgency=medium
+
+  * add BamAlignmentDecoder ref based constructor in BamPeeker class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 26 Jan 2017 17:32:47 +0100
+
+libmaus2 (2.0.303-1) unstable; urgency=medium
+
+  * add NPL class 
+  * add option to avoid suffixPositive call in NPL
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 17 Jan 2017 15:21:06 +0100
+
+libmaus2 (2.0.302-1) unstable; urgency=medium
+
+  * add copying of dazzler Database to array memory
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 05 Jan 2017 10:57:13 +0100
+
+libmaus2 (2.0.301-1) unstable; urgency=medium
+
+  * add support for opening file via Daligner index (.idx) files
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Jan 2017 18:03:06 +0100
+
+libmaus2 (2.0.300-1) unstable; urgency=medium
+
+  * allow passing of index file name in OverlapIndexer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 04 Jan 2017 15:41:49 +0100
+
+libmaus2 (2.0.299-1) unstable; urgency=medium
+
+  * add tracklist in DatabaseFile::copyToPrefix
+  * add getErrorForBase/getMaxErrorForRange methods in OverlapProperCheck class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 21 Dec 2016 14:57:51 +0100
+
+libmaus2 (2.0.298-1) unstable; urgency=medium
+
+  * change return type of OverlapProperCheck to return more information
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 20 Dec 2016 20:37:28 +0100
+
+libmaus2 (2.0.297-1) unstable; urgency=medium
+
+  * add OverlapProperCheck class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 19 Dec 2016 23:27:40 +0100
+
+libmaus2 (2.0.296-1) unstable; urgency=medium
+
+  * rewrite fillErrorHistogram in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 15 Dec 2016 14:50:19 +0100
+
+libmaus2 (2.0.295-1) unstable; urgency=medium
+
+  * update character escaping in ArgParser
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 14 Dec 2016 14:59:02 +0100
+
+libmaus2 (2.0.294-1) unstable; urgency=medium
+
+  * add printArgs method in ArgParser class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 14 Dec 2016 14:05:31 +0100
+
+libmaus2 (2.0.293-1) unstable; urgency=medium
+
+  * fix getDiagonalBand and add new variant of it in AlignmentTraceContainer
+  * add KmerEnumerator class in DNARankSMEMComputation
+  * add chain domination updates in SMEMProcessor
+  * add domsamerefid flag in ChainNodeInfoSet
+  * add refid field in ChainAlignment class
+  * add refid field in Chain class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 12 Dec 2016 12:26:02 +0100
+
+libmaus2 (2.0.292-1) unstable; urgency=medium
+
+  * add getTraceBlocks method in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 08 Dec 2016 16:27:09 +0100
+
+libmaus2 (2.0.291-1) unstable; urgency=medium
+
+  * fix typo in BamAlignment::getErrorRatePair
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 07 Dec 2016 11:04:42 +0100
+
+libmaus2 (2.0.290-1) unstable; urgency=medium
+
+  * add BamAccessor
+  * add AlignmentWriterArray class
+  * add argument free and istream constructor in ApproximateRun class
+  * add SerialisedPeeker class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 06 Dec 2016 10:45:35 +0100
+
+libmaus2 (2.0.289-1) unstable; urgency=medium
+
+  * add operator==/operator!=/isLeaf and size methods in CompressedSuffixTree::Node
+  * change semantics of CompressedSuffixTree::sdepth to return infinity/max for leafs
+  * add AutoArray based CompressedSuffixTree::enumerateChildren method
+  * add CompressedSuffixTree::printNodeContext
+  * check for sorting thread failure in sortAndMerge function of SortingOverlapOutputBuffer
+  * add getTracePoints and true overlap flag in Overlap class
+  * add runtime reporting in BlockMergeControl
+  * add priorisation of packages in BlockSortControl/BlockMergeControl
+  * add lock for accessing blockid in GenericInputSingleData
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 05 Dec 2016 16:36:13 +0100
+
+libmaus2 (2.0.288-1) unstable; urgency=medium
+
+  * move output operator for DuplicationMetrics to libmaus2::bambam namespace
+  * fix buffer overflows in coordinate parsing (tile,x,y) of ReadEndsBase
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 29 Nov 2016 12:20:08 +0100
+
+libmaus2 (2.0.287-1) unstable; urgency=medium
+
+  * use input factories in opt dup marking of DupMarkBase where possible and add mate cigar insertion option 
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 29 Nov 2016 10:33:43 +0100
+
+libmaus2 (2.0.286-1) unstable; urgency=medium
+
+  * add optminpixeldif argument in BlockSortControl/PairReadEndsMergeWorkPackageDispatcher  
+  * add mergePairs method in ReadEndsBlockIndexSet to allow passing optminpixeldif argument
+  * be more deterministic about which read pairs are marked as duplicates/optical duplicates
+  * use align in/out factories in marking optical routines
+  * add OptName/OptNameReader classes
+  * fix tile,x,y parsing for larger number of read name fields in ReadEndsBase
+  * add BamAlignmentInputCallbackBamRef and BamAlignmentInputCallbackSnappyRef classes
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 28 Nov 2016 17:53:29 +0100
+
+libmaus2 (2.0.285-1) unstable; urgency=medium
+
+  * add notes about releases to README.md
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 28 Nov 2016 10:31:25 +0100
+
+libmaus2 (2.0.284-1) unstable; urgency=medium
+
+  * add rank of reference read for optical duplicates in DupMarkBase opt interface
+  * fix size of copied stream block in BgzfInflateParallelThread
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 28 Nov 2016 10:14:52 +0100
+
+libmaus2 (2.0.283-1) unstable; urgency=medium
+
+  * add interface for reporting optical duplicates' ranks in DupMarkBase
+  * replace constants by symbolics and fix computation of bins for unmapped reads in BamAlignmentEncoderBase
+  * fix bin computation for unmapped reads in BamAlignmentDecoderBase
+  * fix computeBin() function in BamAlignment for unmapped reads
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 25 Nov 2016 13:12:06 +0100
+
+libmaus2 (2.0.282-1) unstable; urgency=medium
+
+  * add pointer types in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 21 Nov 2016 11:19:24 +0100
+
+libmaus2 (2.0.281-1) unstable; urgency=medium
+
+  * add missing include directive
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 18 Nov 2016 22:05:20 +0100
+
+libmaus2 (2.0.280-1) unstable; urgency=medium
+
+  * add FastaPeeker
+  * add cigar offset field in PileVectorElement
+  * add BamPeeker
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 18 Nov 2016 11:23:15 +0100
+
+libmaus2 (2.0.279-1) unstable; urgency=medium
+
+  * allow passing of order object in serialised version MergingReadBack/SortingBufferedOutputFile
+  * make temporary file name more specific in BamNumericalIndexGenerator
+  * add TempFileArray class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Thu, 17 Nov 2016 13:38:23 +0100
+
+libmaus2 (2.0.278-1) unstable; urgency=medium
+
+  * use more specific tmp file names in OverlapIndexer
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 16 Nov 2016 13:36:37 +0100
+
+libmaus2 (2.0.277-1) unstable; urgency=medium
+
+  * create indexes under different name and rename in the end in OverlapIndexer (avoid broken indexes at program cancellation)
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 15 Nov 2016 16:03:39 +0100
+
+libmaus2 (2.0.276-1) unstable; urgency=medium
+
+  * add test programs for bam numerical indexing and sorting of serialised data
+  * remove code moved to different program in testbamcmp
+  * add missing flush call at end of enumerateOffsets in FastAReader  
+  * add external memory capable enumerateOffsets method in FastAReader
+  * add SerialisingSortingBufferedOutputFile class in src/libmaus2/sorting/SortingBufferedOutputFile.hpp
+  * add serialisation for FastInterval class
+  * add SerialisingMergingReadBack in libmaus2/sorting/MergingReadBack.hpp 
+  * add SerialisingSortingBufferedOutput in libmaus2/aio/BufferedOutput.hpp
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 15 Nov 2016 14:12:37 +0100
+
+libmaus2 (2.0.275-1) unstable; urgency=medium
+
+  * add BgzfInflateFile
+  * add BamNumericalIndexer(Base|Generator|Decoder)
+  * fix indexing in parallel decoding mode
+  * replace some asserts with exceptions in BamAlignmentEncoderBase
+  * make cigar string parsing subquadratic
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 14 Nov 2016 13:44:15 +0100
+
+libmaus2 (2.0.274-1) unstable; urgency=medium
+
+  * use fixed with float output for error rate in AlignmentStatistics
+  * avoid division by zero in getErrorRate() of AlignmentStatistics
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 11 Nov 2016 11:01:57 +0100
+
+libmaus2 (2.0.273-1) unstable; urgency=medium
+
+  * add getPileVector variants in BamAlignmentDecoderBase/BamAlignment
+  * add TrueOverlap/TrueOverlapStats class
+  * add some checks in BamAlignment
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 09 Nov 2016 17:12:24 +0100
+
+libmaus2 (2.0.272-1) unstable; urgency=medium
+
+  * add CigarRunLengthDecoder/CigarDecoder classes
+  * add getCigarRunLengthDecoder/getCigarDecoder functions in
+  * BamAlignmentDecoderBase/BamAlignment
+  * add getRefCommon function BamAlignment class
+  * add getBBlockOffset methods in Overlap/Path
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 07 Nov 2016 17:16:51 +0100
+
+libmaus2 (2.0.271-1) unstable; urgency=medium
+
+  * add isNext method in Overlap class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 04 Nov 2016 15:16:53 +0100
+
+libmaus2 (2.0.270-1) unstable; urgency=medium
+
+  * fix crash due to missing initialisation in SimdX86GlobalAlignmentTemplate when one of the input sequences is empty
+  * add getErrorRate method in Overlap/Path
+  * add filter method in Overlap/Path classes
+  * add alignToTracePoints method in Overlap and Path classes
+
+ -- German Tischler <tischler@mpi-cbg.de>  Fri, 04 Nov 2016 12:13:52 +0100
+
+libmaus2 (2.0.269-1) unstable; urgency=medium
+
+  * add some decodeRead variants in DatabaseFile
+  * add getReadLengthArray method in DatabaseFile
+  * add KmerRepeatDetector and ReadContainer classes
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 02 Nov 2016 12:10:30 +0100
+
+libmaus2 (2.0.268-1) unstable; urgency=medium
+
+  * fix check for whether mate is mapped when copying mate cigar string in FragmentAlignmentBufferRewriteReadEndsWorkPackageDispatcher
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 01 Nov 2016 10:19:59 +0100
+
+libmaus2 (2.0.267-1) unstable; urgency=medium
+
+  * do not store mate cigar string if it is empty/undefined
+  * fix compilation in absence of posix_memalign
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 01 Nov 2016 09:25:56 +0100
+
+libmaus2 (2.0.266-1) unstable; urgency=medium
+
+  * add toupper method in Pattern class
+  * fix memory allocation in AlignmentOneAgainstManyGeneric
+
+ -- German Tischler <tischler@mpi-cbg.de>  Wed, 12 Oct 2016 11:46:13 +0200
+
+libmaus2 (2.0.265-1) unstable; urgency=medium
+
+  * add factory for AlignmentOneAgainstMany concept
+  * add prototype simd one against many alignment   
+  * added binomRowUpperLimit function in Binom class
+  * add byteSize method in QuickDynamicRMQ, FiniteSizeHeap and WaveletTree classes
+  * add set and erase methods in BitVector class
+  * add getRank method in BitVector class
+
+ -- German Tischler <tischler@mpi-cbg.de>  Tue, 11 Oct 2016 11:12:33 +0200
+
+libmaus2 (2.0.264-1) unstable; urgency=medium
+
+  * add output operator for RealTimeClock
+  * add psv/nsv functions variants not taking AutoArray object as argument
+
+ -- German Tischler <tischler@mpi-cbg.de>  Mon, 26 Sep 2016 09:44:40 +0200
+
 libmaus2 (2.0.263-1) unstable; urgency=medium
 
   * add lcsmin function in SuffixArrayLCS

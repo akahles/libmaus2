@@ -104,6 +104,8 @@ namespace libmaus2
 					timestr << dig;
 					dsecs -= dig;
 				}
+				if ( !ddigs )
+					timestr << 0;
 
 				return timestr.str();
 			}
@@ -230,6 +232,7 @@ namespace libmaus2
 			}
 		};
 #endif
+		std::ostream & operator<<(std::ostream & out, RealTimeClock const & rtc);
 	}
 }
 #endif

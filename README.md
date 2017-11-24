@@ -16,6 +16,13 @@ The main development branch of libmaus2 is hosted by github at
 
 https://github.com/gt1/libmaus2
 
+Release packages can be found at
+
+https://github.com/gt1/libmaus2/releases
+
+Please make sure to choose a package containing the word "release" in it's name if you
+intend to compile libmaus2 for production (i.e. non development) use.
+
 -------------------------------------------------------------------------------
 
 Compilation
@@ -33,6 +40,13 @@ using:
 Running autoreconf requires a complete set of tools including autoconf, automake,
 autoheader, aclocal and libtool.
 
+The release packages come with a configure script, so running libtoolize, aclocal etc should not be necessary, i.e.
+
+	./configure
+	make
+
+should be sufficient to compile libmaus2.
+
 A full list of configuration parameters can be obtained by calling
 
 	./configure --help
@@ -45,9 +59,6 @@ libmaus2 can use functionality from several other code bases. This includes:
  - io_lib [http://sourceforge.net/p/staden/code/HEAD/tree/io_lib/] : This is
    part of the Staden package. libmaus2 can use this library for SAM and CRAM
    file input.
- - SeqAN [http://www.seqan.de/] : libmaus2 contains a wrapper class for
-   consensus computation. The actual consensus computation is done by SeqAN.
-   libmaus2 only offers a somewhat simplified interface.
 
 The compilation on Darwin (MacOS X) may require the installation of the 
 following packages:

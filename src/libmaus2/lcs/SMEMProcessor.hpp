@@ -89,6 +89,8 @@ namespace libmaus2
 			uint64_t chaindommul;
 			uint64_t chaindomdiv;
 
+			bool domsameref;
+
 			bool idle() const
 			{
 				return
@@ -134,11 +136,12 @@ namespace libmaus2
                                 uint64_t const rchaindommul,
                                 uint64_t const rchaindomdiv,
                                 uint64_t const rmaxwerr,
-                                uint64_t const rmaxback
+                                uint64_t const rmaxback,
+                                bool const rdomsameref
 			) : // faindex(rfaindex),
 			    meta(rmeta), cocache(rcocache), Prank(rPrank), BSSSA(rBSSSA), text(rtext), maxxdist(rmaxxdist), GP(Prank,BSSSA), n(Prank.size()), ST(), addQ(16*1024), remQ(16*1024),
 			    //chainrightmost(),
-			    chainend(), CNIS(n,text,meta,rchainminscore,rfracmul,rfracdiv,ralgndommul,ralgndomdiv,rmaxwerr,rmaxback), ACH(),
+			    chainend(), CNIS(n,text,meta,rchainminscore,rfracmul,rfracdiv,ralgndommul,ralgndomdiv,rmaxwerr,rmaxback,rdomsameref), ACH(),
 			    // chainmeta(), chainmetao(0),
 			    CLMC(&chainnodefreelist),
 			    chainQ(16*1024,CLMC),
@@ -149,7 +152,8 @@ namespace libmaus2
 			    selfcheck(rselfcheck),
 			    maxocc(rmaxocc),
 			    chaindommul(rchaindommul),
-			    chaindomdiv(rchaindomdiv)
+			    chaindomdiv(rchaindomdiv),
+			    domsameref(rdomsameref)
 			{
 
 			}
@@ -163,12 +167,12 @@ namespace libmaus2
 				assert ( chain.getLeftMost(chainnodefreelist) >= chainleftcheck );
 				chainleftcheck = chain.getLeftMost(chainnodefreelist);
 
-				// erase chains which are too far back from active list
+				// find chains which are too far back from active list
 				uint64_t activepopo = 0;
 				for ( std::map<uint64_t,libmaus2::lcs::Chain>::const_iterator ita = activechains.begin(); ita != activechains.end(); ++ita )
 					if ( ita->second.rightmost <= chainleftcheck )
 						activepop.push(activepopo,ita->first);
-				//
+				// process chains which we erase from active list
 				for ( uint64_t i = 0; i < activepopo; ++i )
 				{
 					libmaus2::lcs::Chain backchain = activechains.find(activepop[i])->second;
@@ -177,7 +181,8 @@ namespace libmaus2
 					backchain.returnNodes(chainnodefreelist);
 
 					CNIS.setup(ACH.get(),len);
-					CNIS.align(query,querysize,minlength,maxerr);
+					// std::cerr << "align " << backchain.getRefID() << std::endl;
+					CNIS.align(query,querysize,minlength,maxerr,backchain.getRefID());
 
 					activechains.erase(activepop[i]);
 				}
@@ -190,22 +195,19 @@ namespace libmaus2
 					static_cast<int64_t>(chain.rightmost-1)
 				);
 
-				for (
-					std::map<uint64_t,libmaus2::lcs::Chain>::iterator ita = activechains.begin();
-					ita != activechains.end();
-					++ita
-				)
+				// iterate over active chains
+				for ( std::map<uint64_t,libmaus2::lcs::Chain>::iterator ita = activechains.begin(); ita != activechains.end(); ++ita )
 				{
 					libmaus2::lcs::Chain & backchain = ita->second;
 
-					libmaus2::math::IntegerInterval<int64_t> Iback(
-						backchain.getLeftMost(chainnodefreelist),
-						static_cast<int64_t>(backchain.rightmost-1)
-					);
-
+					// interval for chain in active list
+					libmaus2::math::IntegerInterval<int64_t> Iback(backchain.getLeftMost(chainnodefreelist),static_cast<int64_t>(backchain.rightmost-1));
+					// intersect with interval of new chain
 					libmaus2::math::IntegerInterval<int64_t> Isec = Icur.intersection(Iback);
 
 					if (
+						((!domsameref) || (ita->second.getRefID() == chain.getRefID()) )
+						&&
 						Isec.diameter() >= static_cast<int64_t>((Icur.diameter() * fracmul)/fracdiv)
 						&&
 						(chaindommul * backchain.getRange(chainnodefreelist))/chaindomdiv > chain.getRange(chainnodefreelist)
@@ -217,6 +219,8 @@ namespace libmaus2
 						covered++;
 					}
 					else if (
+						((!domsameref) || (ita->second.getRefID() == chain.getRefID()) )
+						&&
 						Isec.diameter() >= static_cast<int64_t>((Iback.diameter() * fracmul)/fracdiv)
 						&&
 						(chaindommul * chain.getRange(chainnodefreelist))/chaindomdiv > backchain.getRange(chainnodefreelist)
@@ -255,6 +259,7 @@ namespace libmaus2
 				assert ( chains.find(chainid) != chains.end() );
 				libmaus2::lcs::Chain const & chain = chains.find(chainid)->second;
 				uint64_t const chainleftmost = chain.getLeftMost(chainnodefreelist);
+				uint64_t const refid = chain.getRefID();
 
 				uint64_t const len = chain.getInfo(chainnodefreelist, ACH);
 				assert ( len == chain.length );
@@ -267,6 +272,7 @@ namespace libmaus2
 				if ( CNIS.isValid() )
 				{
 					libmaus2::lcs::Chain NC;
+					NC.refid = refid;
 					CNIS.copyback(chainnodefreelist,NC,chainid);
 					chainQ.pushBump(NC);
 				}
@@ -318,12 +324,38 @@ namespace libmaus2
 					return meta.S.size() - id - 1;
 			}
 
+			static uint64_t getDefaultMinLength()
+			{
+				return 0;
+			}
+
+			static double getDefaultMaxErr()
+			{
+				return std::numeric_limits<double>::max();
+			}
+
+			struct Verbosity
+			{
+				virtual ~Verbosity() {}
+				virtual void operator()(libmaus2::rank::DNARankMEM const &, uint64_t const) const = 0;
+			};
+
+			struct NullVerbosity : public Verbosity
+			{
+				void operator()(libmaus2::rank::DNARankMEM const &, uint64_t const) const
+				{
+
+				}
+			};
+
+			template<typename enumerator_type>
 			void process(
-				libmaus2::rank::DNARankSMEMComputation::SMEMEnumerator<char const *> & senum,
+				enumerator_type & senum,
 				char const * query,
 				uint64_t const querysize,
-				uint64_t const minlength = 0,
-				double const maxerr = std::numeric_limits<double>::max()
+				uint64_t const minlength = getDefaultMinLength(),
+				double const maxerr = getDefaultMaxErr(),
+				Verbosity const & verbosity = NullVerbosity()
 			)
 			{
 				assert ( idle() );
@@ -343,10 +375,11 @@ namespace libmaus2
 				libmaus2::rank::DNARankMEM smem;
 				for ( uint64_t z = 0; (senum.getNext(smem)); ++z )
 				{
-					#if 0
 					if ( z % (16*1024) == 0 )
-						std::cerr << "smem " << smem << " addQ=" << addQ.f << " remQ=" << remQ.f << std::endl;
-					#endif
+					{
+						// std::cerr << "smem " << smem << " addQ=" << addQ.f << " remQ=" << remQ.f << std::endl;
+						verbosity(smem,z);
+					}
 
 					// std::cerr << "proc smem " << smem << std::endl;
 
@@ -556,9 +589,12 @@ namespace libmaus2
 
 								assert ( chains.find(chainid) == chains.end() );
 
-								chains [ chainid ] = libmaus2::lcs::Chain();
+								libmaus2::lcs::Chain nchain;
+								nchain.rightmost = smem.right;
+								nchain.refid = coL.first;
+
+								chains [ chainid ] = nchain;
 								chainleftend [ smem.left ] ++;
-								chains [ chainid ].rightmost = smem.right;
 								chainend.insert(std::pair<uint64_t,uint64_t>(smem.right,chainid));
 							}
 
@@ -638,7 +674,7 @@ namespace libmaus2
 					backchain.returnNodes(chainnodefreelist);
 
 					CNIS.setup(ACH.get(),len);
-					CNIS.align(query,querysize,minlength,maxerr);
+					CNIS.align(query,querysize,minlength,maxerr,backchain.refid);
 				}
 
 				activechains.clear();
@@ -650,6 +686,11 @@ namespace libmaus2
 			void printAlignments(uint64_t const minlength = 0)
 			{
 				CNIS.printAlignments(minlength);
+			}
+
+			std::pair<libmaus2::lcs::ChainAlignment const *, libmaus2::lcs::ChainAlignment const *> getAlignments() const
+			{
+				return CNIS.getAlignments();
 			}
 		};
 	}

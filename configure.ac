@@ -1,5 +1,5 @@
-AC_INIT(libmaus2,2.0.263,[tischler@mpi-cbg.de],[libmaus2],[https://github.com/gt1/libmaus2])
-LIBRARY_VERSION=2:263:0
+AC_INIT(libmaus2,2.0.420,[tischler@mpi-cbg.de],[libmaus2],[https://github.com/gt1/libmaus2])
+LIBRARY_VERSION=2:420:0
 AC_MSG_NOTICE([Configuring for source in directory ${srcdir}])
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
@@ -238,35 +238,14 @@ else
 	fi
 fi
 
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER(boost/regex.hpp, [boost_regex_hpp=yes], [boost_regex_hpp=no])
-AC_LANG_POP
-
-AC_LANG_PUSH([C++])
-LIBSSAVE="${LIBS}"
-LIBS="${LIBS} -lboost_regex"
-AC_MSG_CHECKING([whether we can compile a program using the boost regex library])
-AC_TRY_LINK([#include <boost/regex.hpp>],[::boost::regex reg("hello world");
-	::boost::regex_replace(std::string("in hello world replace"),reg,std::string("hu globe"));
-],[boost_regex=yes],[boost_regex=no])
-AC_MSG_RESULT([${boost_regex}])
-LIBS="${LIBSSAVE}"
-AC_LANG_POP
-
-if [[ "${boost_regex} = yes" ]] ; then
-	LIBMAUSHAVEBOOSTREGEX="#define LIBMAUS2_HAVE_BOOST_REGEX"
-else
-	LIBMAUSHAVEBOOSTREGEX
-fi
-
 LIBMAUSHAVESNAPPY=
 SNAPPYCPPFLAGS=
 SNAPPYLDFLAGS=
 SNAPPYLIBS=
 AC_ARG_WITH([snappy],
-            [AS_HELP_STRING([--with-snappy@<:@=PATH@:>@], [support for snappy compression @<:@default=no@:>@])],
+            [AS_HELP_STRING([--with-snappy@<:@=PATH@:>@], [support for snappy compression @<:@default=@:>@])],
             [with_snappy=${withval}],
-            [with_snappy=no])
+            [with_snappy=])
 
 if [[ "${with_snappy}" != "no" ]] ; then
 	LIBSSAVE="${LIBS}"
@@ -288,6 +267,7 @@ if [[ "${with_snappy}" != "no" ]] ; then
 
 	AC_CHECK_HEADER(snappy.h, [snappy_h=yes], [snappy_h=no])
 
+	if test "$snappy_h" = "yes" ; then
 	AC_MSG_CHECKING([whether we can compile a program using snappy])
 	AC_TRY_LINK([#include <snappy.h>
 #include <cstring>],[char const * input = "hello snappy";
@@ -296,6 +276,7 @@ std::string output;
 snappy::Compress(input,input_length,&output);
 ;],[snappy=yes],[snappy=no])
 	AC_MSG_RESULT([${snappy}])
+	fi
 
 	AC_LANG_POP
 
@@ -307,6 +288,8 @@ snappy::Compress(input,input_length,&output);
 		LIBMAUSHAVESNAPPY="#define LIBMAUS2_HAVE_SNAPPY"
 		LIBMAUSPKGLIBS="${LIBMAUSPKGLIBS} ${SNAPPYLDFLAGS} ${SNAPPYLIBS}"
 		LIBMAUSPKGCPPFLAGS="${LIBMAUSPKGCPPFLAGS} ${SNAPPYCPPFLAGS}"
+	else
+		SNAPPYLIBS=
 	fi
 fi
 
@@ -485,6 +468,14 @@ if [[ "${setrlimit}" = "yes" ]] ; then
 	HAVESETRLIMIT="#define LIBMAUS2_HAVE_SETRLIMIT"
 fi
 
+AC_LANG_PUSH([C++])
+AC_CHECK_FUNC(fcntl,fcntl_func=yes,fcntl_func=no)
+AC_LANG_POP
+
+if [[ "${fcntl_func}" = "yes" ]] ; then
+	LIBMAUS2_HAVE_FCNTL="#define LIBMAUS2_HAVE_FCNTL"
+fi
+
 LIBMAUSLIBS="${LIBMAUSLIBS} ${ZLIBLIBS}"
 
 AC_LANG_PUSH([C++])
@@ -553,6 +544,22 @@ fi
 
 AC_LANG_PUSH([C++])
 CXXFLAGS_SAVE="${CXXFLAGS}"
+CXXFLAGS="-mavx"
+AC_MSG_CHECKING([whether the C++ compiler supports the -mavx flag])
+AC_TRY_COMPILE([],[],[mavx=yes],[mavx=no])
+AC_MSG_RESULT([${mavx}])
+CXXFLAGS="${CXXFLAGS_SAVE}"
+AC_LANG_POP
+
+MAVX=
+LIBMAUS2_HAVE_AVX=
+if test "${mavx}" = "yes" ; then
+	MAVX="-mavx"
+	LIBMAUS2_HAVE_AVX="#define LIBMAUS2_HAVE_AVX"
+fi
+
+AC_LANG_PUSH([C++])
+CXXFLAGS_SAVE="${CXXFLAGS}"
 CXXFLAGS="-mavx2"
 AC_MSG_CHECKING([whether the C++ compiler supports the -mavx2 flag])
 AC_TRY_COMPILE([],[],[mavx2=yes],[mavx2=no])
@@ -561,8 +568,10 @@ CXXFLAGS="${CXXFLAGS_SAVE}"
 AC_LANG_POP
 
 MAVX2=
+LIBMAUS2_HAVE_AVX2=
 if test "${mavx2}" = "yes" ; then
 	MAVX2="-mavx2"
+	LIBMAUS2_HAVE_AVX2="#define LIBMAUS2_HAVE_AVX2"
 fi
 
 AC_LANG_PUSH([C++])
@@ -1131,6 +1140,122 @@ if test \
 fi
 AC_MSG_RESULT([${LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_Y256_16}])
 
+
+have_mm256_and_si256=no
+if test "${msse2}" = "yes" -a "${immintrin_h}" = "yes" -a "${nullx}" = "yes" -a "${mavx2}" = "yes" -a "${have_mm256_load_si256}" = "yes" ; then
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-std=gnu++0x ${MAVX2}"
+	AC_MSG_CHECKING([whether the C++ compiler supports _mm256_and_si256])
+	AC_TRY_COMPILE([#include <immintrin.h>
+#include <cstdint>],[
+uint8_t ymm[sizeof(__m256i)] __attribute__((aligned(sizeof(__m256i)))) = {
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
+};
+__m256i reg = _mm256_load_si256(reinterpret_cast<__m256i const *>(&ymm[0]));
+reg = _mm256_and_si256(reg,reg);
+],[have_mm256_and_si256=yes],[have_mm256_and_si256=no])
+	AC_MSG_RESULT([${have_mm256_and_si256}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+fi
+
+have_mm256_i32gather_epi32=no
+if test "${msse2}" = "yes" -a "${immintrin_h}" = "yes" -a "${nullx}" = "yes" -a "${mavx2}" = "yes" -a "${have_mm256_load_si256}" = "yes" ; then
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-std=gnu++0x ${MAVX2}"
+	AC_MSG_CHECKING([whether the C++ compiler supports _mm256_i32gather_epi32])
+	AC_TRY_COMPILE([#include <immintrin.h>
+#include <cstdint>],[
+uint8_t ymm[sizeof(__m256i)] __attribute__((aligned(sizeof(__m256i)))) = {
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
+};
+__m256i reg = _mm256_load_si256(reinterpret_cast<__m256i const *>(&ymm[0]));
+int base[16];
+reg = _mm256_i32gather_epi32(&base[0],reg,1);
+],[have_mm256_i32gather_epi32=yes],[have_mm256_i32gather_epi32=no])
+	AC_MSG_RESULT([${have_mm256_i32gather_epi32}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+fi
+
+have_mm256_extractf128_si256=no
+if test "${msse2}" = "yes" -a "${immintrin_h}" = "yes" -a "${nullx}" = "yes" -a "${mavx2}" = "yes" -a "${have_mm256_load_si256}" = "yes" ; then
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-std=gnu++0x ${MAVX2}"
+	AC_MSG_CHECKING([whether the C++ compiler supports _mm256_extractf128_si256])
+	AC_TRY_COMPILE([#include <immintrin.h>
+#include <cstdint>],[
+uint8_t ymm[sizeof(__m256i)] __attribute__((aligned(sizeof(__m256i)))) = {
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+	0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
+};
+__m256i reg = _mm256_load_si256(reinterpret_cast<__m256i const *>(&ymm[0]));
+__m128i reg128 = _mm256_extractf128_si256(reg,0);
+],[have_mm256_extractf128_si256=yes],[have_mm256_extractf128_si256=no])
+	AC_MSG_RESULT([${have_mm256_extractf128_si256}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+fi
+
+have_mm256_set1_epi8=no
+if test "${msse2}" = "yes" -a "${immintrin_h}" = "yes" -a "${nullx}" = "yes" -a "${mavx2}" = "yes" ; then
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-std=gnu++0x ${MAVX2}"
+	AC_MSG_CHECKING([whether the C++ compiler supports _mm256_set1_epi8])
+	AC_TRY_COMPILE([#include <immintrin.h>
+#include <cstdint>],[
+__m256i reg = _mm256_set1_epi8(1);
+],[have_mm256_set1_epi8=yes],[have_mm256_set1_epi8=no])
+	AC_MSG_RESULT([${have_mm256_set1_epi8}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+fi
+
+have_mm_extract_epi8=no
+if test "${msse2}" = "yes" -a "${immintrin_h}" = "yes" -a "${nullx}" = "yes" -a "${have_mm_load_si128}" = "yes" -a "${msse41}" = "yes" ; then
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-std=gnu++0x ${MSSE2} ${MSSE41}"
+	AC_MSG_CHECKING([whether the C++ compiler supports _mm_extract_epi8])
+	AC_TRY_COMPILE([#include <immintrin.h>
+#include <cstdint>],[
+uint8_t xmm[sizeof(__m128i)] __attribute__((aligned(sizeof(__m128i)))) = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+__m128i reg = _mm_load_si128(reinterpret_cast<__m128i const *>(&xmm[0]));
+int c = _mm_extract_epi8(reg,0);
+	],[have_mm_extract_epi8=yes],[have_mm_extract_epi8=no])
+	AC_MSG_RESULT([${have_mm_extract_epi8}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+fi
+
+LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2=no
+AC_MSG_CHECKING([whether the C++ compiler supports all intrinsics required for one to many global alignment using AVX2])
+if test \
+	"${have_mm256_load_si256}" = "yes"  -a \
+	"${have_mm256_loadu_si256}" = "yes"  -a \
+	"${have_mm256_store_si256}" = "yes"  -a \
+	"${have_mm256_andnot_si256}" = "yes"  -a \
+	"${have_mm256_or_si256}" = "yes"  -a \
+	"${have_mm256_cmpeq_epi8}" = "yes"  -a \
+	"${have_mm256_adds_epu8}" = "yes"  -a \
+	"${have_mm256_shuffle_epi8}" = "yes"  -a \
+	"${have_mm256_permute2f128_si256}" = "yes"  -a \
+	"${have_mm256_min_epu8}" = "yes" -a \
+	"${have_mm256_and_si256}" = "yes" -a \
+	"${have_mm256_set1_epi8}" = "yes" -a \
+	"${have_mm256_i32gather_epi32}" = "yes" -a \
+	"${have_mm256_extractf128_si256}" = "yes" -a \
+	"${have_mm_extract_epi8}" = "yes" ; then
+	LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2=yes
+fi
+AC_MSG_RESULT([${LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2}])
+
 if test "${LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_X128_8}" = "yes" ; then
 	LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_X128_8="#define LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_X128_8"
 else
@@ -1150,6 +1275,11 @@ if test "${LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_Y256_16}" = "yes" ; then
 	LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_Y256_16="#define LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_Y256_16"
 else
 	LIBMAUS2_HAVE_GLOBAL_ALIGNMENT_Y256_16=
+fi
+if test "${LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2}" = "yes" ; then
+	LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2="#define LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2"
+else
+	LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2=
 fi
 
 if test "${nullx}" = "yes" ; then
@@ -1252,7 +1382,7 @@ AC_ARG_ENABLE(asm,
         AS_HELP_STRING([--enable-asm],[use inline assembly code (default yes)]),
         [assembly=${enableval}],[assembly=yes])
 AC_ARG_ENABLE(shared-libmaus2,
-        AS_HELP_STRING([--enable-shared-libmaus2],[enable compiling shared libmaus2.so and libmaus2lsf.so]),
+        AS_HELP_STRING([--enable-shared-libmaus2],[enable compiling shared libmaus2.so]),
         [sharedlibmaus2=${enableval}],[sharedlibmaus2=yes])
 AC_ARG_ENABLE(autoarraytrace,
         AS_HELP_STRING([--enable-autoarraytrace],[store traces of allocation through AutoArray (default no)]),
@@ -1281,6 +1411,10 @@ AC_ARG_ENABLE(openmp,
         AS_HELP_STRING([--enable-openmp],[use OpenMP (default yes)]),
         [openmp=${enableval}],[openmp=yes])
 
+AC_ARG_ENABLE(asan,
+        AS_HELP_STRING([--enable-asan],[enable address sanitizer in debug mode (default no)]),
+        [enableasan=${enableval}],[enableasan=no])
+
 if test "${openmp}" = "yes" ; then
 	AC_LANG_PUSH([C++])
 	AX_OPENMP(have_openmp=yes,have_openmp=no)
@@ -1294,34 +1428,59 @@ if test "${debug}" = "yes" ; then
         LDFLAGS="${LDFLAGS} -rdynamic"
 	openmp="no"
 	LIBMAUS2_DEBUG_COMPILED="#define LIBMAUS2_DEBUG_COMPILED"
-else
-	if test "${profile}" = "yes" ; then
-	        CXXFLAGS="${CXXFLAGS} -g -pg"
-	        CFLAGS="${CFLAGS} -g -pg"
-	        LDFLAGS="${LDFLAGS} -rdynamic"
-	else
-		if test "${optimization}" = "yes" ; then
-			case ${CXX} in
-				g++)
-					CXXFLAGS="${CXXFLAGS} -O3"
-					CFLAGS="${CFLAGS} -O3"
-				        LDFLAGS="${LDFLAGS} -rdynamic"
-					;;
-				*-mingw32msvc-g++)
-					CXXFLAGS="${CXXFLAGS} -O3"
-					CFLAGS="${CFLAGS} -O3"
-				        LDFLAGS="${LDFLAGS} -rdynamic"
-					;;
-				cl.exe)
-					CXXFLAGS="${CXXFLAGS} -O2 -Ob2 -Ot -Oy"
-					;;
-			esac
-		fi
 
+	if test "${enableasan}" = "yes" ; then
+		AC_LANG_PUSH([C++])
+		CXXFLAGS_SAVE="${CXXFLAGS}"
+		CXXFLAGS="-fsanitize=address"
+		AC_MSG_CHECKING([whether the C++ compiler supports the -fsanitize=address flag])
+		AC_TRY_COMPILE([],[],[sanitizeaddress=yes],[sanitizeaddress=no])
+		AC_MSG_RESULT([${sanitizeaddress}])
+		CXXFLAGS="${CXXFLAGS_SAVE}"
+		AC_LANG_POP
+
+		if test "${sanitizeaddress}" = "yes" ; then
+			CXXFLAGS="${CXXFLAGS} -fsanitize=address"
+			CFLAGS="${CFLAGS} -fsanitize=address"
+		fi
 	fi
+
+	AC_LANG_PUSH([C++])
+	CXXFLAGS_SAVE="${CXXFLAGS}"
+	CXXFLAGS="-fstack-protector"
+	AC_MSG_CHECKING([whether the C++ compiler supports the -fstack-protector flag])
+	AC_TRY_COMPILE([],[],[stackprotect=yes],[stackprotect=no])
+	AC_MSG_RESULT([${stackprotect}])
+	CXXFLAGS="${CXXFLAGS_SAVE}"
+	AC_LANG_POP
+
+	if test "${stackprotect}" = "yes" ; then
+		STACKPROTECT="-fstack-protector"
+		CXXFLAGS="${CXXFLAGS} ${STACKPROTECT}"
+		CFLAGS="${CFLAGS} ${STACKPROTECT}"
+	fi
+elif test "${optimization}" = "yes" ; then
+	case ${CXX} in
+		g++)
+			CXXFLAGS="${CXXFLAGS} -O3"
+			CFLAGS="${CFLAGS} -O3"
+			LDFLAGS="${LDFLAGS} -rdynamic"
+			;;
+		*-mingw32msvc-g++)
+			CXXFLAGS="${CXXFLAGS} -O3"
+			CFLAGS="${CFLAGS} -O3"
+			LDFLAGS="${LDFLAGS} -rdynamic"
+			;;
+		cl.exe)
+			CXXFLAGS="${CXXFLAGS} -O2 -Ob2 -Ot -Oy"
+			;;
+	esac
 fi
 
-
+if test "${profile}" = "yes" ; then
+	CXXFLAGS="${CXXFLAGS} -g -pg"
+	CFLAGS="${CFLAGS} -g -pg"
+fi
 
 AC_LANG_PUSH([C++])
 CPPFLAGS_SAVE="${CPPFLAGS}"
@@ -1643,287 +1802,6 @@ AC_CHECK_HEADER(sys/time.h, [sys_time_h=yes], [sys_time_h=no])
 AC_CHECK_HEADER(regex.h, [regex_h=yes], [regex_h=no])
 AC_LANG_POP
 
-SEQANCPPFLAGS=
-SEQANLDFLAGS=
-SEQANLIBS=
-AC_ARG_WITH([seqan],
-            [AS_HELP_STRING([--with-seqan@<:@=PATH@:>@], [support for SeqAn library @<:@default=no@:>@])],
-            [with_seqan=${withval}],
-            [with_seqan=no])
-
-if [[ "${with_seqan}" != "no" ]] ; then
-
-	if [[ \( ! -z "${with_snappy}" \) -a \( "${with_snappy}" != "yes" \) ]] ; then
-		SEQANCPPFLAGS="-I${with_seqan}/include"
-		SEQANLDFLAGS="-L${with_seqan}/lib"
-	fi
-
-	CPPFLAGSSAVE="${CPPFLAGS}"
-	LDFLAGSSAVE="${LDFLAGS}"
-	CPPFLAGS="${CPPFLAGS} ${SEQANCPPFLAGS}"
-	LDFLAGS="${LDFLAGS} ${SEQANLDFLAGS}"
-
-	AC_LANG_PUSH([C++])
-	AC_CHECK_HEADER(seqan/align.h, [seqan_align_h=yes], [seqan_align_h=no])
-	AC_CHECK_HEADER(seqan/graph_msa.h, [seqan_graph_msa_h=yes], [seqan_graph_msa_h=no])
-	AC_CHECK_HEADER(seqan/score.h, [seqan_score_h=yes], [seqan_score_h=no])
-	AC_LANG_POP
-
-	CPPFLAGS="${CPPFLAGSSAVE}"
-	LDFLAGS="${LDFLAGSSAVE}"
-
-	if test "x$seqan_align_h" = "xyes" -a "x$seqan_graph_msa_h" = "xyes" -a "x$seqan_score_h" = "xyes" ; then
-		CPPFLAGSSAVE="${CPPFLAGS}"
-		LDFLAGSSAVE="${LDFLAGS}"
-		CPPFLAGS="${CPPFLAGS} ${SEQANCPPFLAGS}"
-		LDFLAGS="${LDFLAGS} ${SEQANLDFLAGS}"
-
-		AC_LANG_PUSH([C++])
-		AC_MSG_CHECKING([whether we can compile a SeqAN program])
-				AC_LINK_IFELSE([AC_LANG_SOURCE([#include <iostream>
-	#include <vector>
-	#include <cassert>
-	#include <seqan/align.h>
-	#include <seqan/graph_msa.h>
-	#include <seqan/score.h>
-
-	struct ScoringMatrix : public seqan::Score < int, seqan::ScoreMatrix<seqan::Dna5, seqan::Default> >
-	{
-		typedef ScoringMatrix this_type;
-		typedef seqan::Dna5 TSequenceValue;
-		typedef seqan::Score < int, seqan::ScoreMatrix<TSequenceValue, seqan::Default> > base_type;
-
-		// gap penalties
-		static int const gap_open_penalty = -4;
-		static int const gap_extend_penalty = -3;
-
-		// Print a scoring scheme matrix to stdout.
-		void showMatrix()
-		{
-			// Print top row.
-			for (unsigned i = 0; i < seqan::ValueSize<TSequenceValue>::VALUE; ++i)
-				std::cout << "\t" << TSequenceValue(i);
-			std::cout << std::endl;
-			
-			// Print each row.
-			for (unsigned i = 0; i < seqan::ValueSize<TSequenceValue>::VALUE; ++i) {
-				std::cout << TSequenceValue(i);
-				for (unsigned j = 0; j < seqan::ValueSize<TSequenceValue>::VALUE; ++j) {
-					std::cout << "\t" << score(*this, TSequenceValue(i), TSequenceValue(j));
-				}
-				std::cout << std::endl;
-			}
-		}
-
-		ScoringMatrix() : base_type(gap_open_penalty,gap_extend_penalty)
-		{
-			/* keeping base: good(1), changing base: bad(-1) */
-			seqan::setScore(*this,'A','A',1);
-			seqan::setScore(*this,'A','C',-1);
-			seqan::setScore(*this,'A','G',-1);
-			seqan::setScore(*this,'A','T',-1);
-
-			seqan::setScore(*this,'C','A',-1);
-			seqan::setScore(*this,'C','C', 1);
-			seqan::setScore(*this,'C','G',-1);
-			seqan::setScore(*this,'C','T',-1);
-
-			seqan::setScore(*this,'G','A',-1);
-			seqan::setScore(*this,'G','C',-1);
-			seqan::setScore(*this,'G','G', 1);
-			seqan::setScore(*this,'G','T',-1);
-
-			seqan::setScore(*this,'T','A',-1);
-			seqan::setScore(*this,'T','C',-1);
-			seqan::setScore(*this,'T','G',-1);
-			seqan::setScore(*this,'T','T', 1);
-
-			/* changing N to base: ok(0) */
-			seqan::setScore(*this,'N','A', 0);
-			seqan::setScore(*this,'N','C', 0);
-			seqan::setScore(*this,'N','G', 0);
-			seqan::setScore(*this,'N','T', 0);
-
-			/* changing base to N: bad(-1) */
-			seqan::setScore(*this,'A','N', -1);
-			seqan::setScore(*this,'C','N', -1);
-			seqan::setScore(*this,'G','N', -1);
-			seqan::setScore(*this,'T','N', -1);
-			seqan::setScore(*this,'N','N',  0);
-		}
-	};
-
-	struct ConsensusComputation
-	{
-		ScoringMatrix const mscoring;
-		ScoringMatrix::base_type const & scoring;
-
-		static char mapChar(char const c)
-		{
-			switch ( c )
-			{
-				case 'A': case 'a': return 0;
-				case 'C': case 'c': return 1;
-				case 'G': case 'g': return 2;
-				case 'T': case 't': return 3;
-				case 'N': case 'n': return 4;
-				default:  return 5;
-			}
-		}
-
-		static char remapChar(char const c)
-		{
-			static char const * m = "ACGTN-";
-			return m[[static_cast<int>(c)]];
-		}
-
-		ConsensusComputation() : mscoring(), scoring(mscoring)
-		{
-			// mscoring.showMatrix();
-		}
-		
-		std::string computeConsensus(std::vector<std::string> const & V, bool const verbose = false) const
-		{
-			seqan::Align< seqan::String<seqan::Dna5> > align;
-			seqan::resize(rows(align), V.size());
-		
-			for ( uint64_t i = 0; i < V.size(); ++i )
-				seqan::assignSource(row(align, i),V[[i]]);	
-
-			// compute multiple alignment
-			seqan::globalMsaAlignment(align, scoring);
-
-			unsigned int const rowlen = length(rows(align)) ? length(rows(align)[[0]]) : 0;
-			
-			// compute frequencies per column	
-			std::vector < int > cons(6*rowlen);
-
-			for ( unsigned int r = 0; r < length(rows(align)); ++r )
-			{
-				seqan::Gaps< seqan::String<seqan::Dna5>, seqan::ArrayGaps > const & arow = rows(align)[[r]];
-
-				if ( verbose )
-					std::cerr << arow << "\t";
-				
-				unsigned int exp = 0;
-				for ( unsigned int i = 0; i < length(source(arow)); ++i )
-				{
-					unsigned int const viewpos = toViewPosition(arow, i) ;
-					
-					while ( exp < viewpos )
-					{
-						cons[[(exp * 6) + mapChar('-')]] ++;
-						exp++;
-					}
-				
-					if ( verbose )
-						std::cerr << viewpos
-							<< "(" << source(arow)[[i]] << ")"
-							<< (((i+1)<length(source(arow)))?",":"")
-						;
-					
-					cons[[(exp*6) + mapChar(source(arow)[i])]]++;
-					
-					exp++;
-				}
-				
-				while ( exp < rowlen )
-				{		
-					cons[[(exp * 6) + mapChar('-')]] ++;
-					exp++;
-				}
-				
-				if ( verbose )
-					std::cerr << std::endl;
-			}
-			
-			// compute pre consensus by majority vote
-			// (use lex. smallest character with maximum freq per column)
-			std::string preconsensus(rowlen,'-');
-			unsigned int conslen = 0;
-			for ( unsigned int c = 0; c < rowlen; ++c )
-			{
-				int sum = 0;
-				int maxval = -1;
-				int maxchar = -1;
-				
-				for ( unsigned int i = 0; i < 6; ++i )
-				{
-					if ( cons[[c*6+i]] )
-					{
-						if ( verbose )
-							std::cerr << remapChar(i) << ":" << cons[[c*6+i]] << ";";
-						
-						if ( cons[[c*6+i]] > maxval )
-						{
-							maxval = cons[[c*6+i]];
-							maxchar = i;
-						}
-					}
-						
-					sum += cons[[c*6+i]];
-				}
-				
-				assert ( sum == static_cast<int>(length(rows(align))) );
-				
-				preconsensus[[c]] = remapChar(maxchar);
-				
-				if ( maxchar >= 0 && maxchar <= 4 )
-					conslen++;
-				
-				if ( verbose )
-					std::cerr << std::endl;
-			}
-			
-			// build final consensus from pre consensus by dropping - columns
-			std::string consensus(conslen,'\0');
-			
-			for ( unsigned int i = 0, j = 0; i < preconsensus.size(); ++i )
-				if ( preconsensus[[i]] != '-' )
-					consensus[[j++]] = preconsensus[[i]];
-
-			return consensus;
-		}
-	};
-
-	int main()
-	{
-		ConsensusComputation CC;
-		
-		std::vector<std::string> V;
-		V.push_back("AAAA");
-		V.push_back("ATAA");
-		V.push_back("AATA");
-		V.push_back("GAAA");
-		V.push_back("AANAA");
-		V.push_back("AAAAT");
-		
-		std::string const consensus = CC.computeConsensus(V,true);
-				
-		std::cerr << "consensus: " << consensus << std::endl;
-			   
-		return 0;
-	}])],
-				have_seqan=yes,
-				have_seqan=no
-			)
-		AC_MSG_RESULT($have_seqan)
-		AC_LANG_POP
-
-		CPPFLAGS="${CPPFLAGSSAVE}"
-		LDFLAGS="${LDFLAGSSAVE}"
-
-	else
-		have_seqan="no"
-	fi
-
-	if [[ "${have_seqan}" = "yes" ]] ; then 
-		SEQAN="#define LIBMAUS2_HAVE_SEQAN"
-	else
-		SEQAN=
-	fi
-fi
-
 AC_C_BIGENDIAN
 if test "x$ac_cv_c_bigendian" = "xyes"; then
 	ENDIANESS="#define LIBMAUS2_BYTE_ORDER_BIG_ENDIAN"
@@ -2010,6 +1888,56 @@ AC_MSG_RESULT([$have_statfs])
 	fi
 else
 	LIBMAUS2_HAVE_STATFS=
+fi
+
+if test "${have_statfs}" = "yes" ; then
+	AC_MSG_CHECKING([whether struct statfs has field f_iosize])
+                AC_LINK_IFELSE([AC_LANG_SOURCE([#include <sys/vfs.h>
+
+            int main() {
+		struct statfs stfs;
+		int iosize;
+		statfs("file",&stfs);
+		iosize = stfs.f_iosize;
+		return 0;
+            }])],
+                have_statfs_f_iosize=yes,
+                have_statfs_f_iosize=no
+        )
+AC_MSG_RESULT([$have_statfs_f_iosize])
+
+	if test "${have_statfs_f_iosize}" = "yes" ; then
+		LIBMAUS2_HAVE_STATFS_F_IOSIZE="#define LIBMAUS2_HAVE_STATFS_F_IOSIZE"
+	else
+		LIBMAUS2_HAVE_STATFS_F_IOSIZE=""
+	fi
+else
+	LIBMAUS2_HAVE_STATFS_F_IOSIZE=
+fi
+
+if test "${have_statfs}" = "yes" ; then
+	AC_MSG_CHECKING([whether struct statfs has field f_bsize])
+                AC_LINK_IFELSE([AC_LANG_SOURCE([#include <sys/vfs.h>
+
+            int main() {
+		struct statfs stfs;
+		int bsize;
+		statfs("file",&stfs);
+		bsize = stfs.f_bsize;
+		return 0;
+            }])],
+                have_statfs_f_bsize=yes,
+                have_statfs_f_bsize=no
+        )
+AC_MSG_RESULT([$have_statfs_f_bsize])
+
+	if test "${have_statfs_f_bsize}" = "yes" ; then
+		LIBMAUS2_HAVE_STATFS_F_BSIZE="#define LIBMAUS2_HAVE_STATFS_F_BSIZE"
+	else
+		LIBMAUS2_HAVE_STATFS_F_BSIZE=""
+	fi
+else
+	LIBMAUS2_HAVE_STATFS_F_BSIZE=
 fi
 
 HAVESSE4=
@@ -2158,22 +2086,22 @@ if [[ "${ac_cv_func_sem_timedwait}" = "yes" ]] ; then
 fi
 
 HAVEPTHREADSETNAME_NP=
-if [[ "${ac_cv_pthread_setname_np_func}" = "yes" ]] ; then
+if [[ "${ac_cv_func_pthread_setname_np}" = "yes" ]] ; then
 	HAVEPTHREADSETNAME_NP="#define LIBMAUS2_HAVE_HAVEPTHREADSETNAME_NP"
 fi
 
 HAVEPTHREADSET_NAME_NP=
-if [[ "${ac_cv_pthread_set_name_np_func}" = "yes" ]] ; then
+if [[ "${ac_cv_func_pthread_set_name_np}" = "yes" ]] ; then
 	HAVEPTHREADSET_NAME_NP="#define LIBMAUS2_HAVE_HAVEPTHREADSET_NAME_NP"
 fi
 
 HAVEPTHREADGETNAME_NP=
-if [[ "${ac_cv_pthread_getname_np_func}" = "yes" ]] ; then
+if [[ "${ac_cv_func_pthread_getname_np}" = "yes" ]] ; then
 	HAVEPTHREADGETNAME_NP="#define LIBMAUS2_HAVE_HAVEPTHREADGETNAME_NP"
 fi
 
 HAVEPTHREADGET_NAME_NP=
-if [[ "${ac_cv_pthread_get_name_np_func}" = "yes" ]] ; then
+if [[ "${ac_cv_func_pthread_get_name_np}" = "yes" ]] ; then
 	HAVEPTHREADGET_NAME_NP="#define LIBMAUS2_HAVE_HAVEPTHREADGET_NAME_NP"
 fi
 
@@ -2203,85 +2131,6 @@ if test "${pthread}" = "yes" ; then
 	fi
 else
 	AC_MSG_NOTICE([Required thread functionality not found, disabling multi threading.])
-fi
-
-AC_ARG_WITH([lsf],
-	[AS_HELP_STRING([--with-lsf@<:@=PATH@:>@], [path to installed LSF @<:@default=no@:>@])],
-	[with_lsf=${withval}],
-	[with_lsf=no])
-
-if test "${with_lsf}" != "no" ; then
-
-    if test \( "${with_lsf}" != "no" \) -a \( ! -z "${with_lsf}" \) ; then
-	LSFCPPFLAGS="-I${with_lsf}/include -I${with_lsf}/../include"
-        LSFLIBDIR="${with_lsf}/lib"
-	LSFLDFLAGS="-L${LSFLIBDIR}"
-        LSFLIBS="${LSFLIBDIR}/libbat.a ${LSFLIBDIR}/liblsf.a -lm -lnsl -ldl"
-        # LSFLIBS="-lbat -llsf -lm -lnsl -ldl -lstdc++"
-    else
-	LSFCPPFLAGS=
-	LSFLDFLAGS=
-        LSFLIBDIR=
-        LSFLIBS=
-    fi
-
-    CPPFLAGS_SAVE="${CPPFLAGS}"
-    CPPFLAGS="${CPPFLAGS} ${LSFCPPFLAGS}"
-    AC_LANG_PUSH([C++])
-    AC_CHECK_HEADER(lsf/lsbatch.h,[have_lsf_lsbatch_h=yes],[have_lsf_lsbatch_h=no])
-    AC_LANG_POP
-    CPPFLAGS="${CPPFLAGS_SAVE}"
-
-    if test "${have_lsf_lsbatch_h}" = "yes" ; then
-
-        AC_LANG_PUSH([C++])
-        CPPFLAGS_SAVE="${CPPFLAGS}"
-        CPPFLAGS="${CPPFLAGS} ${LSFCPPFLAGS}"
-        LIBS_SAVE="${LIBS}"
-        LIBS="${LIBS} ${LSFLIBS}"
-        LDFLAGS_SAVE="${LDFLAGS}"
-        LDFLAGS="${LDFLAGS} ${LSFLDFLAGS}"
-        AC_MSG_CHECKING([whether we can compile a program using LSF])
-                        AC_LINK_IFELSE([AC_LANG_SOURCE([#include <lsf/lsbatch.h>
-                    #include <cstdlib>
-
-                    int main(int, char *argv[[]]) 
-                    {
-                            if (lsb_init(argv[[0]]) < 0) 
-                            {
-                                    char buf[[]] = "lsb_init";
-                                    lsb_perror(buf);
-                                    exit(-1);
-                            }
-
-                            struct submit sm;
-                            struct submitReply sr;
-                            lsb_submit(&sm,&sr);
-                            
-                            return 0;
-                    }])],
-                        have_lsf=yes,
-                        have_lsf=no
-                )
-        AC_MSG_RESULT($have_lsf)
-        CPPFLAGS="${CPPFLAGS_SAVE}"
-        LIBS="${LIBS_SAVE}"
-        LDFLAGS="${LDFLAGS_SAVE}"
-        AC_LANG_POP
-
-        if test "${have_lsf}" = "yes" ; then
-		LSFCPPFLAGS="-DHAVE_LSF ${LSFCPPFLAGS}"
-		LSFLDFLAGS="${LSFLDFLAGS}"
-                LSFLIBDIR="${LSFLIBDIR}"
-		LSFLIBS="${LIBMAUSLIBS} ${LSFLIBS}"
-        else
-		LSFCPPFLAGS=""
-                LSFLDFLAGS=""
-		LSFLIBS=""
-                LSFLIBDIR=""
-        fi
-    fi
-
 fi
 
 case $target_cpu in
@@ -2796,6 +2645,73 @@ if test "${with_lzma}" != "no" ; then
 	fi
 fi
 
+AC_ARG_WITH([libarchive],
+	[AS_HELP_STRING([--with-libarchive@<:@=PATH@:>@], [path to installed libarchive library @<:@default=@:>@])],
+	[with_libarchive=${withval}],
+	[with_libarchive=])
+
+LIBMAUS2_HAVE_LIBARCHIVE=
+LIBMAUS2_LIBARCHIVE_LIBS=
+LIBMAUS2_LIBARCHIVE_CPPFLAGS=
+LIBMAUS2_LIBARCHIVE_REQ=
+
+if test "${with_libarchive}" != "no" ; then
+	if test ! -z "${with_libarchive}" ; then
+		PKGCONFIGPATHSAVE="${PKG_CONFIG_PATH}"
+		if test -z "${PKG_CONFIG_PATH}" ; then
+			export PKG_CONFIG_PATH="${with_libarchive}/lib/pkgconfig"
+		else
+			export PKG_CONFIG_PATH="${with_libarchive}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+		fi
+	fi
+
+	PKG_CHECK_MODULES([libarchive],[libarchive >= 3.1.2],[libarchivepkg=yes],[libarchivepkg=no])
+
+	if test ! -z "${with_libarchive}" ; then
+		if test ! -z "${PKGCONFIGPATHSAVE}" ; then
+			export PKG_CONFIG_PATH="${PKGCONFIGPATHSAVE}"
+		fi
+	fi
+
+	if test "${libarchivepkg}" = "yes" ; then
+		AC_LANG_PUSH([C++])
+
+		LIBSSAVE="${LIBS}"
+		LIBS="${LIBS} ${libarchive_LIBS}"
+		CPPFLAGSSAVE="${CPPFLAGS}"
+		CPPFLAGS="${CPPFLAGS} ${libarchive_CFLAGS}"
+
+		AC_LANG_PUSH([C++])
+		AC_CHECK_HEADER(archive.h, [have_libarchive_h=yes], [have_libarchive_h=no])
+		AC_LANG_POP
+
+		AC_MSG_CHECKING([whether we can compile a program using the libarchive library])
+		AC_LANG_PUSH([C++])
+		AC_TRY_LINK([#include <archive.h>
+],[
+		struct archive * a;
+		a = archive_read_new();
+		archive_read_free(a);
+		],[have_libarchive=yes],[have_libarchive=no])
+		AC_MSG_RESULT([${have_libarchive}])
+
+		LIBS="${LIBSSAVE}"
+		CPPFLAGS="${CPPFLAGSSAVE}"
+
+		AC_LANG_POP
+
+		if test "${have_libarchive}" = "yes" ; then
+			LIBMAUS2_HAVE_LIBARCHIVE="#define LIBMAUS2_HAVE_LIBARCHIVE"
+			LIBMAUS2_LIBARCHIVE_LIBS="${libarchive_LIBS}"
+			LIBMAUS2_LIBARCHIVE_CPPFLAGS="${libarchive_CFLAGS}"
+			LIBMAUS2_LIBARCHIVE_REQ="libarchive"
+
+			LIBMAUSCPPFLAGS="${LIBMAUSCPPFLAGS} ${LIBMAUS2_LIBARCHIVE_CPPFLAGS}"
+			LIBMAUSLIBS="${LIBMAUSLIBS} ${LIBMAUS2_LIBARCHIVE_LIBS}"
+		fi
+	fi
+fi
+
 AC_ARG_WITH([gnutls],
 	[AS_HELP_STRING([--with-gnutls@<:@=PATH@:>@], [path to installed gnutls library @<:@default=no@:>@])],
 	[with_gnutls=${withval}],
@@ -3178,14 +3094,13 @@ PACKAGE_NAME=${PACKAGE}
 PACKAGE_VERSION=${VERSION}
 
 TESTPROGS="testAIO testbitbtree testBitIO testbtree testBWTDyn testBWTHufDyn testDivSufSort"
-TESTPROGS="${TESTPROGS} testDNABitWords testFastRead testFork testHuffman testIsa testkmp"
+TESTPROGS="${TESTPROGS} testDNABitWords testFastRead testHuffman testIsa testkmp"
 TESTPROGS="${TESTPROGS} testlz testOS testRank testToWaveletTreeBits testWaveletExternal"
-TESTPROGS="${TESTPROGS} testTrie testConsensus testbandedlcs testbamwriter testhashlcs"
+TESTPROGS="${TESTPROGS} testTrie testbandedlcs testbamwriter testhashlcs"
 TESTPROGS="${TESTPROGS} testarraydecode testsnappy testsnappyconcat testgunzip"
-TESTPROGS="${TESTPROGS} testlogging testregex testhashcollisions testsimplebloomcollisions"
+TESTPROGS="${TESTPROGS} testregex testhashcollisions testsimplebloomcollisions"
 TESTPROGS="${TESTPROGS} testsimplehash testsimplecountinghash testsyncreorderset"
 TESTPROGS="${TESTPROGS} testcachealignedalloc testblocksynchronous testsyncfastreaderbase"
-TESTPROGS="${TESTPROGS} testlsf testlsfdispatcher testlsfclient testlsfclientfw testlsflist"
 TESTPROGS="${TESTPROGS} testdl testdifenc testbwtmergeinternal testfastarewrite testfastarecode"
 TESTPROGS="${TESTPROGS} testbamtofastq testbamrange testbamdamage testgamma testcompact"
 TESTPROGS="${TESTPROGS} testbytetocompact testscramtosam testpacdecode testutf8split testcirchash"
@@ -3206,7 +3121,12 @@ TESTPROGS="${TESTPROGS} testunsignedinteger testmd5 testsha testsinglefileserver
 TESTPROGS="${TESTPROGS} testparallelbamvalidation testparallelbamrewrite testbammateerase testparallelbamblocksort"
 TESTPROGS="${TESTPROGS} testmapperm testexternalmemoryindex testfastqtobam testsamrecoding testdazzlerdb testnd testfastashred testalignerspeed testfastasingleline testdazzleralignmentrewrite"
 TESTPROGS="${TESTPROGS} testxz testdazzlerindex testargparser testfragmentenvelope testdnarank testlowbits testfastaexplode testfaextract testmurmur3 testpairalign testsplaytree testbwtconstruction testbwtconstructionfasta"
-TESTPROGS="${TESTPROGS} testarrayinput testhugepages testsymcnt testgammapd testpo"
+TESTPROGS="${TESTPROGS} testarrayinput testhugepages testsymcnt testgammapd testpo testdnasuffixtrav testserialisedsorting testbamnumericalindex testnpl testkcnt testintervaltree testbamgetrefreg"
+TESTPROGS="${TESTPROGS} teststringgraph testlognormal testConstantSumCombinatorics testmatrix testlibarchive"
+
+if test "${mavx2}" = "yes" ; then
+	TESTPROGS="${TESTPROGS} testavx"
+fi
 
 HDF5CPPFLAGS=
 HDF5CXXFLAGS=
@@ -3234,7 +3154,7 @@ fi
 AC_ARG_WITH([gmp],
             [AS_HELP_STRING([--with-gmp@<:@=PATH@:>@], [path to installed gmp library @<:@default=no@:>@])],
             [with_gmp=${withval}],
-            [with_gmp=no])
+            [with_gmp=])
 
 LIBMAUS2_HAVE_GMP=
 gmp_CFLAGS=
@@ -3562,7 +3482,6 @@ AC_SUBST([HAVESEMTIMEDWAIT])
 AC_SUBST([HAVEPTHREADS])
 AC_SUBST([HAVESYNCOPS])
 AC_SUBST([HAVEPOSIXMEMALIGN])
-AC_SUBST([HAVELSF])
 AC_SUBST([MOVEFUNC])
 AC_SUBST([HAVEI386])
 AC_SUBST([HAVEX8664])
@@ -3573,15 +3492,7 @@ AC_SUBST([LIBMAUSCPPFLAGS])
 AC_SUBST([LIBMAUSCXXFLAGS])
 AC_SUBST([LIBMAUSLDFLAGS])
 AC_SUBST([LIBMAUSLIBS])
-AC_SUBST([LIBMAUSLIBLSFSRC])
 AC_SUBST([LIBMAUSARCHCFLAGS])
-AC_SUBST([LSFCPPFLAGS])
-AC_SUBST([LSFCXXFLAGS])
-AC_SUBST([LSFLIBS])
-AC_SUBST([LSFLDFLAGS])
-AC_SUBST([LSFLIBDIR])
-AC_SUBST([COMPUTEHASHFREQUENCIESLSF])
-AC_SUBST([COMPUTERELATIONMATRIXLSF])
 AC_SUBST([FILTERRELATIONMATRIX])
 AC_SUBST([LIBMAUSPKGCPPFLAGS])
 AC_SUBST([LIBMAUSPKGCXXFLAGS])
@@ -3599,8 +3510,6 @@ AC_SUBST([USEASSEMBLY])
 AC_SUBST([HAVEUNISTDH])
 AC_SUBST([HAVESTDINTH])
 AC_SUBST([REGEXH])
-AC_SUBST([SEQAN])
-AC_SUBST([LIBMAUSHAVEBOOSTREGEX])
 AC_SUBST([LIBMAUSHAVESNAPPY])
 AC_SUBST([HAVEDLFCNH])
 AC_SUBST([abs_builddir])
@@ -3610,10 +3519,6 @@ AC_SUBST([SNAPPYCPPFLAGS])
 AC_SUBST([SNAPPYCXXFLAGS])
 AC_SUBST([SNAPPYLDFLAGS])
 AC_SUBST([SNAPPYLIBS])
-AC_SUBST([SEQANCPPFLAGS])
-AC_SUBST([SEQANCXXFLAGS])
-AC_SUBST([SEQANLDFLAGS])
-AC_SUBST([SEQANLIBS])
 AC_SUBST([ZLIBCPPFLAGS])
 AC_SUBST([ZLIBCXXFLAGS])
 AC_SUBST([ZLIBLIBS])
@@ -3700,6 +3605,10 @@ AC_SUBST([LIBMAUS2_HAVE_LZMA])
 AC_SUBST([LIBMAUS2_LZMA_LIBS])
 AC_SUBST([LIBMAUS2_LZMA_CPPFLAGS])
 AC_SUBST([LIBMAUS2_LZMA_REQ])
+AC_SUBST([LIBMAUS2_HAVE_LIBARCHIVE])
+AC_SUBST([LIBMAUS2_LIBARCHIVE_LIBS])
+AC_SUBST([LIBMAUS2_LIBARCHIVE_CPPFLAGS])
+AC_SUBST([LIBMAUS2_LIBARCHIVE_REQ])
 AC_SUBST([LIBMAUS2_IRODS_NEED_PREFIX])
 AC_SUBST([LIBMAUS2_NETTLE_HAVE_SHA3])
 AC_SUBST([LIBMAUS2_HAVE_MMAP])
@@ -3711,4 +3620,10 @@ AC_SUBST([FFTWCPPFLAGS])
 AC_SUBST([FFTWLDFLAGS])
 AC_SUBST([FFTWLIBS])
 AC_SUBST([TESTDIR])
-AC_OUTPUT(Makefile src/Makefile libmaus2.pc libmaus2digests.pc libmaus2lsf.pc libmaus2irods.pc libmaus2seqchksumsfactory.pc libmaus2fftw.pc ubuntu.sh src/libmaus2/LibMausConfig.hpp test/Makefile)
+AC_SUBST([LIBMAUS2_HAVE_AVX])
+AC_SUBST([LIBMAUS2_HAVE_AVX2])
+AC_SUBST([LIBMAUS2_HAVE_ALIGNMENT_ONE_TO_MANY_AVX2])
+AC_SUBST([LIBMAUS2_HAVE_STATFS_F_BSIZE])
+AC_SUBST([LIBMAUS2_HAVE_STATFS_F_IOSIZE])
+AC_SUBST([LIBMAUS2_HAVE_FCNTL])
+AC_OUTPUT(Makefile src/Makefile libmaus2.pc libmaus2digests.pc libmaus2irods.pc libmaus2seqchksumsfactory.pc libmaus2fftw.pc ubuntu.sh src/libmaus2/LibMausConfig.hpp test/Makefile)

@@ -18,6 +18,10 @@
 */
 #include <libmaus2/bambam/BamDecoder.hpp>
 #include <libmaus2/util/ArgInfo.hpp>
+#include <libmaus2/bambam/BamNumericalIndexGenerator.hpp>
+#include <libmaus2/bambam/BamNumericalIndexDecoder.hpp>
+#include <libmaus2/parallel/NumCpus.hpp>
+#include <libmaus2/lz/BgzfInflateFile.hpp>
 
 int main(int argc, char * argv[])
 {
@@ -25,8 +29,8 @@ int main(int argc, char * argv[])
 	{
 		libmaus2::util::ArgInfo const arginfo(argc,argv);
 
-		std::string const fna = arginfo.getRestArg<std::string>(0);
-		std::string const fnb = arginfo.getRestArg<std::string>(1);
+		std::string const fna = arginfo.getUnparsedRestArg(0);
+		std::string const fnb = arginfo.getUnparsedRestArg(1);
 
 		libmaus2::bambam::BamDecoder bama(fna);
 		libmaus2::bambam::BamDecoder bamb(fnb);

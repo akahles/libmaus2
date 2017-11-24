@@ -62,11 +62,11 @@ namespace libmaus2
 
 					switch ( op )
 					{
-						case 0: // M
-						case 2: // D
-						case 3: // S
-						case 7: // =
-						case 8: // X
+						case BamFlagBase::LIBMAUS2_BAMBAM_CMATCH: // match
+						case BamFlagBase::LIBMAUS2_BAMBAM_CDEL: // del
+						case BamFlagBase::LIBMAUS2_BAMBAM_CREF_SKIP: // refskip
+						case BamFlagBase::LIBMAUS2_BAMBAM_CEQUAL: // equal
+						case BamFlagBase::LIBMAUS2_BAMBAM_CDIFF: // diff
 							end += len;
 					}
 				}
@@ -461,18 +461,50 @@ namespace libmaus2
 					?
 					(cigarlen >> 16)
 					:
-					(flags & libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FUNMAP) ?
-						((pos < 0) ? 4680 : reg2bin(pos,0))
+					(
+						(flags & libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FUNMAP) ?
+						((pos < 0) ? 4680 : reg2bin(pos,pos+1))
 						:
-						reg2bin(pos,endpos(pos,cigar,cigarlen)
+						reg2bin(pos,endpos(pos,cigar,cigarlen))
 					);
 				uint32_t const cflags = (cigarlen > 0xFFFFul) ? (flags | libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FCIGAR32) : flags;
 
-				assert ( namelen+1 < (1ul << 8) );
-				assert ( mapq < (1ul << 8) );
-				assert ( bin < (1ul << 16) );
-				assert ( flags < (1ul << 16) );
-				assert ( cigarlen < (1ul << 16) );
+				bool const nameok = namelen+1 < (1ul << 8);
+				if ( ! nameok )
+				{
+					libmaus2::exception::LibMausException lme;
+					lme.getStream() << "BamAlignmentEncoderBase::encodeAlignment: name \"" << std::string(name,name+namelen) << "\"  is too long " << namelen << std::endl;
+					lme.finish();
+					throw lme;
+				}
+				assert ( nameok );
+				bool const mapqok = mapq < (1ul << 8);
+				if ( ! mapqok )
+				{
+					libmaus2::exception::LibMausException lme;
+					lme.getStream() << "BamAlignmentEncoderBase::encodeAlignment: mapq " << mapq << " out of range" << std::endl;
+					lme.finish();
+					throw lme;
+				}
+				assert ( mapqok );
+				bool const binok = bin < (1ul << 16);
+				if ( ! binok )
+				{
+					libmaus2::exception::LibMausException lme;
+					lme.getStream() << "BamAlignmentEncoderBase::encodeAlignment: bin " << bin << " out of range" << std::endl;
+					lme.finish();
+					throw lme;
+				}
+				assert ( binok );
+				bool const flagsok = flags < (1ul << 16);
+				if ( ! flagsok )
+				{
+					libmaus2::exception::LibMausException lme;
+					lme.getStream() << "BamAlignmentEncoderBase::encodeAlignment: flags " << flags << " out of range" << std::endl;
+					lme.finish();
+					throw lme;
+				}
+				assert ( flagsok );
 
 				putLE<buffer_type, int32_t>(buffer,refid); // offset 0
 				putLE<buffer_type, int32_t>(buffer,pos);   // offset 4
@@ -566,10 +598,11 @@ namespace libmaus2
 					?
 					(cigarlen >> 16)
 					:
-					(flags & libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FUNMAP) ?
-						((pos < 0) ? 4680 : reg2bin(pos,0))
+					(
+						(flags & libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FUNMAP) ?
+						((pos < 0) ? 4680 : reg2bin(pos,pos+1))
 						:
-						reg2bin(pos,endpos(pos,cigar,cigarlen)
+						reg2bin(pos,endpos(pos,cigar,cigarlen))
 					);
 				uint32_t const cflags = (cigarlen > 0xFFFFul) ? (flags | libmaus2::bambam::BamFlagBase::LIBMAUS2_BAMBAM_FCIGAR32) : flags;
 
@@ -577,7 +610,6 @@ namespace libmaus2
 				assert ( mapq < (1ul << 8) );
 				assert ( bin < (1ul << 16) );
 				assert ( flags < (1ul << 16) );
-				assert ( cigarlen < (1ul << 16) );
 
 				putLE<buffer_type, int32_t>(buffer,refid); // offset 0
 				putLE<buffer_type, int32_t>(buffer,pos);   // offset 4

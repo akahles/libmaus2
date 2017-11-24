@@ -24,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <libmaus2/fastx/acgtnMap.hpp>
+#include <libmaus2/util/ToUpperTable.hpp>
 #include <libmaus2/util/unique_ptr.hpp>
 #include <libmaus2/util/shared_ptr.hpp>
 
@@ -113,6 +114,12 @@ namespace libmaus2
                         public:
                         std::string smapped;
                         std::string stransposed;
+
+                        void toupper(libmaus2::util::ToUpperTable const & U)
+                        {
+                        	for ( uint64_t i = 0; i < spattern.size(); ++i )
+                        		spattern[i] = U(static_cast<uint8_t>(spattern[i]));
+                        }
 
                         Pattern & operator=(Pattern const & o)
                         {
@@ -263,6 +270,20 @@ namespace libmaus2
 				}
 				return out;
                         }
+
+                        static std::ostream & printMultiLine(std::ostream & out, char const * it, uint64_t n, uint64_t const cols)
+                        {
+                        	while ( n )
+                        	{
+                        		uint64_t const toprint = std::min(n,cols);
+                        		out.write(it,toprint);
+                        		out.put('\n');
+                        		n -= toprint;
+                        		it += toprint;
+				}
+				return out;
+                        }
+
                         std::ostream & printMultiLine(std::ostream & out, unsigned int const cols, uint64_t & offset) const
                         {
                         	std::string const id = getStringId();

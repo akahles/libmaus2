@@ -24,6 +24,7 @@
 #include <libmaus2/util/Demangle.hpp>
 #include <map>
 #include <cassert>
+#include <iomanip>
 
 namespace libmaus2
 {
@@ -37,19 +38,56 @@ namespace libmaus2
 
 			std::string progname;
 			std::string commandline;
+			std::string commandlinecoded;
 
+			std::vector<std::string> args;
 			std::multimap<std::string,std::string> kvargs;
 			std::vector<std::string> restargs;
 
-			static std::string reconstructCommandLine(int argc, char * argv[])
+			static std::string reconstructCommandLine(std::vector<std::string> const & args)
 			{
 				std::ostringstream clostr;
 
 				// "reconstruct" command line
-				for ( int i = 0; i < argc; ++i )
+				for ( uint64_t i = 0; i < args.size(); ++i )
 				{
-					clostr << argv[i];
-					if ( i+1 < argc )
+					clostr << args[i];
+					if ( i+1 < args.size() )
+						clostr << ' ';
+				}
+
+				return clostr.str();
+			}
+
+			static std::string reconstructCommandLineCoded(std::vector<std::string> const & args)
+			{
+				std::ostringstream clostr;
+
+				// "reconstruct" command line
+				for ( uint64_t i = 0; i < args.size(); ++i )
+				{
+					std::string const s = args[i];
+
+					for ( uint64_t i = 0; i < s.size(); ++i )
+					{
+						int const c = static_cast<unsigned char>(s[i]);
+
+						if (
+							::isalnum(c)
+							|| c == '/'
+							|| c == '-'
+							|| c == '.'
+							|| c == '_'
+						)
+							clostr.put(c);
+						else
+						{
+							clostr.put('\\');
+							clostr << charToOct(c);
+						}
+					}
+
+					if ( i+1 < args.size() )
 						clostr << ' ';
 				}
 
@@ -61,16 +99,16 @@ namespace libmaus2
 
 			}
 
-			ArgParser(int const argc, char * argv[])
+			void initFromArgs()
 			{
-				if ( argc )
-					progname = argv[0];
+				if ( args.size() )
+					progname = args.at(0);
 
 				bool parseargs = true;
 
-				for ( int i = 1; i < argc; ++i )
+				for ( uint64_t i = 1; i < args.size(); ++i )
 				{
-					std::string arg = argv[i];
+					std::string arg = args.at(i);
 
 					// if argument starts with a '-'
 					if ( parseargs && arg.size() > 1 && arg[0] == '-' )
@@ -100,12 +138,78 @@ namespace libmaus2
 					}
 				}
 
-				commandline = reconstructCommandLine(argc,argv);
+				commandline = reconstructCommandLine(args);
+				commandlinecoded = reconstructCommandLineCoded(args);
+			}
+
+			ArgParser(int const argc, char * argv[])
+			{
+				for ( int i = 0; i < argc; ++i )
+					args.push_back(argv[i]);
+
+				initFromArgs();
+			}
+
+			ArgParser(std::vector<std::string> const & rargs)
+			: args(rargs)
+			{
+				initFromArgs();
 			}
 
 			size_t size() const
 			{
 				return restargs.size();
+			}
+
+			static std::string charToOct(char const c)
+			{
+				unsigned char const u = static_cast<unsigned char>(c);
+				int const i = static_cast<int>(u);
+
+				std::ostringstream ostr;
+				ostr << std::setw(3) << std::setfill('0') << std::oct << i;
+
+				return ostr.str();
+			}
+
+			std::ostream & printArgs(std::ostream & out, std::string const & prefix = std::string()) const
+			{
+				for ( uint64_t i = 0; i < args.size(); ++i )
+				{
+					out << prefix;
+
+					out << "args[" << i << "]=";
+
+					for ( uint64_t j = 0; j < args[i].size(); ++j )
+					{
+						char const c = args[i][j];
+
+						if (
+							::isalnum(c)
+							|| c == '/'
+							|| c == '-'
+							|| c == '.'
+							|| c == '_'
+						)
+							out.put(c);
+						else
+						{
+							out.put('\\');
+							out << charToOct(c);
+						}
+					}
+
+					out.put('\n');
+				}
+
+				return out;
+			}
+
+			std::string printArgs(std::string const & prefix = std::string()) const
+			{
+				std::ostringstream ostr;
+				printArgs(ostr,prefix);
+				return ostr.str();
 			}
 
 			std::string const & operator[](size_t const i) const

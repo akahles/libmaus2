@@ -33,16 +33,25 @@ namespace libmaus2
 			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
 			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
 
-			libmaus2::autoarray::AutoArray<NNPTraceElement> Atrace;
+			libmaus2::autoarray::AutoArray<NNPTraceElement,libmaus2::autoarray::alloc_type_c> Atrace;
 			int64_t traceid;
 			uint64_t otrace;
+
+			void alloc(uint64_t const n)
+			{
+				if ( Atrace.size() < n )
+				{
+					Atrace.resize(0);
+					Atrace = libmaus2::autoarray::AutoArray<NNPTraceElement,libmaus2::autoarray::alloc_type_c>(n,false);
+				}
+			}
 
 			NNPTraceContainer() : traceid(-1), otrace(0)
 			{}
 
 			void copyFrom(NNPTraceContainer const & O)
 			{
-				Atrace.ensureSize(O.Atrace.size());
+				alloc(O.Atrace.size());
 				std::copy(O.Atrace.begin(),O.Atrace.end(),Atrace.begin());
 				traceid = O.traceid;
 				otrace = O.otrace;
@@ -298,8 +307,6 @@ namespace libmaus2
 				for ( int64_t curtraceid = traceid ; curtraceid >= 0; curtraceid = Atrace[curtraceid].parent )
 					S.push(curtraceid);
 
-				std::map<int64_t,uint64_t> M;
-
 				int64_t dmin = apos-bpos;
 				int64_t dmax = dmin;
 
@@ -326,11 +333,140 @@ namespace libmaus2
 						dmin = d;
 					if ( dmax < d )
 						dmax = d;
-
-					M [ d ] += E.slide;
 				}
 
 				return std::pair<int64_t,int64_t>(dmin,dmax);
+			}
+
+			std::pair<int64_t,int64_t> getDiagonalBandEnd(int64_t apos, int64_t bpos) const
+			{
+				int64_t curtraceid = traceid;
+				int64_t dmin = std::numeric_limits<int64_t>::max();
+				int64_t dmax = std::numeric_limits<int64_t>::min();
+
+				// skip ops until we find a positive slide
+				while ( curtraceid >= 0 && (!Atrace[curtraceid].slide) )
+				{
+					NNPTraceElement const & E = Atrace[curtraceid];
+
+					switch ( E.step )
+					{
+						case libmaus2::lcs::BaseConstants::STEP_DEL:
+							apos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_INS:
+							bpos -= 1;
+							break;
+						default:
+							break;
+					}
+
+					curtraceid = Atrace[curtraceid].parent;
+				}
+
+				assert ( (curtraceid < 0) || Atrace[curtraceid].slide );
+
+				while ( curtraceid >= 0 )
+				{
+					NNPTraceElement const & E = Atrace[curtraceid];
+
+					int64_t const d = apos-bpos;
+
+					if ( d < dmin )
+						dmin = d;
+					if ( dmax < d )
+						dmax = d;
+
+					switch ( E.step )
+					{
+						case libmaus2::lcs::BaseConstants::STEP_DEL:
+							apos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_INS:
+							bpos -= 1;
+							break;
+						default:
+							break;
+					}
+
+					curtraceid = Atrace[curtraceid].parent;
+				}
+
+				return std::pair<int64_t,int64_t>(dmin,dmax);
+			}
+
+			template<typename register_type>
+			std::pair<int64_t,int64_t> registerMatches(int64_t apos, int64_t bpos, register_type & RT) const
+			{
+				int64_t curtraceid = traceid;
+				int64_t dmin = std::numeric_limits<int64_t>::max();
+				int64_t dmax = std::numeric_limits<int64_t>::min();
+
+				// skip ops until we find a positive slide
+				while ( curtraceid >= 0 && (!Atrace[curtraceid].slide) )
+				{
+					NNPTraceElement const & E = Atrace[curtraceid];
+
+					switch ( E.step )
+					{
+						case libmaus2::lcs::BaseConstants::STEP_DEL:
+							apos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_INS:
+							bpos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_MISMATCH:
+							apos -= 1;
+							bpos -= 1;
+							break;
+						default:
+							break;
+					}
+
+					curtraceid = Atrace[curtraceid].parent;
+				}
+
+				assert ( (curtraceid < 0) || Atrace[curtraceid].slide );
+
+				while ( curtraceid >= 0 )
+				{
+					NNPTraceElement const & E = Atrace[curtraceid];
+
+					int64_t const antibefore = apos+bpos;
+					apos -= E.slide;
+					bpos -= E.slide;
+					int64_t const antiafter = apos+bpos;
+
+					int64_t const d = apos-bpos;
+
+					if ( antiafter < antibefore )
+						RT(d,antiafter,antibefore);
+
+					if ( d < dmin )
+						dmin = d;
+					if ( dmax < d )
+						dmax = d;
+
+					switch ( E.step )
+					{
+						case libmaus2::lcs::BaseConstants::STEP_DEL:
+							apos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_INS:
+							bpos -= 1;
+							break;
+						case libmaus2::lcs::BaseConstants::STEP_MISMATCH:
+							apos -= 1;
+							bpos -= 1;
+							break;
+						default:
+							break;
+					}
+
+					curtraceid = Atrace[curtraceid].parent;
+				}
+
+				return std::pair<int64_t,int64_t>(apos,bpos);
 			}
 
 			std::pair<int64_t,int64_t> getAntiDiagonalBand(int64_t apos, int64_t bpos) const
@@ -511,7 +647,185 @@ namespace libmaus2
 				return dif;
 			}
 
-			void suffixPositive(
+			static unsigned int popcnt(uint64_t const w)
+			{
+				return libmaus2::rank::PopCnt8<sizeof(long)>::popcnt8(w);
+			}
+
+			std::pair<uint64_t,uint64_t> clipEndWindowError(uint64_t const e)
+			{
+				uint64_t c = endWindowError(e);
+
+				uint64_t adel = 0;
+				uint64_t bdel = 0;
+
+				// std::cerr << "c=" << c << std::endl;
+
+				while ( c && traceid >= 0 )
+				{
+					uint64_t const nodeslidelen = Atrace[traceid].slide;
+					uint64_t const nodeoplen = (Atrace[traceid].step != libmaus2::lcs::BaseConstants::STEP_RESET) ? 1 : 0;
+					uint64_t const nodelen = nodeslidelen + nodeoplen;
+
+					if ( c >= nodelen )
+					{
+						adel += nodeslidelen +
+							((Atrace[traceid].step == libmaus2::lcs::BaseConstants::STEP_DEL)
+							||
+							(Atrace[traceid].step == libmaus2::lcs::BaseConstants::STEP_MISMATCH))
+							;
+						bdel += nodeslidelen +
+							((Atrace[traceid].step == libmaus2::lcs::BaseConstants::STEP_INS)
+							||
+							(Atrace[traceid].step == libmaus2::lcs::BaseConstants::STEP_MISMATCH))
+							;
+						c -= nodelen;
+						//std::cerr << "deleting node " << Atrace[traceid] << " of len " << nodelen << " adel " << adel << " bdel " << bdel << std::endl;
+						traceid = Atrace[traceid].parent;
+					}
+					else
+					{
+						adel += c;
+						bdel += c;
+						//std::cerr << "reducing node " << Atrace[traceid] << " of len " << nodelen << " by " << c << " adel " << adel << " bdel " << bdel << std::endl;
+						assert ( nodeslidelen >= c );
+						Atrace[traceid].slide -= c;
+						c = 0;
+					}
+				}
+
+				return std::pair<uint64_t,uint64_t>(adel,bdel);
+			}
+
+			uint64_t endWindowError(uint64_t const e) const
+			{
+				uint64_t const wbits = CHAR_BIT*sizeof(uint64_t);
+				uint64_t v = 0;
+				uint64_t l = 0;
+				int64_t cur = traceid;
+				uint64_t rest = 0;
+
+				while ( cur >= 0 && l < wbits )
+				{
+					uint64_t const toadd  = wbits - l;
+					uint64_t const slide = Atrace[cur].slide;
+					uint64_t const use = std::min(toadd,slide);
+
+					v <<= use;
+					l += use;
+
+					if ( l < wbits )
+					{
+						if ( Atrace[cur].step != libmaus2::lcs::BaseConstants::STEP_RESET )
+						{
+							v <<= 1;
+							v |= 1;
+							l += 1;
+						}
+						cur = Atrace[cur].parent;
+
+						if ( l == wbits && cur >= 0 )
+						{
+							rest = Atrace[cur].slide;
+						}
+					}
+					else
+					{
+						assert ( l == wbits );
+						rest = slide - use;
+					}
+				}
+
+				uint64_t rclip = 0;
+
+				if ( l >= wbits )
+				{
+					assert ( l == wbits );
+
+					// last window is good enough
+					if ( popcnt(v) <= e )
+					{
+						rclip = 0;
+					}
+					else
+					{
+						// last window + rest of current slide is enough
+						if ( popcnt(v << rest) <= e )
+						{
+							// figure out how many matches we need to add
+							uint64_t clip = 0;
+
+							while ( rest && popcnt(v) > e )
+							{
+								rest--;
+								clip++;
+								v <<= 1;
+							}
+							assert ( popcnt(v) <= e );
+
+							rclip = clip;
+						}
+						// last window + rest of current slide is not enough
+						else
+						{
+							// add rest of current operation
+							uint64_t clip = rest;
+							v <<= rest;
+							if ( Atrace[cur].step != libmaus2::lcs::BaseConstants::STEP_RESET )
+							{
+								v <<= 1;
+								v |= 1;
+								clip += 1;
+							}
+
+							cur = Atrace[cur].parent;
+
+							while ( cur >= 0 )
+							{
+								rest = Atrace[cur].slide;
+
+								if ( popcnt(v << rest) <= e )
+								{
+									while ( rest && (popcnt(v) > e) )
+									{
+										rest--;
+										clip++;
+										v <<= 1;
+									}
+									assert ( popcnt(v) <= e );
+
+									rclip = clip;
+									break;
+								}
+								else
+								{
+									v <<= rest;
+									clip += rest;
+
+									if ( Atrace[cur].step != libmaus2::lcs::BaseConstants::STEP_RESET )
+									{
+										v <<= 1;
+										v |= 1;
+										clip += 1;
+									}
+									cur = Atrace[cur].parent;
+								}
+							}
+
+							if ( cur < 0 )
+								rclip = clip + wbits;
+						}
+					}
+				}
+				else
+				{
+					rclip = 0;
+				}
+
+				return rclip;
+			}
+
+			std::pair<uint64_t,uint64_t> suffixPositive(
 				int64_t const match_score    = PenaltyConstants::gain_match,
 			        int64_t const mismatch_score = PenaltyConstants::penalty_subst,
 			        int64_t const ins_score      = PenaltyConstants::penalty_ins,
@@ -520,20 +834,30 @@ namespace libmaus2
 			{
 				int64_t score = 0;
 				int64_t cur = traceid;
+				uint64_t asum = 0;
+				uint64_t bsum = 0;
+				uint64_t aclip = 0;
+				uint64_t bclip = 0;
 				while ( cur >= 0 )
 				{
 					score += match_score * Atrace[cur].slide;
+					asum += Atrace[cur].slide;
+					bsum += Atrace[cur].slide;
 
 					switch ( Atrace[cur].step )
 					{
 						case libmaus2::lcs::BaseConstants::STEP_MISMATCH:
 							score -= mismatch_score;
+							asum++;
+							bsum++;
 							break;
 						case libmaus2::lcs::BaseConstants::STEP_DEL:
 							score -= del_score;
+							asum++;
 							break;
 						case libmaus2::lcs::BaseConstants::STEP_INS:
 							score -= ins_score;
+							bsum++;
 							break;
 						default:
 							break;
@@ -541,12 +865,16 @@ namespace libmaus2
 
 					if ( score < 0 )
 					{
+						aclip = asum;
+						bclip = bsum;
 						score = 0;
 						traceid = Atrace[cur].parent;
 					}
 
 					cur = Atrace[cur].parent;
 				}
+
+				return std::pair<uint64_t,uint64_t>(aclip,bclip);
 			}
 
 			int64_t concat(int64_t node1, int64_t node2)
@@ -1244,7 +1572,9 @@ namespace libmaus2
 				return cr;
 			}
 
-			static void computeTrace(libmaus2::autoarray::AutoArray<NNPTraceElement> const & Atrace, int64_t const traceid, libmaus2::lcs::AlignmentTraceContainer & ATC)
+			static void computeTrace(
+				libmaus2::autoarray::AutoArray<NNPTraceElement,libmaus2::autoarray::alloc_type_c> const & Atrace,
+				int64_t const traceid, libmaus2::lcs::AlignmentTraceContainer & ATC)
 			{
 				uint64_t reserve = 0;
 				for ( int64_t curtraceid = traceid ; curtraceid >= 0; curtraceid = Atrace[curtraceid].parent )

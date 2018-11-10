@@ -88,7 +88,7 @@ namespace libmaus2
 						)
 					);
 
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 
 				LasIntervals(std::vector<std::string> const & rVin, uint64_t const nreads, std::ostream & errOSI)

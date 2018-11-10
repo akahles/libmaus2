@@ -98,7 +98,7 @@ namespace libmaus2
 					if ( right.get() )
 						Hnode->right = right->serialize(writer,offset);
 
-					return UNIQUE_PTR_MOVE(Hnode);
+					return Hnode;
 				}
 				template<typename writer_type>
 				HuffmanWaveletTree::HuffmanWaveletTreeNavigationNode::unique_ptr_type serialize(writer_type & writer) const

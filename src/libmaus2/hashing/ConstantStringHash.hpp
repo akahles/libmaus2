@@ -55,7 +55,7 @@ namespace libmaus2
 			unique_ptr_type uclone() const
 			{
 				unique_ptr_type ptr(new this_type(*this));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			shared_ptr_type sclone() const
@@ -69,12 +69,12 @@ namespace libmaus2
 				try
 				{
 					unique_ptr_type u(new this_type(ita,ite,maxn));
-					return UNIQUE_PTR_MOVE(u);
+					return u;
 				}
 				catch(...)
 				{
 					unique_ptr_type ptr;
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 			}
 

@@ -42,7 +42,7 @@ libmaus2::bitio::IndexedBitVector::unique_ptr_type libmaus2::util::GenericInterv
 	for ( uint64_t i = 0; i < V.size(); ++i )
 		(*BV)[i] = (V[i].first != V[i].second);
 	BV->setupIndex();
-	return UNIQUE_PTR_MOVE(BV);
+	return BV;
 }
 
 libmaus2::util::GenericIntervalTree::GenericIntervalTree(::libmaus2::autoarray::AutoArray< std::pair<uint64_t,uint64_t> > const & H)

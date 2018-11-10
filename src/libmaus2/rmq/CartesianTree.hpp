@@ -216,7 +216,7 @@ namespace libmaus2
 				bps(BW8);
 				BW8.flush();
 				IB->setupIndex();
-				return UNIQUE_PTR_MOVE(IB);
+				return IB;
 			}
 
 			friend ::std::ostream & operator<< <>(::std::ostream & out, CartesianTree<key_type> const & node);

@@ -38,7 +38,7 @@ namespace libmaus2
 			{
 				libmaus2::util::shared_ptr<std::istream>::type iptr(new MemoryInputStream(filename));
 				libmaus2::aio::InputStream::unique_ptr_type istr(new libmaus2::aio::InputStream(iptr));
-				return UNIQUE_PTR_MOVE(istr);
+				return istr;
 			}
 			virtual libmaus2::aio::InputStream::shared_ptr_type constructShared(std::string const & filename)
 			{

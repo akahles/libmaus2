@@ -575,7 +575,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance ISI(fn);
 				unique_ptr_type ptr(new this_type(ISI));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			uint64_t minparoffset() const
@@ -630,7 +630,7 @@ namespace libmaus2
 				unique_ptr_type O( new CompactArrayTemplate<synchronous>(n,b) );
 				for ( uint64_t i = 0; i < n; ++i )
 					O->set( i, this->get(i) );
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 

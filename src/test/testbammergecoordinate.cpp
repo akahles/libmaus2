@@ -41,7 +41,7 @@
 	// construct new header
 	::libmaus2::bambam::BamHeader::unique_ptr_type uphead(new ::libmaus2::bambam::BamHeader(upheadtext));
 
-	return UNIQUE_PTR_MOVE(uphead);
+	return uphead;
 }
 
 int main(int argc, char * argv[])

@@ -122,12 +122,12 @@ namespace libmaus2
 					file_pair_ptr_type fpt(new file_pair_type());
 					fpt->first = UNIQUE_PTR_MOVE(itp);
 					fpt->second = ita;
-					return UNIQUE_PTR_MOVE(fpt);
+					return fpt;
 				}
 				else
 				{
 					file_pair_ptr_type fptr(new file_pair_type());
-					return UNIQUE_PTR_MOVE(fptr);
+					return fptr;
 				}
 			}
 

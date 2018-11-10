@@ -41,12 +41,12 @@ libmaus2::digest::DigestInterface::unique_ptr_type libmaus2::digest::DigestFacto
 		if ( name == "sha256" )
 		{
 			libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_256_sse4);
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else if ( name == "sha512" )
 		{
 			libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_512_sse4);
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		{

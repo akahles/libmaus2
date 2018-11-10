@@ -19,7 +19,7 @@
 #include <libmaus2/random/LogNormalRandom.hpp>
 #include <libmaus2/fastx/StreamFastAReader.hpp>
 
-int main(int argc, char * argv[])
+int main()
 {
 	try
 	{

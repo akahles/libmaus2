@@ -76,7 +76,7 @@ namespace libmaus2
 					throw se;
 				}
 
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			WaveletLCPResult(std::istream & in)

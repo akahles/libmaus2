@@ -27,7 +27,7 @@
 #include <cerrno>
 
 #if defined(LIBMAUS2_HAVE_DARWIN_SPINLOCKS)
-#include <libkern/OSAtomic.h>
+#include <os/lock.h>
 #endif
 
 #if defined(LIBMAUS2_HAVE_PTHREADS)
@@ -126,9 +126,9 @@ namespace libmaus2
                 	typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
                 	typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
 
-                	OSSpinLock spinlock;
+                	os_unfair_lock spinlock;
 
-                        PosixSpinLock() : spinlock(OS_SPINLOCK_INIT)
+                        PosixSpinLock() : spinlock(OS_UNFAIR_LOCK_INIT)
                         {
                         }
                         ~PosixSpinLock()
@@ -137,11 +137,11 @@ namespace libmaus2
 
                         void lock()
                         {
-                        	OSSpinLockLock(&spinlock);
+                        	os_unfair_lock_lock(&spinlock);
                         }
                         void unlock()
                         {
-                        	OSSpinLockUnlock(&spinlock);
+                        	os_unfair_lock_unlock(&spinlock);
                         }
                         /**
                          * try to lock spin lock. returns true if locking was succesful, false if lock
@@ -149,7 +149,7 @@ namespace libmaus2
                          **/
                         bool trylock()
                         {
-                        	return OSSpinLockTry(&spinlock);
+                        	return os_unfair_lock_trylock(&spinlock);
                         }
 
                         /*

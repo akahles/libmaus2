@@ -48,7 +48,7 @@ namespace libmaus2
 					libmaus2::lz::SnappyCompressorObjectFreeListAllocator::unique_ptr_type tptr(
 						new libmaus2::lz::SnappyCompressorObjectFreeListAllocator
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( startsWith(desc,std::string(zlibprefix)) )
 				{
@@ -75,7 +75,7 @@ namespace libmaus2
 							libmaus2::lz::ZlibCompressorObjectFreeListAllocator::unique_ptr_type tptr(
 								new libmaus2::lz::ZlibCompressorObjectFreeListAllocator(ilevel)
 							);
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 						break;
 						default:

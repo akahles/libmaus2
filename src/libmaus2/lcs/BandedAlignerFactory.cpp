@@ -92,7 +92,7 @@ libmaus2::lcs::BandedAligner::unique_ptr_type libmaus2::lcs::BandedAlignerFactor
 		case libmaus2_lcs_BandedAlignerFactory_BandedEditDistance:
 		{
 			libmaus2::lcs::BandedAligner::unique_ptr_type T(new libmaus2::lcs::BandedEditDistance<>);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 		}
 		case libmaus2_lcs_BandedAlignerFactory_x128_8:
 		{
@@ -104,7 +104,7 @@ libmaus2::lcs::BandedAligner::unique_ptr_type libmaus2::lcs::BandedAlignerFactor
 			)
 			{
 				libmaus2::lcs::BandedAligner::unique_ptr_type T(new SimdX86BandedGlobalAlignmentX128_8);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -132,7 +132,7 @@ libmaus2::lcs::BandedAligner::unique_ptr_type libmaus2::lcs::BandedAlignerFactor
 			)
 			{
 				libmaus2::lcs::BandedAligner::unique_ptr_type T(new libmaus2::lcs::SimdX86BandedGlobalAlignmentX128_16);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -162,7 +162,7 @@ libmaus2::lcs::BandedAligner::unique_ptr_type libmaus2::lcs::BandedAlignerFactor
 			)
 			{
 				libmaus2::lcs::BandedAligner::unique_ptr_type T(new libmaus2::lcs::SimdX86BandedGlobalAlignmentY256_8);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -193,7 +193,7 @@ libmaus2::lcs::BandedAligner::unique_ptr_type libmaus2::lcs::BandedAlignerFactor
 			)
 			{
 				libmaus2::lcs::BandedAligner::unique_ptr_type T(new libmaus2::lcs::SimdX86BandedGlobalAlignmentY256_16);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{

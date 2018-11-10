@@ -1711,28 +1711,28 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 	if ( hash == "crc32prod" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SeqChksumsCRC32Products,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	#if defined(LIBMAUS2_HAVE_NETTLE)
 	else if ( hash == "sha1" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256" )
 	{
@@ -1741,19 +1741,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_SeqChksumsSimpleSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_SeqChksumsSimpleSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512" )
 	{
@@ -1762,118 +1762,118 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_SeqChksumsSimpleSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_SeqChksumsSimpleSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	#if defined(LIBMAUS2_NETTLE_HAVE_SHA3)
 	else if ( hash == "sha3_256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA3_256_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	#endif
 	#endif
 	else if ( hash == "murmur3" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MurmurHash3_x64_128_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "murmur3primesums128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MurmurHash3_x64_128_PrimeSums128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime32" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct32,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime64" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime64" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime96" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime96" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime160" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime160" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime192" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime192" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "crc32prime256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<CRC32PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "md5prime256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<MD5PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	#if defined(LIBMAUS2_HAVE_NETTLE)
 	else if ( hash == "sha1prime64" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime64" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime64" )
 	{
@@ -1882,19 +1882,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			//std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct64,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct64,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime64" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime64" )
 	{
@@ -1903,24 +1903,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			//std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct64,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct64,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime96" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime96" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime96" )
 	{
@@ -1929,19 +1929,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			//std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct96,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct96,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime96" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime96" )
 	{
@@ -1950,24 +1950,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct96,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct96,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime128" )
 	{
@@ -1976,19 +1976,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct128,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct128,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime128" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime128" )
 	{
@@ -1997,24 +1997,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct128,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct128,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime160" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime160" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime160" )
 	{
@@ -2023,19 +2023,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct160,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct160,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime160" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime160" )
 	{
@@ -2044,24 +2044,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct160,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct160,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime192" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime192" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime192" )
 	{
@@ -2070,19 +2070,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct192,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct192,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime192" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime192" )
 	{
@@ -2091,24 +2091,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct192,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct192,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime224" )
 	{
@@ -2117,19 +2117,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct224,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct224,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime224" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime224" )
 	{
@@ -2138,24 +2138,24 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct224,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct224,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha1prime256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA1PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha224prime256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_224_PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime256" )
 	{
@@ -2164,19 +2164,19 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_256" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct256,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_PrimeProduct256,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha384prime256" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_384_PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime256" )
 	{
@@ -2185,20 +2185,20 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct256,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeProduct256,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	#endif
 	else if ( hash == "null" )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<NullChecksums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	#if defined(LIBMAUS2_HAVE_NETTLE)
 	else if ( hash == "sha512primesums" )
@@ -2208,13 +2208,13 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeSums,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	else if ( hash == "sha512primesums512" )
@@ -2224,13 +2224,13 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 		{
 			// std::cerr << "[V] running sse4 SHA2_512" << std::endl;
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeSums512,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		else
 		#endif
 		{
 			libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_PrimeSums512,header_type>(hash,header));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 	}
 	#endif
@@ -2238,92 +2238,92 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 	else if ( hash == "sha256" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_SeqChksumsSimpleSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime64" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime96" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime128" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime160" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime192" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime224" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha256prime256" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_256_sse4_PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime64" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct64,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime96" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct96,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime128" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct128,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime160" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct160,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime192" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct192,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime224" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct224,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512prime256" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeProduct256,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512primesums" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeSums,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else if ( hash == "sha512primesums512" && libmaus2::util::I386CacheLineSize::hasSSE41() )
 	{
 		libmaus2::bambam::ChecksumsInterface::unique_ptr_type tptr(new Checksums<SHA2_512_sse4_PrimeSums512,header_type>(hash,header));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	#endif
 	else
@@ -2338,10 +2338,10 @@ libmaus2::bambam::ChecksumsInterface::unique_ptr_type constructTemplate(std::str
 libmaus2::bambam::ChecksumsInterface::unique_ptr_type libmaus2::bambam::ChecksumsFactory::construct(std::string const & hash, libmaus2::bambam::BamHeader const & header)
 {
 	libmaus2::bambam::ChecksumsInterface::unique_ptr_type uptr(constructTemplate(hash,header));
-	return UNIQUE_PTR_MOVE(uptr);
+	return uptr;
 }
 libmaus2::bambam::ChecksumsInterface::unique_ptr_type libmaus2::bambam::ChecksumsFactory::construct(std::string const & hash, libmaus2::bambam::BamHeaderLowMem const & header)
 {
 	libmaus2::bambam::ChecksumsInterface::unique_ptr_type uptr(constructTemplate(hash,header));
-	return UNIQUE_PTR_MOVE(uptr);
+	return uptr;
 }

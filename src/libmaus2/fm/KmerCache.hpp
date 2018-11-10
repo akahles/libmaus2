@@ -124,7 +124,7 @@ namespace libmaus2
 					}
 				}
 
-				return UNIQUE_PTR_MOVE(Tptr);
+				return Tptr;
 			}
 
 			template<typename index_type, typename iterator>

@@ -81,7 +81,7 @@ namespace libmaus2
 			libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type operator()() const
 			{
 				libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(construct(BADI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type construct(
@@ -93,7 +93,7 @@ namespace libmaus2
 					construct(istdin,BADI.inputfilename,BADI.inputformat,BADI.inputthreads,BADI.reference,BADI.putrank,BADI.copystr,BADI.range)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type construct(
@@ -112,7 +112,7 @@ namespace libmaus2
 						BADI.range)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type construct(
@@ -153,7 +153,7 @@ namespace libmaus2
 								libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 									new BamDecoderWrapper(iptr,*copystr,putrank)
 								);
-								return UNIQUE_PTR_MOVE(tptr);
+								return tptr;
 							}
 							else
 							{
@@ -163,7 +163,7 @@ namespace libmaus2
 								libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 									new BamDecoderWrapper(iptr,putrank)
 								);
-								return UNIQUE_PTR_MOVE(tptr);
+								return tptr;
 							}
 						}
 						else
@@ -182,7 +182,7 @@ namespace libmaus2
 									libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 										new libmaus2::bambam::BamRangeDecoderWrapper(inputfilename,range,putrank)
 									);
-									return UNIQUE_PTR_MOVE(tptr);
+									return tptr;
 								}
 								else
 								{
@@ -192,7 +192,7 @@ namespace libmaus2
 									libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 										new BamDecoderWrapper(iptr,putrank)
 									);
-									return UNIQUE_PTR_MOVE(tptr);
+									return tptr;
 								}
 							}
 						}
@@ -214,7 +214,7 @@ namespace libmaus2
 								libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 									new BamParallelDecoderWrapper(iptr,*copystr,inputthreads,putrank)
 								);
-								return UNIQUE_PTR_MOVE(tptr);
+								return tptr;
 							}
 							else
 							{
@@ -222,7 +222,7 @@ namespace libmaus2
 								libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 									new BamParallelDecoderWrapper(iptr,inputthreads,putrank)
 								);
-								return UNIQUE_PTR_MOVE(tptr);
+								return tptr;
 							}
 						}
 						else
@@ -242,7 +242,7 @@ namespace libmaus2
 								libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 									new BamParallelDecoderWrapper(iptr,inputthreads,putrank)
 								);
-								return UNIQUE_PTR_MOVE(tptr);
+								return tptr;
 							}
 						}
 					}
@@ -276,7 +276,7 @@ namespace libmaus2
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::SamDecoderWrapper(iptr,putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
@@ -286,7 +286,7 @@ namespace libmaus2
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::SamDecoderWrapper(iptr,putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				#if defined(LIBMAUS2_HAVE_IO_LIB)
@@ -312,14 +312,14 @@ namespace libmaus2
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::ScramDecoderWrapper("-","rs","",putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::ScramDecoderWrapper(inputfilename,"rs","",putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				else if ( inputformat == "sbam" )
@@ -344,14 +344,14 @@ namespace libmaus2
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::ScramDecoderWrapper("-","rb","",putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 							new libmaus2::bambam::ScramDecoderWrapper(inputfilename,"rb","",putrank)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				else if ( inputformat == "cram" )
@@ -396,7 +396,7 @@ namespace libmaus2
 							new libmaus2::bambam::ScramDecoderWrapper("-","rc",reference,putrank)
 						);
 						#endif
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
@@ -420,7 +420,7 @@ namespace libmaus2
 									cramrange.rangeref,cramrange.rangestart,cramrange.rangeend,putrank)
 							);
 							#endif
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 						else
 						{
@@ -440,7 +440,7 @@ namespace libmaus2
 								new libmaus2::bambam::ScramDecoderWrapper(inputfilename,"rc",reference,putrank)
 							);
 							#endif
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 					}
 				}

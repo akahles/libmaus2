@@ -47,7 +47,7 @@ libmaus2::util::Utf8BlockIndex::unique_ptr_type libmaus2::util::Utf8BlockIndex::
 		UP->blockstarts[i] = ::libmaus2::util::NumberSerialisation::deserialiseNumber(CIS);
 
 
-	return UNIQUE_PTR_MOVE(UP);
+	return UP;
 }
 
 libmaus2::util::Utf8BlockIndex::unique_ptr_type libmaus2::util::Utf8BlockIndex::constructFromUtf8File(std::string const & fn, uint64_t const rblocksize, uint64_t const numthreads)
@@ -68,7 +68,7 @@ libmaus2::util::Utf8BlockIndex::unique_ptr_type libmaus2::util::Utf8BlockIndex::
 		unique_ptr_type UP(new Utf8BlockIndex);
 		UP->blocksize = blocksize;
 		UP->lastblocksize = 0;
-		return UNIQUE_PTR_MOVE(UP);
+		return UP;
 	}
 
 
@@ -212,5 +212,5 @@ libmaus2::util::Utf8BlockIndex::unique_ptr_type libmaus2::util::Utf8BlockIndex::
 		++(UP->lastblocksize);
 	}
 
-	return UNIQUE_PTR_MOVE(UP);
+	return UP;
 }

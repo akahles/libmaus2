@@ -224,7 +224,7 @@ namespace libmaus2
 				unsigned int const logoptm = ::libmaus2::math::ilog(optm);
 				// std::cerr << "optm=" << optm << " logoptm=" << logoptm << " optk=" << optk << std::endl;
 				unique_ptr_type ptr(new this_type(optk,logoptm));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 	}

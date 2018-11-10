@@ -93,7 +93,7 @@ namespace libmaus2
 					uint64_t const m = id % mod;
 					for ( uint64_t i = 0; i < m; ++i )
 						libmaus2::bambam::BamAlignmentDecoder::readAlignmentGz(*tptr,algn);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else
 				{
@@ -102,14 +102,14 @@ namespace libmaus2
 					{
 						libmaus2::lz::BgzfInflateFile::unique_ptr_type tptr(getStreamAt(bamfn,alcnt-1));
 						libmaus2::bambam::BamAlignmentDecoder::readAlignmentGz(*tptr,algn);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					// file contaning no alignments
 					else
 					{
 						libmaus2::lz::BgzfInflateFile::unique_ptr_type tptr(new libmaus2::lz::BgzfInflateFile(bamfn,0,0));
 						libmaus2::bambam::BamHeader header(*tptr);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 			}

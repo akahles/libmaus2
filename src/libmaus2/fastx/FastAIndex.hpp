@@ -77,14 +77,14 @@ namespace libmaus2
 			{
 				unique_ptr_type tptr(new this_type);
 				tptr->deserialise(in);
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type loadSerialised(std::string const & fn)
 			{
 				libmaus2::aio::InputStreamInstance ISI(fn);
 				unique_ptr_type tptr(loadSerialised(ISI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			FastAIndex() : sequences()
@@ -179,7 +179,7 @@ namespace libmaus2
 					libmaus2::aio::InputStreamFactoryContainer::constructUnique(filename)
 				);
 				unique_ptr_type tptr(new this_type(*PCIS));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			libmaus2::autoarray::AutoArray<char> readSequence(std::istream & in, int64_t const seqid) const

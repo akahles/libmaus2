@@ -65,7 +65,7 @@ namespace libmaus2
 					}
 				}
 
-				return UNIQUE_PTR_MOVE(Pwrappers);
+				return Pwrappers;
 			}
 
 			static libmaus2::bambam::BamCatHeader::unique_ptr_type constructHeader(
@@ -80,25 +80,25 @@ namespace libmaus2
 						decs[i] = &((*Pwrappers)[i]->getDecoder());
 
 					libmaus2::bambam::BamCatHeader::unique_ptr_type tptr(new libmaus2::bambam::BamCatHeader(decs));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else
 				{
 					libmaus2::bambam::BamCatHeader::unique_ptr_type tptr(new libmaus2::bambam::BamCatHeader(infos));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 			}
 
 			static libmaus2::bambam::BamCatHeader::unique_ptr_type constructHeader(libmaus2::util::ArgInfo const & arginfo, std::vector<std::string> const & filenames)
 			{
 				libmaus2::bambam::BamCatHeader::unique_ptr_type tptr(new libmaus2::bambam::BamCatHeader(arginfo,filenames));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static libmaus2::bambam::BamCatHeader::unique_ptr_type constructHeader(std::vector<std::string> const & filenames)
 			{
 				libmaus2::bambam::BamCatHeader::unique_ptr_type tptr(new libmaus2::bambam::BamCatHeader(filenames));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			BamCat(

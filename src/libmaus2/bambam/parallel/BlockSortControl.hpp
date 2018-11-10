@@ -1853,7 +1853,7 @@ namespace libmaus2
 				libmaus2::bambam::BamHeader::unique_ptr_type getHeader()
 				{
 					libmaus2::bambam::BamHeader::unique_ptr_type tptr(parseInfo.getHeader());
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				ChecksumsInterface::shared_ptr_type getSeqChecksumsObject()

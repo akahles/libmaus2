@@ -318,7 +318,7 @@ namespace libmaus2
 					}
 				}
 
-				return UNIQUE_PTR_MOVE(root);
+				return root;
 			}
 
 			void setupEncodeTable(uint64_t const size = 256)

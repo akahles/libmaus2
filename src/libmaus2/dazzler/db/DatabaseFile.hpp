@@ -1184,7 +1184,7 @@ namespace libmaus2
 					}
 					#endif
 
-					return UNIQUE_PTR_MOVE(PAFS);
+					return PAFS;
 				}
 				static DBFileSet::unique_ptr_type copyToPrefix(
 					std::string const & s, std::string const & dstprefix, bool const registertmp = true,
@@ -1271,7 +1271,7 @@ namespace libmaus2
 
 					DBFileSet::unique_ptr_type tptr(new DBFileSet(dstfn,dstidx,dstbps,registertmp));
 
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 
@@ -2009,7 +2009,7 @@ namespace libmaus2
 							decodeReadDataInterval<false>(*tptr,low,l,h,termval);
 					}
 
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				template<typename iterator>
@@ -2149,7 +2149,7 @@ namespace libmaus2
 
 					}
 
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				void getAllReads(std::vector<Read> & V) const
@@ -2345,13 +2345,13 @@ namespace libmaus2
 				libmaus2::aio::InputStream::unique_ptr_type openBaseStream() const
 				{
 					libmaus2::aio::InputStream::unique_ptr_type Pbpsfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(bpspath));
-					return UNIQUE_PTR_MOVE(Pbpsfile);
+					return Pbpsfile;
 				}
 
 				libmaus2::aio::InputStream::unique_ptr_type openIndexStream() const
 				{
 					libmaus2::aio::InputStream::unique_ptr_type Pidxfile(libmaus2::aio::InputStreamFactoryContainer::constructUnique(idxpath));
-					return UNIQUE_PTR_MOVE(Pidxfile);
+					return Pidxfile;
 				}
 
 				std::string operator[](size_t const i) const
@@ -2731,7 +2731,7 @@ namespace libmaus2
 
 					Track::unique_ptr_type track(new Track(trackname,PDanno,Adata,tsize));
 
-					return UNIQUE_PTR_MOVE(track);
+					return track;
 				}
 
 				static std::ostream & serialiseSingleFileRawDatabase(std::ostream & out, uint64_t const numreads, std::string const prolog, std::string const fn)

@@ -39,7 +39,7 @@ namespace libmaus2
 			libmaus2::digest::DigestInterface::unique_ptr_type construct(std::string const & name) const
 			{
 				libmaus2::digest::DigestInterface::unique_ptr_type tptr(constructStatic(name));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			DigestFactoryInterface::shared_ptr_type sclone() const

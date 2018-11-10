@@ -261,7 +261,7 @@ namespace libmaus2
 
 				IndexEntryContainerVector::unique_ptr_type IECV(new IndexEntryContainerVector(A));
 
-				return UNIQUE_PTR_MOVE(IECV);
+				return IECV;
 			}
 
 			/*
@@ -314,7 +314,7 @@ namespace libmaus2
 
 				IndexEntryContainer::unique_ptr_type IEC(new IndexEntryContainer(index));
 
-				return UNIQUE_PTR_MOVE(IEC);
+				return IEC;
 			}
 
 			/*

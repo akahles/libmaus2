@@ -55,7 +55,7 @@ namespace libmaus2
 				uptr->postr = libmaus2::util::shared_ptr<std::ostringstream>::type(new std::ostringstream(postr->str()));
 				uptr->s = s;
 
-				return UNIQUE_PTR_MOVE(uptr);
+				return uptr;
 			}
 
 			static unique_ptr_type uclone(std::exception const & ex)
@@ -63,7 +63,7 @@ namespace libmaus2
 				unique_ptr_type Tptr(new this_type);
 				Tptr->getStream() << ex.what() << std::endl;
 				Tptr->finish();
-				return UNIQUE_PTR_MOVE(Tptr);
+				return Tptr;
 			}
 
 			std::ostream & getStream()

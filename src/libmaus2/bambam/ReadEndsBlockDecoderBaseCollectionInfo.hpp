@@ -44,7 +44,7 @@ namespace libmaus2
 			static unique_ptr_type construct(libmaus2::parallel::PosixMutex & rmutex, std::istream & ristr)
 			{
 				unique_ptr_type tptr(new this_type(rmutex,ristr));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			std::istream & getStream()
@@ -113,7 +113,7 @@ namespace libmaus2
 					ReadEndsBlockDecoderBaseCollectionInfoLockedStream::construct(datamutex,*datastr)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			ReadEndsBlockDecoderBaseCollectionInfoLockedStream::unique_ptr_type getIndexStream()
@@ -122,7 +122,7 @@ namespace libmaus2
 					ReadEndsBlockDecoderBaseCollectionInfoLockedStream::construct(indexmutex,*indexstr)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 		};
 

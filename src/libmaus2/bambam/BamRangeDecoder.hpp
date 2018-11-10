@@ -84,7 +84,7 @@ namespace libmaus2
 				std::istream & CIS = *Pistr;
 				libmaus2::lz::BgzfInflateStream BIS(CIS);
 				libmaus2::bambam::BamHeader::unique_ptr_type Pheader(new libmaus2::bambam::BamHeader(BIS));
-				return UNIQUE_PTR_MOVE(Pheader);
+				return Pheader;
 			}
 
 			/**
@@ -98,7 +98,7 @@ namespace libmaus2
 				libmaus2::aio::InputStream::unique_ptr_type Pistr(libmaus2::aio::InputStreamFactoryContainer::constructUnique(filename));
 				std::istream & CIS = *Pistr;
 				libmaus2::bambam::BamIndex::unique_ptr_type Pindex(new libmaus2::bambam::BamIndex(CIS));
-				return UNIQUE_PTR_MOVE(Pindex);
+				return Pindex;
 			}
 
 			//! pointer to bam header

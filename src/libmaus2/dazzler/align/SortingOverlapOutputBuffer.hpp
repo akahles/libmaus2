@@ -93,7 +93,7 @@ namespace libmaus2
 					flush();
 					Pout.reset();
 					typename SortingOverlapOutputBufferMerger<comparator_type>::unique_ptr_type tptr(new SortingOverlapOutputBufferMerger<comparator_type>(filename,small,blocks));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				void mergeToFile(std::ostream & out, std::iostream & indexstream, int64_t const tspace)

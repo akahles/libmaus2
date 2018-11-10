@@ -516,7 +516,7 @@ namespace libmaus2
 				}
 
 				libmaus2::util::Histogram::unique_ptr_type tptr(HS.merge());
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			// compute run length histogram for run length values stored in file given by name

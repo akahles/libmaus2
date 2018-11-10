@@ -118,7 +118,7 @@ struct ZlibFunctions
 		{
 			f = new ZlibFunctions(s);
 			libmaus2::util::Destructable::unique_ptr_type tptr(libmaus2::util::Destructable::construct(f,destruct));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		catch(...)
 		{
@@ -190,7 +190,7 @@ struct ZlibFunctions
 		{
 			f = s.size() ? new ZlibFunctions(s)  : new ZlibFunctions();
 			libmaus2::util::Destructable::unique_ptr_type tptr(libmaus2::util::Destructable::construct(f,destruct));
-			return UNIQUE_PTR_MOVE(tptr);
+			return tptr;
 		}
 		catch(...)
 		{
@@ -356,7 +356,7 @@ libmaus2::util::Destructable::unique_ptr_type libmaus2::lz::ZlibInterface::creat
 	{
 		strm = new z_stream();
 		libmaus2::util::Destructable::unique_ptr_type tptr(libmaus2::util::Destructable::construct(strm,destructContext));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	catch(...)
 	{
@@ -369,7 +369,7 @@ libmaus2::util::Destructable::unique_ptr_type libmaus2::lz::ZlibInterface::creat
 libmaus2::lz::ZlibInterface::unique_ptr_type libmaus2::lz::ZlibInterface::construct(std::string const & libname)
 {
 	unique_ptr_type tptr(new this_type(libname));
-	return UNIQUE_PTR_MOVE(tptr);
+	return tptr;
 }
 
 void libmaus2::lz::ZlibInterface::eraseContext()

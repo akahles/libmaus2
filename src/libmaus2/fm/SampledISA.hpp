@@ -223,8 +223,8 @@ namespace libmaus2
                         static unique_ptr_type load(lf_type const * lf, std::string const & fn)
                         {
                         	libmaus2::aio::InputStreamInstance CIS(fn);
-				unique_ptr_type ptr(new this_type(lf,CIS));
-                        	return UNIQUE_PTR_MOVE(ptr);
+				            unique_ptr_type ptr(new this_type(lf,CIS));
+                        	return ptr;
                         }
 
                         SampledISA(lf_type const * rlf, std::istream & in) : lf(rlf) { deserialize(in); }

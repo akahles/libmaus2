@@ -80,7 +80,7 @@ namespace libmaus2
 					(*Pwrappers)[i] = UNIQUE_PTR_MOVE(tptr);
 				}
 
-				return UNIQUE_PTR_MOVE(Pwrappers);
+				return Pwrappers;
 			}
 
 			static decoder_array_pointer_type constructDecoderArray(wrapper_array_type & wrappers)
@@ -92,7 +92,7 @@ namespace libmaus2
 					(*Pdecoders)[i] = &(wrappers[i]->getDecoder());
 				}
 
-				return UNIQUE_PTR_MOVE(Pdecoders);
+				return Pdecoders;
 			}
 
 			static algns_array_pointer_type constructAlgnsArray(decoder_array_type & decoders)
@@ -102,7 +102,7 @@ namespace libmaus2
 				for ( uint64_t i = 0; i < decoders.size(); ++i )
 					(*Palgns)[i] = &(decoders[i]->getAlignment());
 
-				return UNIQUE_PTR_MOVE(Palgns);
+				return Palgns;
 			}
 
 			void init()

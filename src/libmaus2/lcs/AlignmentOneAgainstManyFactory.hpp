@@ -39,7 +39,7 @@ namespace libmaus2
 					libmaus2::lcs::AlignmentOneAgainstManyInterface::unique_ptr_type tptr(
 						new libmaus2::lcs::AlignmentOneAgainstManyAVX2
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else
 				#endif
@@ -47,7 +47,7 @@ namespace libmaus2
 					libmaus2::lcs::AlignmentOneAgainstManyInterface::unique_ptr_type tptr(
 						new libmaus2::lcs::AlignmentOneAgainstManyGeneric
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 			}
 		};

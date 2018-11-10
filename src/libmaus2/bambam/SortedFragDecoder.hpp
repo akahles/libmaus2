@@ -94,7 +94,7 @@ namespace libmaus2
 			)
 			{
 				unique_ptr_type ptr(new this_type(filename,tmpoffsetintervals,rtmpoutcnts));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			/**

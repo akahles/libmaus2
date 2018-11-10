@@ -1006,7 +1006,7 @@ namespace libmaus2
 				sorted.print(std::cerr);
 				#endif
 
-				return UNIQUE_PTR_MOVE(reduced);
+				return reduced;
 			}
 			else
 			{
@@ -1052,7 +1052,7 @@ namespace libmaus2
 					assert ( Bp[i] == BBB->get(i) );
 				#endif
 
-				return UNIQUE_PTR_MOVE(BBB);
+				return BBB;
 			}
 		}
 	}

@@ -170,7 +170,7 @@ namespace libmaus2
 						uroot = UNIQUE_PTR_MOVE(turoot);
 						nodes[0] = 0;
 
-						return UNIQUE_PTR_MOVE(uroot);
+						return uroot;
 					}
 					catch(...)
 					{
@@ -339,7 +339,7 @@ namespace libmaus2
 					assert (   bitio::getBit(struc,istruc) );
 					istruc++;
 
-					return UNIQUE_PTR_MOVE(N);
+					return N;
 				}
 
 				static unique_ptr_type deserialize(std::istream & in, uint64_t & s)
@@ -353,14 +353,14 @@ namespace libmaus2
 					if ( ! offset.getN() )
 					{
 						unique_ptr_type ptr;
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else
 					{
 						uint64_t ioffset = 0;
 						uint64_t istruc = 0;
 						unique_ptr_type ptr(deserialize(offset.get(),ioffset,struc.get(),istruc));
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 				}
 
@@ -480,7 +480,7 @@ namespace libmaus2
 				}
 
 				HuffmanWaveletTree::unique_ptr_type ptr( new HuffmanWaveletTree(n,aroot,acode,anavroot) );
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			uint64_t serialize(std::ostream & out) const
@@ -745,7 +745,7 @@ namespace libmaus2
 					// std::cerr << "Right recursion done." << std::endl;
 				}
 
-				return UNIQUE_PTR_MOVE(navnode);
+				return navnode;
 			}
 
 			static HuffmanWaveletTreeNavigationNode::unique_ptr_type huffmanWaveletTreeBits (
@@ -757,7 +757,7 @@ namespace libmaus2
 				// std::cerr << "Running huffmanWaveletTreeBits through wrapper..." << std::endl;
 				HuffmanWaveletTreeNavigationNode::unique_ptr_type retnode(huffmanWaveletTreeBits ( acode, 0, n, rnode ));
 				// std::cerr << "Running huffmanWaveletTreeBits through wrapper done." << std::endl;
-				return UNIQUE_PTR_MOVE(retnode);
+				return retnode;
 			}
 
 			static uint64_t deserializeNumber(std::istream & in, uint64_t & s)
@@ -779,7 +779,7 @@ namespace libmaus2
 			static HuffmanWaveletTreeNavigationNode::unique_ptr_type deserializeHuffmanNavigationTree(std::istream & in, uint64_t & s)
 			{
 				HuffmanWaveletTreeNavigationNode::unique_ptr_type ptr(HuffmanWaveletTreeNavigationNode::deserialize(in,s));
-				return UNIQUE_PTR_MOVE(ptr); // anavroot
+				return ptr; // anavroot
 			}
 
 			static uint64_t deserializeNumber(std::istream & in)
@@ -803,7 +803,7 @@ namespace libmaus2
 			{
 				uint64_t s = 0;
 				HuffmanWaveletTreeNavigationNode::unique_ptr_type ptr(HuffmanWaveletTreeNavigationNode::deserialize(in,s));
-				return UNIQUE_PTR_MOVE(ptr); // anavroot
+				return ptr; // anavroot
 			}
 
 			HuffmanWaveletTree(std::istream & in)
@@ -915,12 +915,12 @@ namespace libmaus2
 					HuffmanWaveletTreeNavigationNode::unique_ptr_type tHNright(generateBits(W,Wptr,left+cnt[0],right,B,level+1,inode->right));
 					HN->right = UNIQUE_PTR_MOVE(tHNright);
 
-					return UNIQUE_PTR_MOVE(HN);
+					return HN;
 				}
 				else
 				{
 					HuffmanWaveletTreeNavigationNode::unique_ptr_type ptr;
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 			}
 
@@ -962,7 +962,7 @@ namespace libmaus2
 
 				W.flush();
 
-				return UNIQUE_PTR_MOVE(anavroot);
+				return anavroot;
 			}
 
 			template<typename iterator>

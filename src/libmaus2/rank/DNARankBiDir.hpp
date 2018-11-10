@@ -51,7 +51,7 @@ namespace libmaus2
 				tptr->Preco = UNIQUE_PTR_MOVE(Precotmp);
 				tptr->reco = tptr->Preco.get();
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type loadFromSerialised(std::istream & in0, std::istream & in1)
@@ -66,14 +66,14 @@ namespace libmaus2
 				tptr->Preco = UNIQUE_PTR_MOVE(Precotmp);
 				tptr->reco = tptr->Preco.get();
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type loadFromSerialised(std::string const & fn)
 			{
 				libmaus2::aio::InputStreamInstance ISI(fn);
 				unique_ptr_type tptr(loadFromSerialised(ISI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type loadFromSerialised(std::string const & fn0, std::string const & fn1)
@@ -81,7 +81,7 @@ namespace libmaus2
 				libmaus2::aio::InputStreamInstance ISI0(fn0);
 				libmaus2::aio::InputStreamInstance ISI1(fn1);
 				unique_ptr_type tptr(loadFromSerialised(ISI0,ISI1));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			void serialise(std::ostream & out) const
@@ -124,7 +124,7 @@ namespace libmaus2
 				tptr->Preco = UNIQUE_PTR_MOVE(Precotmp);
 				tptr->reco = tptr->Preco.get();
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			DNARankBiDirRange epsilon() const

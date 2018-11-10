@@ -88,7 +88,7 @@ namespace libmaus2
 				if ( ita != factories.end() )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type ptr(ita->second->construct(name));
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 				else
 				{

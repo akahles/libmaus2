@@ -54,48 +54,48 @@ namespace libmaus2
 				if ( name == "crc32" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::CRC32);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "crc32c" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::CRC32C);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "md5" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::util::MD5);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "null" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::Null);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				#if defined(LIBMAUS2_HAVE_NETTLE)
 				else if ( name == "sha1" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA1);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "sha224" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_224);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "sha256" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_256);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "sha384" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_384);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else if ( name == "sha512" )
 				{
 					libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::SHA2_512);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				#endif
 				else
@@ -110,7 +110,7 @@ namespace libmaus2
 			libmaus2::digest::DigestInterface::unique_ptr_type construct(std::string const & name) const
 			{
 				libmaus2::digest::DigestInterface::unique_ptr_type tptr(constructStatic(name));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			DigestFactoryInterface::shared_ptr_type sclone() const

@@ -345,7 +345,7 @@ namespace libmaus2
 					O->RGCSH = this->RGCSH->sclone();
 				O->libs = this->libs;
 				O->numlibs = this->numlibs;
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			/**

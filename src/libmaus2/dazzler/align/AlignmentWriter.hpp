@@ -68,7 +68,7 @@ namespace libmaus2
 						Pptr = UNIQUE_PTR_MOVE(Tptr);
 					}
 
-					return UNIQUE_PTR_MOVE(Pptr);
+					return Pptr;
 				}
 
 				static indexer_type::unique_ptr_type createIndexer(std::iostream * IOSI)
@@ -81,7 +81,7 @@ namespace libmaus2
 						Pptr = UNIQUE_PTR_MOVE(Tptr);
 					}
 
-					return UNIQUE_PTR_MOVE(Pptr);
+					return Pptr;
 				}
 
 				AlignmentWriter(std::string const & rfn, int64_t const rtspace, bool const createindex = true, uint64_t const rnovlexptd = 0)

@@ -84,5 +84,5 @@ libmaus2::util::ConcatRequest::unique_ptr_type libmaus2::util::ConcatRequest::lo
 		throw se;
 	}
 
-	return UNIQUE_PTR_MOVE(req);
+	return req;
 }

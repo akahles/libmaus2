@@ -229,7 +229,7 @@ namespace libmaus2
 			unique_ptr_type uclone() const
 			{
 				unique_ptr_type O(new this_type(base_type::l0,base_type::l1,base_type::l2,base_type::l3));
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			QReorderTemplate4(
@@ -325,7 +325,7 @@ namespace libmaus2
 			unique_ptr_type uclone() const
 			{
 				unique_ptr_type U(new this_type(*this));
-				return UNIQUE_PTR_MOVE(U);
+				return U;
 			}
 
 			shared_ptr_type sclone() const
@@ -713,7 +713,7 @@ namespace libmaus2
 					new QReorder4Component<value_type,other_qreorder_type>(
 						rqreorder,C.begin(),C.end(),cache.lookupbits)
 				);
-				return UNIQUE_PTR_MOVE(U);
+				return U;
 			}
 
 			template<typename iterator>

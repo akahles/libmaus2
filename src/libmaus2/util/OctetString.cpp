@@ -138,7 +138,7 @@ libmaus2::util::OctetString::OctetString(std::istream & CIS, uint64_t const octe
 	for ( uint64_t i = 0; i < A.size(); ++i )
 		(*hist)(A[i]);
 
-	return UNIQUE_PTR_MOVE(hist);
+	return hist;
 }
 
 std::map<int64_t,uint64_t> libmaus2::util::OctetString::getHistogramAsMap() const

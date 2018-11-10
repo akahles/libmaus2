@@ -75,7 +75,7 @@ namespace libmaus2
 			unique_ptr_type uclone() const
 			{
 				unique_ptr_type tptr(new this_type(*this));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			shared_ptr_type sclone() const

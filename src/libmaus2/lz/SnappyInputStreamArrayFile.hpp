@@ -46,13 +46,13 @@ namespace libmaus2
 			static unique_ptr_type construct(std::string const & filename, iterator offa, iterator offe)
 			{
 				unique_ptr_type ptr(new this_type(filename,offa,offe));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			static unique_ptr_type construct(std::string const & filename, std::vector<uint64_t> const & V)
 			{
 				unique_ptr_type ptr(construct(filename,V.begin(),V.end()));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			SnappyInputStream & operator[](uint64_t const i)

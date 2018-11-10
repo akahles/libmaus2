@@ -128,7 +128,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(fs);
 				unique_ptr_type u(new this_type(CIS));
-				return UNIQUE_PTR_MOVE(u);
+				return u;
 			}
 
 			/**
@@ -140,7 +140,7 @@ namespace libmaus2
 			static unique_ptr_type load(std::istream & CIS)
 			{
 				unique_ptr_type u(new this_type(CIS));
-				return UNIQUE_PTR_MOVE(u);
+				return u;
 			}
 
 			/**

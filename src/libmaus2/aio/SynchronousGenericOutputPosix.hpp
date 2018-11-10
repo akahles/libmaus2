@@ -243,7 +243,7 @@ namespace libmaus2
 			 **/
 			static unique_ptr_type instantiateNewFile(std::string const & filename, uint64_t const bufsize, bool const metasync = true)
 			{
-				return UNIQUE_PTR_MOVE(unique_ptr_type(new this_type(filename,bufsize,true,0,metasync)));
+				return unique_ptr_type(new this_type(filename,bufsize,true,0,metasync));
 			}
 
 			public:

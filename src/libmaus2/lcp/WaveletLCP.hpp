@@ -227,7 +227,7 @@ namespace libmaus2
 				if ( logstr )
 					*logstr << " done, time " << lcprtc.getElapsedSeconds() << std::endl;
 
-				return UNIQUE_PTR_MOVE(res);
+				return res;
 			}
 		};
 

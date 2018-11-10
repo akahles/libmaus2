@@ -75,7 +75,7 @@ namespace libmaus2
 				libmaus2::index::ExternalMemoryIndexDecoder<ReadEndsBase,baseIndexShift,innerIndexShift>::unique_ptr_type Tindex(
 					new libmaus2::index::ExternalMemoryIndexDecoder<ReadEndsBase,baseIndexShift,innerIndexShift>(index)
 				);
-				return UNIQUE_PTR_MOVE(Tindex);
+				return Tindex;
 			}
 
 			void loadBlock(uint64_t const i) const

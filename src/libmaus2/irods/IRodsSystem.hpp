@@ -59,7 +59,7 @@ namespace libmaus2
 			{
 				IRodsSystem::shared_ptr_type irodsSystem = getDefaultIRodsSystem();
 				IRodsFileBase::unique_ptr_type tptr(openFile(irodsSystem,filename));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			IRodsSystem();

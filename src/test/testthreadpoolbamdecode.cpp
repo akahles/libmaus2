@@ -363,7 +363,7 @@ struct BamThreadPoolDecodeReadPackage : public ::libmaus2::parallel::ThreadWorkP
 	virtual ::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type uclone() const
 	{
 		::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type tptr(new BamThreadPoolDecodeReadPackage(packageid,contextbase));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	virtual ::libmaus2::parallel::ThreadWorkPackage::shared_ptr_type sclone() const
 	{
@@ -401,7 +401,7 @@ struct BamThreadPoolDecodeDecompressPackage : public ::libmaus2::parallel::Threa
 	virtual ::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type uclone() const
 	{
 		::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type tptr(new BamThreadPoolDecodeDecompressPackage(packageid,contextbase,blockmeta,baseid,blockid));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	virtual ::libmaus2::parallel::ThreadWorkPackage::shared_ptr_type sclone() const
 	{
@@ -439,7 +439,7 @@ struct BamThreadPoolDecodeBamParsePackage : public ::libmaus2::parallel::ThreadW
 	virtual ::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type uclone() const
 	{
 		::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type tptr(new BamThreadPoolDecodeBamParsePackage(packageid,contextbase,blockmeta,baseid,blockid));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	virtual ::libmaus2::parallel::ThreadWorkPackage::shared_ptr_type sclone() const
 	{
@@ -473,7 +473,7 @@ struct BamThreadPoolDecodeBamProcessPackage : public ::libmaus2::parallel::Threa
 	virtual ::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type uclone() const
 	{
 		::libmaus2::parallel::ThreadWorkPackage::unique_ptr_type tptr(new BamThreadPoolDecodeBamProcessPackage(packageid,contextbase,baseid,blockid));
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	virtual ::libmaus2::parallel::ThreadWorkPackage::shared_ptr_type sclone() const
 	{

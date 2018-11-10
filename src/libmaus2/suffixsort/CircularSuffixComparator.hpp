@@ -37,7 +37,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type tptr(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 		};
 
@@ -51,7 +51,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type W(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(W);
+				return W;
 			}
 		};
 
@@ -65,7 +65,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type W(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(W);
+				return W;
 			}
 		};
 
@@ -79,7 +79,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type W(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(W);
+				return W;
 			}
 		};
 
@@ -93,7 +93,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type W(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(W);
+				return W;
 			}
 		};
 
@@ -107,7 +107,7 @@ namespace libmaus2
 			static wrapper_ptr_type construct(std::string const & filename, uint64_t const offset)
 			{
 				wrapper_ptr_type W(new wrapper_type(filename,offset));
-				return UNIQUE_PTR_MOVE(W);
+				return W;
 			}
 		};
 

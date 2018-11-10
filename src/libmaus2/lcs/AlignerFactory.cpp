@@ -103,22 +103,22 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 		case libmaus2_lcs_AlignerFactory_EditDistance:
 		{
 			libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::EditDistance<>);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 		}
 		case libmaus2_lcs_AlignerFactory_ND:
 		{
 			libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::ND);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 		}
 		case libmaus2_lcs_AlignerFactory_NDextend:
 		{
 			libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::NDextend);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 		}
 		case libmaus2_lcs_AlignerFactory_NP:
 		{
 			libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::NP);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 		}
 		case libmaus2_lcs_AlignerFactory_x128_8:
 		{
@@ -130,7 +130,7 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 			)
 			{
 				libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::SimdX86GlobalAlignmentX128_8);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -158,7 +158,7 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 			)
 			{
 				libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::SimdX86GlobalAlignmentX128_16);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -188,7 +188,7 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 			)
 			{
 				libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::SimdX86GlobalAlignmentY256_8);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -219,7 +219,7 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 			)
 			{
 				libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::SimdX86GlobalAlignmentY256_16);
-				return UNIQUE_PTR_MOVE(T);
+				return T;
 			}
 			else
 			{
@@ -241,7 +241,7 @@ libmaus2::lcs::Aligner::unique_ptr_type libmaus2::lcs::AlignerFactory::construct
 		{
 			#if defined(LIBMAUS2_HAVE_DALIGNER)
 			libmaus2::lcs::Aligner::unique_ptr_type T(new libmaus2::lcs::DalignerNP);
-			return UNIQUE_PTR_MOVE(T);
+			return T;
 			#else
 			libmaus2::exception::LibMausException lme;
 			lme.getStream() << "libmaus2::lcs::AlignerFactory::construct: unsupported aligner type Daligner" << std::endl;

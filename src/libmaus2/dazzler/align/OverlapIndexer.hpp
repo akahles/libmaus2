@@ -376,7 +376,7 @@ namespace libmaus2
 					libmaus2::dazzler::align::AlignmentFile::unique_ptr_type Palgn;
 					info = openAlignmentFileRegion(aligns,afrom,ato,Pfile,Palgn,indexname);
 					AlignmentFileRegion::unique_ptr_type Tptr(new AlignmentFileRegion(Pfile,Palgn));
-					return UNIQUE_PTR_MOVE(Tptr);
+					return Tptr;
 				}
 
 				static AlignmentFileRegion::unique_ptr_type openAlignmentFileRegion(
@@ -396,7 +396,7 @@ namespace libmaus2
 
 					AlignmentFileRegion::unique_ptr_type tptr(openAlignmentFileRegion(aligns,afrom,ato,info,getIndexName(aligns)));
 
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 
@@ -411,7 +411,7 @@ namespace libmaus2
 					uint64_t const pe = index[ato];
 
 					AlignmentFileDecoder::unique_ptr_type tptr(new AlignmentFileDecoder(aligns,index.tspace,pb,pe));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				static AlignmentFileRegion::unique_ptr_type openAlignmentFileRegion(
@@ -423,7 +423,7 @@ namespace libmaus2
 				{
 					OpenAlignmentFileRegionInfo info;
 					AlignmentFileRegion::unique_ptr_type Tptr(openAlignmentFileRegion(aligns,afrom,ato,info,indexname));
-					return UNIQUE_PTR_MOVE(Tptr);
+					return Tptr;
 				}
 
 				static AlignmentFileRegion::unique_ptr_type openAlignmentFileRegion(
@@ -441,7 +441,7 @@ namespace libmaus2
 					}
 
 					AlignmentFileRegion::unique_ptr_type tptr(openAlignmentFileRegion(aligns,afrom,ato,getIndexName(aligns)));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				static std::vector<libmaus2::dazzler::align::Overlap> getAlignments(std::string const & aligns, uint64_t const & aread)
@@ -557,7 +557,7 @@ namespace libmaus2
 					libmaus2::dazzler::align::AlignmentFile::unique_ptr_type Palgn;
 					openAlignmentFileRegion(aligns,0,max+1,Pfile,Palgn,indexname);
 					AlignmentFileRegion::unique_ptr_type Tptr(new AlignmentFileRegion(Pfile,Palgn));
-					return UNIQUE_PTR_MOVE(Tptr);
+					return Tptr;
 				}
 
 				static AlignmentFileRegion::unique_ptr_type openAlignmentFile(std::string const & aligns)
@@ -567,7 +567,7 @@ namespace libmaus2
 					libmaus2::dazzler::align::AlignmentFile::unique_ptr_type Palgn;
 					openAlignmentFileRegion(aligns,0,max+1,Pfile,Palgn);
 					AlignmentFileRegion::unique_ptr_type Tptr(new AlignmentFileRegion(Pfile,Palgn));
-					return UNIQUE_PTR_MOVE(Tptr);
+					return Tptr;
 				}
 
 				static AlignmentFileRegion::unique_ptr_type openAlignmentFileWithoutIndex(std::string const & aligns)
@@ -575,7 +575,7 @@ namespace libmaus2
 					libmaus2::aio::InputStreamInstance::unique_ptr_type Pfile(new libmaus2::aio::InputStreamInstance(aligns));
 					libmaus2::dazzler::align::AlignmentFile::unique_ptr_type Palgn(new libmaus2::dazzler::align::AlignmentFile(*Pfile));
 					AlignmentFileRegion::unique_ptr_type Tptr(new AlignmentFileRegion(Pfile,Palgn));
-					return UNIQUE_PTR_MOVE(Tptr);
+					return Tptr;
 				}
 
 				static std::string constructIndex(std::string const & aligns, std::ostream * verbstr = 0)

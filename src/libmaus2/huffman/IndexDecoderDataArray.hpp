@@ -542,7 +542,7 @@ namespace libmaus2
 			static unique_ptr_type construct(std::vector<std::string> const & filenames, uint64_t const numthreads)
 			{
 				unique_ptr_type ptr(new this_type(filenames,numthreads));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			IndexDecoderDataArray(

@@ -95,7 +95,7 @@ libmaus2::irods::IRodsFileBase::unique_ptr_type libmaus2::irods::IRodsSystem::op
 	file.comm         = irodsSystem->getComm();
 	file.fdvalid      = true;
 
-	return UNIQUE_PTR_MOVE(tptr);
+	return tptr;
 	#else
 	libmaus2::exception::LibMausException lme;
 	lme.getStream() << "IRodsSystem::openFile: failed to open file " << filename << ": irods support not present" << std::endl;

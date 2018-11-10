@@ -202,7 +202,7 @@ namespace libmaus2
 					)
 				);
 
-				return UNIQUE_PTR_MOVE(tdec);
+				return tdec;
 			}
 
 			libmaus2::suffixsort::GapArrayByteDecoder::shared_ptr_type getDecoderSharedPointer(uint64_t const offset = 0) const

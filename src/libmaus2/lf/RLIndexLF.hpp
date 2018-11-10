@@ -106,12 +106,12 @@ namespace libmaus2
 					throw se;
 				}
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			static unique_ptr_type load(std::string const & filename)
 			{
-				return UNIQUE_PTR_MOVE(unique_ptr_type(new this_type(filename)));
+				return unique_ptr_type(new this_type(filename));
 			}
 
 			RLIndexLFTemplate(std::istream & in)

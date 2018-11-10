@@ -68,7 +68,7 @@ namespace libmaus2
 					pfilter = UNIQUE_PTR_MOVE(tfilter);
 				}
 
-				return UNIQUE_PTR_MOVE(pfilter);
+				return pfilter;
 			}
 
 			BamAuxFilterVector() : B(256*256)  {}

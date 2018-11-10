@@ -56,7 +56,7 @@ namespace libmaus2
 				unique_ptr_type C(new DynamicWaveletTree<k,w>(b));
 				C->R = R->clone();
 				C->n = n;
-				return UNIQUE_PTR_MOVE(C);
+				return C;
 			}
 
 			DynamicWaveletTree(uint64_t const rb)
@@ -82,7 +82,7 @@ namespace libmaus2
 			{
 				typename ::libmaus2::bitbtree::BitBTree<k,w>::unique_ptr_type Ptree(new ::libmaus2::bitbtree::BitBTree<k,w>);
 				Ptree->deserialise(in);
-				return UNIQUE_PTR_MOVE(Ptree);
+				return Ptree;
 			}
 
 			DynamicWaveletTree(std::istream & in)

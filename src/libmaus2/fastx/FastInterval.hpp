@@ -246,7 +246,7 @@ namespace libmaus2
 				for ( uint64_t i = 0; i < V.size(); ++i )
 					H[i] = std::pair<uint64_t,uint64_t>(V[i].low,V[i].high);
 				::libmaus2::util::IntervalTree::unique_ptr_type PIT(new ::libmaus2::util::IntervalTree(H,0,H.size()));
-				return UNIQUE_PTR_MOVE(PIT);
+				return PIT;
 			}
 		};
 

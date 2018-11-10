@@ -409,12 +409,12 @@ namespace libmaus2
 					if ( block_merge_output_format == output_format_cram )
 					{
 						libmaus2::bambam::parallel::ScramCramEncoding::unique_ptr_type TcramEncoder(new libmaus2::bambam::parallel::ScramCramEncoding);
-						return UNIQUE_PTR_MOVE(TcramEncoder);
+						return TcramEncoder;
 					}
 					else
 					{
 						libmaus2::bambam::parallel::ScramCramEncoding::unique_ptr_type TcramEncoder;
-						return UNIQUE_PTR_MOVE(TcramEncoder);
+						return TcramEncoder;
 					}
 				}
 

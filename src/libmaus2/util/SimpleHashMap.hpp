@@ -122,7 +122,7 @@ namespace libmaus2
 				O->fill = fill;
 				O->H = H.clone();
 
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			shared_ptr_type sclone() const
@@ -228,13 +228,13 @@ namespace libmaus2
 				for ( uint64_t i = 0; i < hashsize; ++i )
 					if ( H[i].first != base_type::unused() )
 						O->insert ( H[i].first, H[i].second );
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			unique_ptr_type extendEmpty() const
 			{
 				unique_ptr_type O(new this_type(slog+1));
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			void assign(this_type & from)

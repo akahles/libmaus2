@@ -150,14 +150,14 @@ namespace libmaus2
 			static unique_ptr_type load(std::istream & in)
 			{
 				unique_ptr_type tptr(new this_type(in));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type load(std::string const & s)
 			{
 				libmaus2::aio::InputStreamInstance ISI(s);
 				unique_ptr_type tptr(new this_type(ISI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			std::pair<uint64_t,uint64_t> mapCoordinates(uint64_t const i) const

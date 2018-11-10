@@ -376,7 +376,7 @@ namespace libmaus2
                         {
 	        	        ::libmaus2::util::ConcatRequest::unique_ptr_type req(::libmaus2::util::ConcatRequest::load(requestfilename));
 		                fragment_vector frags = loadFragmentVector(req->infilenames);
-                                return UNIQUE_PTR_MOVE(unique_ptr_type( new this_type(frags,bufsize,limit,offset) ));
+                                return unique_ptr_type( new this_type(frags,bufsize,limit,offset) );
                         }
 
                         /**
@@ -395,7 +395,7 @@ namespace libmaus2
                         )
                         {
                                 fragment_vector const frags = loadFragmentVector(filenames);
-                                return UNIQUE_PTR_MOVE(unique_ptr_type( new this_type(frags,bufsize,limit,offset) ));
+                                return unique_ptr_type( new this_type(frags,bufsize,limit,offset) );
                         }
 
                         /**

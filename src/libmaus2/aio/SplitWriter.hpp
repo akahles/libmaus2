@@ -99,7 +99,7 @@ namespace libmaus2
 			static unique_ptr_type construct(std::string const & rbasename, uint64_t const rlimit)
 			{
 				unique_ptr_type ptr(new this_type(rbasename,rlimit));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 	}

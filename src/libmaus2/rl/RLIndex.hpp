@@ -332,7 +332,7 @@ namespace libmaus2
 					throw se;
 				}
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			RLIndexTemplate(std::istream & in) : base_type(in), D(computeDArray()) {}
@@ -342,7 +342,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance istr(filename);
 				unique_ptr_type ptr(new this_type(istr));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 

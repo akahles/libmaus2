@@ -346,7 +346,7 @@ namespace libmaus2
 						*logstr << "Quantiser levels:\n" << *ptr;
 					}
 
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 				else
 				{
@@ -367,7 +367,7 @@ namespace libmaus2
 						*logstr << "done, PSNR is " << psnr << std::endl;
 						*logstr << "Quantiser levels:\n" << *ptr;
 					}
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 			}
 

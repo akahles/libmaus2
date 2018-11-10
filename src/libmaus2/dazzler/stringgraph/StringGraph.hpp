@@ -105,7 +105,7 @@ namespace libmaus2
 				{
 					libmaus2::aio::InputStreamInstance in(fn);
 					unique_ptr_type tptr(new this_type(in));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				uint64_t size() const

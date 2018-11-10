@@ -84,27 +84,27 @@ namespace libmaus2
 					if ( S.find(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_Daligner_NP) != S.end() )
 					{
 						libmaus2::lcs::Aligner::unique_ptr_type T(libmaus2::lcs::AlignerFactory::construct(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_Daligner_NP));
-						return UNIQUE_PTR_MOVE(T);
+						return T;
 					}
 					else if ( S.find(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_y256_8) != S.end() )
 					{
 						libmaus2::lcs::Aligner::unique_ptr_type T(libmaus2::lcs::AlignerFactory::construct(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_y256_8));
-						return UNIQUE_PTR_MOVE(T);
+						return T;
 					}
 					else if ( S.find(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_x128_8) != S.end() )
 					{
 						libmaus2::lcs::Aligner::unique_ptr_type T(libmaus2::lcs::AlignerFactory::construct(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_x128_8));
-						return UNIQUE_PTR_MOVE(T);
+						return T;
 					}
 					else if ( S.find(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_NP) != S.end() )
 					{
 						libmaus2::lcs::Aligner::unique_ptr_type T(libmaus2::lcs::AlignerFactory::construct(libmaus2::lcs::AlignerFactory::libmaus2_lcs_AlignerFactory_NP));
-						return UNIQUE_PTR_MOVE(T);
+						return T;
 					}
 					else if ( S.size() )
 					{
 						libmaus2::lcs::Aligner::unique_ptr_type T(libmaus2::lcs::AlignerFactory::construct(*(S.begin())));
-						return UNIQUE_PTR_MOVE(T);
+						return T;
 					}
 					else
 					{

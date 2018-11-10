@@ -91,7 +91,7 @@ namespace libmaus2
 			libmaus2::aio::InputStreamInstance::unique_ptr_type open() const
 			{
 				libmaus2::aio::InputStreamInstance::unique_ptr_type tptr(new libmaus2::aio::InputStreamInstance(url));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			std::string const & getURL() const

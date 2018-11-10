@@ -1226,13 +1226,13 @@ namespace libmaus2
 						libmaus2::aio::FileRemoval::removeFile ( blockresults.getFiles().getHWTReq().c_str() );
 						if ( logstr )
 							(*logstr) << "done, time " << rtc.getElapsedSeconds() << std::endl;
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else
 					{
 						libmaus2::aio::InputStreamInstance CIS(blockresults.getFiles().getHWT());
 						libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type ptr(new libmaus2::wavelet::ImpCompactHuffmanWaveletTree(CIS));
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 				}
 

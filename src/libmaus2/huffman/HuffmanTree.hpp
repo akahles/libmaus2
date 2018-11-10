@@ -790,7 +790,7 @@ namespace libmaus2
 			unique_ptr_type uclone() const
 			{
 				unique_ptr_type ptr(new this_type(*this));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			void printRec(std::ostream & out, uint64_t const node, uint64_t const indent = 0) const

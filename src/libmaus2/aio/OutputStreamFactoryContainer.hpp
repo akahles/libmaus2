@@ -128,19 +128,19 @@ namespace libmaus2
 					if ( protocol == "ftp" || protocol == "http" || protocol == "https" )
 					{
 						libmaus2::aio::OutputStream::unique_ptr_type tptr(factory->constructUnique(url));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					#endif
 					{
 						libmaus2::aio::OutputStream::unique_ptr_type tptr(factory->constructUnique(url.substr(protocol.size()+1)));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				else
 				{
 					libmaus2::aio::OutputStream::unique_ptr_type tptr(factory->constructUnique(url));
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 			}
 

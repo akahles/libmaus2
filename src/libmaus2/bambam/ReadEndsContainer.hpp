@@ -395,7 +395,7 @@ namespace libmaus2
 				::libmaus2::bambam::SortedFragDecoder::unique_ptr_type ptr(
 					::libmaus2::bambam::SortedFragDecoder::construct(tempfilename,tmpoffsetintervals,tmpoutcnts)
 				);
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			/**
@@ -411,7 +411,7 @@ namespace libmaus2
 					new ::libmaus2::bambam::ReadEndsStreamDecoder(tempfilename)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			/**
@@ -589,7 +589,7 @@ namespace libmaus2
 					)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			ReadEndsBlockDecoderBaseCollection<false>::unique_ptr_type getBaseDecoderCollectionWithoutProxy()
@@ -604,7 +604,7 @@ namespace libmaus2
 					)
 				);
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			/**

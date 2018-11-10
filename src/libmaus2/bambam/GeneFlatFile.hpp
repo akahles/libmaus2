@@ -155,7 +155,7 @@ namespace libmaus2
 				}
 				ptr->nl = nl;
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 

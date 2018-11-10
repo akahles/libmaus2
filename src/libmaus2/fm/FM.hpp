@@ -122,7 +122,7 @@ namespace libmaus2
                                 }
                                 std::cerr << std::endl;
 
-                                return UNIQUE_PTR_MOVE(text);
+                                return text;
                         }
 
                         uint64_t serialize(std::ostream & out)

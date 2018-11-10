@@ -60,7 +60,7 @@ static ::libmaus2::bitio::IndexedBitVector::unique_ptr_type getUsedSeqVector(std
 
 	sqused.setupIndex();
 
-	return UNIQUE_PTR_MOVE(Psqused);
+	return Psqused;
 }
 
 static void filterBamUsedSequences(

@@ -259,7 +259,7 @@ namespace libmaus2
 
 				libmaus2::fastx::QReorder4Set<seedk,uint64_t>::unique_ptr_type kmerfilter = UNIQUE_PTR_MOVE(rkmerfilter);
 
-				return UNIQUE_PTR_MOVE(kmerfilter);
+				return kmerfilter;
 			}
 
 			void searchRanks(uint64_t const v, unsigned int const maxmis, libmaus2::fastx::AutoArrayWordPutObject<uint64_t> & TA) const

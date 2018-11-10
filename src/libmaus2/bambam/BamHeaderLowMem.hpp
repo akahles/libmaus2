@@ -243,7 +243,7 @@ namespace libmaus2
 				::libmaus2::trie::LinearHashTrie<char,uint32_t>::unique_ptr_type LHTnofailure
 					(trienofailure.toLinearHashTrie<uint32_t>());
 
-				return UNIQUE_PTR_MOVE(LHTnofailure);
+				return LHTnofailure;
 			}
 
 			void setupFromText()
@@ -1102,7 +1102,7 @@ namespace libmaus2
 			{
 				unique_ptr_type ptr(new this_type);
 				ptr->constructFromBAMInternal(in);
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			template<typename iterator>
@@ -1110,7 +1110,7 @@ namespace libmaus2
 			{
 				unique_ptr_type ptr(new this_type);
 				ptr->constructFromTextInternal(ita,ite);
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			/**

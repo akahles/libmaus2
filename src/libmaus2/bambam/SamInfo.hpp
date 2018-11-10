@@ -108,7 +108,7 @@ namespace libmaus2
 				::libmaus2::trie::LinearHashTrie<char,uint32_t>::unique_ptr_type LHTnofailure
 					(trienofailure.toLinearHashTrie<uint32_t>());
 
-				return UNIQUE_PTR_MOVE(LHTnofailure);
+				return LHTnofailure;
 			}
 
 			int64_t getRefIdForName(char const * a, char const * e) const

@@ -42,7 +42,7 @@ namespace libmaus2
 					libmaus2::util::Destructable::unique_ptr_type tptr(
 						libmaus2::util::Destructable::construct(p,deallocate)
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				catch(...)
 				{

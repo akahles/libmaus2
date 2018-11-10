@@ -54,7 +54,7 @@ namespace libmaus2
 			virtual ThreadWorkPackage::unique_ptr_type uclone() const
 			{
 				ThreadWorkPackage::unique_ptr_type tptr(new DummyThreadWorkPackage(priority,dispatcherid,mutex,meta,packageid));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 			virtual ThreadWorkPackage::shared_ptr_type sclone() const
 			{

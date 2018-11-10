@@ -270,7 +270,7 @@ namespace libmaus2
 
 				unique_ptr_type p ( new this_type(filename,n,H,numnodes,nodepos,numthreads) );
 
-				return UNIQUE_PTR_MOVE(p);
+				return p;
 			}
 
 			uint64_t getN() const

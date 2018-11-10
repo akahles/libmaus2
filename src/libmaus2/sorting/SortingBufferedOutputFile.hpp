@@ -66,7 +66,7 @@ namespace libmaus2
 					new libmaus2::sorting::MergingReadBack<data_type,order_type>(filename,blocksizes,backblocksize)
 				);
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 
@@ -130,7 +130,7 @@ namespace libmaus2
 					new libmaus2::sorting::SerialisingMergingReadBack<data_type,order_type>(filename,blocksizes,order,backblocksize)
 				);
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			static void sort(
@@ -575,7 +575,7 @@ namespace libmaus2
 					new merger_type(ASO,Vfn,order,backblocksize,maxfan)
 				);
 
-				return UNIQUE_PTR_MOVE(mpt);
+				return mpt;
 			}
 
 			merger_ptr_type getMergerParallel(uint64_t const numthreads, uint64_t const backblocksize = 1024ull, uint64_t const maxfan = 16ull)
@@ -584,7 +584,7 @@ namespace libmaus2
 					new merger_type(numthreads,ASO,Vfn,order,backblocksize,maxfan)
 				);
 
-				return UNIQUE_PTR_MOVE(mpt);
+				return mpt;
 			}
 
 			std::string reduce(uint64_t const backblocksize = 1024ull, uint64_t const maxfan = 16ull)

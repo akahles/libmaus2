@@ -35,7 +35,7 @@ namespace libmaus2
 			virtual CompressorObject::unique_ptr_type operator()()
 			{
 				CompressorObject::unique_ptr_type ptr(new SnappyCompressorObject);
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 			virtual std::string getDescription() const
 			{

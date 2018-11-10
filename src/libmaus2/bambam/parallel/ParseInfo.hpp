@@ -135,7 +135,7 @@ namespace libmaus2
 				libmaus2::bambam::BamHeader::unique_ptr_type getHeader()
 				{
 					libmaus2::bambam::BamHeader::unique_ptr_type ptr(new libmaus2::bambam::BamHeader(BHPS));
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 
 				/**

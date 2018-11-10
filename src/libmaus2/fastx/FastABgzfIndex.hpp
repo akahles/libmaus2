@@ -43,7 +43,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(filename);
 				unique_ptr_type tptr(new this_type(CIS));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			void init(std::istream & indexistr)
@@ -109,13 +109,13 @@ namespace libmaus2
 			FastABgzfDecoder::unique_ptr_type getStream(std::istream & in, uint64_t const id) const
 			{
 				FastABgzfDecoder::unique_ptr_type Tptr(new FastABgzfDecoder(in,(*this)[id],blocksize));
-				return UNIQUE_PTR_MOVE(Tptr);
+				return Tptr;
 			}
 
 			FastABgzfDecoder::unique_ptr_type getStream(std::string const & filename, uint64_t const id) const
 			{
 				FastABgzfDecoder::unique_ptr_type Tptr(new FastABgzfDecoder(filename,(*this)[id],blocksize));
-				return UNIQUE_PTR_MOVE(Tptr);
+				return Tptr;
 			}
 		};
 

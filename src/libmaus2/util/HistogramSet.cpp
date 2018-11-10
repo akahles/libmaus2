@@ -45,11 +45,11 @@ libmaus2::util::Histogram::unique_ptr_type libmaus2::util::HistogramSet::merge()
 		Histogram::unique_ptr_type hist ( new Histogram(H[0]->getLowSize()) );
 		for ( uint64_t i = 0; i < H.size(); ++i )
 			hist->merge(*H[i]);
-		return UNIQUE_PTR_MOVE(hist);
+		return hist;
 	}
 	else
 	{
 		Histogram::unique_ptr_type thist;
-		return UNIQUE_PTR_MOVE(thist);
+		return thist;
 	}
 }

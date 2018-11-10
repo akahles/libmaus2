@@ -68,7 +68,7 @@ namespace libmaus2
 			{
 				unique_ptr_type uptr(new this_type);
 				uptr->copyFrom(*this);
-				return UNIQUE_PTR_MOVE(uptr);
+				return uptr;
 			}
 
 			void traceToSparse(libmaus2::lcs::BaseConstants::step_type * ta, libmaus2::lcs::BaseConstants::step_type * te)

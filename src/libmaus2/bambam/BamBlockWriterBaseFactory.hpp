@@ -223,12 +223,12 @@ namespace libmaus2
 						if ( outputisstdout )
 						{
 							libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::BamWriter(std::cout,bamheader,level,rblockoutputcallbacks));
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 						else
 						{
 							libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::BamWriter(outputfilename,bamheader,level,rblockoutputcallbacks));
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 					}
 					else
@@ -236,12 +236,12 @@ namespace libmaus2
 						if ( outputisstdout )
 						{
 							libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::BamParallelWriter(std::cout,outputthreads,bamheader,level,rblockoutputcallbacks));
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 						else
 						{
 							libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::BamParallelWriter(outputfilename,outputthreads,bamheader,level,rblockoutputcallbacks));
-							return UNIQUE_PTR_MOVE(tptr);
+							return tptr;
 						}
 					}
 				}
@@ -258,14 +258,14 @@ namespace libmaus2
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(
 							new libmaus2::bambam::SamEncoder(std::cout,bamheader)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(
 							new libmaus2::bambam::SamEncoder(outputfilename,bamheader)
 						);
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 
 				}
@@ -276,12 +276,12 @@ namespace libmaus2
 					if ( outputisstdout )
 					{
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::ScramEncoder(bamheader,"-","ws","",true /* verbose */));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::ScramEncoder(bamheader,outputfilename,"ws","",true /* verbose */));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				else if ( outputformat == "cram" )
@@ -292,12 +292,12 @@ namespace libmaus2
 					if ( outputisstdout )
 					{
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::ScramEncoder(bamheader,"-","wc",reference,scramverbose /* verbose */));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamBlockWriterBase::unique_ptr_type tptr(new libmaus2::bambam::ScramEncoder(bamheader,outputfilename,"wc",reference,scramverbose /* verbose */));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				#endif

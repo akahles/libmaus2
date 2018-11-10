@@ -49,7 +49,7 @@ namespace libmaus2
 			for ( int64_t i = static_cast<int64_t>(n)-2; i >= 0; --i )
 				stype[i] = (C[i] < C[i+1]) || ((C[i] == C[i+1]) && stype[i+1]);
 
-			return UNIQUE_PTR_MOVE(pstype);
+			return pstype;
 		}
 
 		static inline std::vector < std::pair<uint64_t,uint64_t> > mergeParIntervals(
@@ -226,7 +226,7 @@ namespace libmaus2
 				#endif
 			}
 
-			return UNIQUE_PTR_MOVE(pstype);
+			return pstype;
 		}
 
 		inline void sToSast(::libmaus2::bitio::IndexedBitVector & stype)
@@ -307,7 +307,7 @@ namespace libmaus2
 			sToSastParallel(stype,threads);
 			stype.setupIndex();
 
-			return UNIQUE_PTR_MOVE(pstype);
+			return pstype;
 		}
 
 
@@ -341,7 +341,7 @@ namespace libmaus2
 			sToSast(stype);
 			stype.setupIndex();
 
-			return UNIQUE_PTR_MOVE(pstype);
+			return pstype;
 		}
 
 		// comparator for S* type substrings
@@ -1114,7 +1114,7 @@ namespace libmaus2
 						<< static_cast<double>((LB.byteSize() + HH.byteSize() + ColBV->byteSize() + NonColBV->byteSize() + ColBV->byteSize() + NonColBV->byteSize() + ColIndex.byteSize() + ColVec.byteSize() + HRS->byteSize()))/C.byteSize()
 						<< ")";
 
-				return UNIQUE_PTR_MOVE(HRS);
+				return HRS;
 			}
 
 			typename HashLookupTable<hash_type>::unique_ptr_type computeHashLookupTable()
@@ -1257,7 +1257,7 @@ namespace libmaus2
 						<< ")";
 						;
 
-				return UNIQUE_PTR_MOVE(HLT);
+				return HLT;
 			}
 		};
 
@@ -1297,7 +1297,7 @@ namespace libmaus2
 		{
 			HashReduction<array_type,hash_type> HR(C,stype,smallthres,verbose,fraction);
 			typename HashReducedString<hash_type>::unique_ptr_type HRS = HR.computeReducedString();
-			return UNIQUE_PTR_MOVE(HRS);
+			return HRS;
 		}
 
 		template<typename array_type, typename hash_type /* =uint32_t */>
@@ -1311,7 +1311,7 @@ namespace libmaus2
 		{
 			HashReduction<array_type,hash_type> HR(C,stype,smallthres,verbose,fraction);
 			typename HashLookupTable<hash_type>::unique_ptr_type HLT = HR.computeHashLookupTable();
-			return UNIQUE_PTR_MOVE(HLT);
+			return HLT;
 		}
 	}
 }

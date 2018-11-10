@@ -48,7 +48,7 @@ namespace libmaus2
 			static unique_ptr_type uconstruct(std::string const & rname, uint64_t const rid)
 			{
 				unique_ptr_type tptr(new this_type(rname,rid));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static shared_ptr_type sconstruct(std::string const & rname, uint64_t const rid)

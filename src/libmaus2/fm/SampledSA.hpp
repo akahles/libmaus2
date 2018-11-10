@@ -308,7 +308,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(filename);
 				unique_ptr_type ptr(new this_type(lf,CIS));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			SimpleSampledSA(lf_type const * rlf, std::istream & in) : lf(rlf) { deserialize(in); }

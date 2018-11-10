@@ -70,7 +70,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(filename);
 				unique_ptr_type ptr(new this_type(CIS));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			std::ostream & serialise(std::ostream & out) const
@@ -117,14 +117,14 @@ namespace libmaus2
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tptr(
 						libmaus2::wavelet::RlToHwtBase<true,rl_decoder>::rlToHwtTerm(bwt,hwt,tmpprefix,huftreefilename,bwtterm,p0r,numthreads)
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 				else
 				{
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tptr(
 						libmaus2::wavelet::RlToHwtBase<false,rl_decoder>::rlToHwtTerm(bwt,hwt,tmpprefix,huftreefilename,bwtterm,p0r,numthreads)
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 			}
 		};

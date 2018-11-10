@@ -31,7 +31,7 @@ libmaus2::rank::DNARank::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeS
 	if ( alvalid )
 	{
 		libmaus2::rank::DNARank::unique_ptr_type Prank(libmaus2::rank::DNARank::loadFromRunLength(bwtfn,numthreads));
-		return UNIQUE_PTR_MOVE(Prank);
+		return Prank;
 	}
 	else
 	{
@@ -99,7 +99,7 @@ libmaus2::suffixtree::CompressedSuffixTree::unique_ptr_type libmaus2::suffixsort
 		)
 	);
 
-	return UNIQUE_PTR_MOVE(PCST);
+	return PCST;
 }
 
 std::map<int64_t,uint64_t> libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::loadSymbolHistogram() const
@@ -147,7 +147,7 @@ libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type libmaus2::suffi
 
 	hwtfn = outhwt;
 
-	return UNIQUE_PTR_MOVE(pICHWT);
+	return pICHWT;
 }
 
 void libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::computeSampledSuffixArray(
@@ -188,7 +188,7 @@ libmaus2::fm::SimpleSampledSA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_
 		libmaus2::fm::SimpleSampledSA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_type ptr(
 			libmaus2::fm::SimpleSampledSA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::load(lf,safn)
 		);
-		return UNIQUE_PTR_MOVE(ptr);
+		return ptr;
 	}
 	else
 	{
@@ -206,7 +206,7 @@ libmaus2::fm::SampledISA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_t
 		libmaus2::fm::SampledISA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_type ptr(
 			libmaus2::fm::SampledISA<libmaus2::lf::ImpCompactHuffmanWaveletLF>::load(lf,isafn)
 		);
-		return UNIQUE_PTR_MOVE(ptr);
+		return ptr;
 	}
 	else
 	{
@@ -225,12 +225,12 @@ libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type libmaus2::suffi
 	if ( hwtfn.size() )
 	{
 		libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type hptr(libmaus2::wavelet::ImpCompactHuffmanWaveletTree::load(hwtfn,numthreads));
-		return UNIQUE_PTR_MOVE(hptr);
+		return hptr;
 	}
 	else
 	{
 		libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type hptr(constructHwt(tmpfilenamebase,numthreads));
-		return UNIQUE_PTR_MOVE(hptr);
+		return hptr;
 	}
 }
 
@@ -241,7 +241,7 @@ libmaus2::lf::ImpCompactHuffmanWaveletLF::unique_ptr_type libmaus2::suffixsort::
 {
 	libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type hptr(loadWaveletTree(tmpfilenamebase,numthreads));
 	libmaus2::lf::ImpCompactHuffmanWaveletLF::unique_ptr_type lptr(new libmaus2::lf::ImpCompactHuffmanWaveletLF(hptr));
-	return UNIQUE_PTR_MOVE(lptr);
+	return lptr;
 }
 
 libmaus2::fm::FM<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::loadFM(std::string const tmpfilenamebase, uint64_t const numthreads)
@@ -253,7 +253,7 @@ libmaus2::fm::FM<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_type libm
 	libmaus2::fm::FM<libmaus2::lf::ImpCompactHuffmanWaveletLF>::unique_ptr_type PFM(new
 		libmaus2::fm::FM<libmaus2::lf::ImpCompactHuffmanWaveletLF>(SLF,PSA,PISA)
 	);
-	return UNIQUE_PTR_MOVE(PFM);
+	return PFM;
 }
 
 libmaus2::lcp::WaveletLCPResult::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::computeLCP(
@@ -263,7 +263,7 @@ libmaus2::lcp::WaveletLCPResult::unique_ptr_type libmaus2::suffixsort::bwtb3m::B
 )
 {
 	libmaus2::lcp::WaveletLCPResult::unique_ptr_type PLCP(libmaus2::lcp::WaveletLCP::computeLCP(LF,numthreads,false /* zdif */,logstr));
-	return UNIQUE_PTR_MOVE(PLCP);
+	return PLCP;
 }
 
 libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::computeSuccinctLCP(
@@ -319,7 +319,7 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_
 	#endif
 	#endif
 
-	return UNIQUE_PTR_MOVE(SLCP);
+	return SLCP;
 }
 
 libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::computeSuccinctLCP(
@@ -330,7 +330,7 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_
 )
 {
 	cst_succinct_lcp_type::unique_ptr_type SLCP(computeSuccinctLCP(FM->lf.get(),FM->sa.get(),FM->isa.get(),numthreads,tmpprefix,logstr));
-	return UNIQUE_PTR_MOVE(SLCP);
+	return SLCP;
 }
 
 libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_rmm_tree_type::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::computeRMMTree(
@@ -345,7 +345,7 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_rmm_tree_type::unique_ptr_
 	POSI->flush();
 	POSI.reset();
 
-	return UNIQUE_PTR_MOVE(tree);
+	return tree;
 }
 
 libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_rmm_tree_type::unique_ptr_type libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::loadRMMTree(
@@ -354,13 +354,13 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_rmm_tree_type::unique_ptr_
 	if ( ! rmmtreefn.size() )
 	{
 		cst_rmm_tree_type::unique_ptr_type tree(computeRMMTree(SLCP,numthreads,rmmbuildblocksize,logstr));
-		return UNIQUE_PTR_MOVE(tree);
+		return tree;
 	}
 	else
 	{
 		libmaus2::aio::InputStreamInstance ISI(rmmtreefn);
 		cst_rmm_tree_type::unique_ptr_type tree(new cst_rmm_tree_type(ISI,*SLCP));
-		return UNIQUE_PTR_MOVE(tree);
+		return tree;
 	}
 }
 
@@ -376,13 +376,13 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_
 	if ( ! succinctlcpfn.size() )
 	{
 		cst_succinct_lcp_type::unique_ptr_type SLCP(computeSuccinctLCP(LF,SA,ISA,numthreads,tmpprefix,logstr));
-		return UNIQUE_PTR_MOVE(SLCP);
+		return SLCP;
 	}
 	else
 	{
 		libmaus2::aio::InputStreamInstance ISI(succinctlcpfn);
 		cst_succinct_lcp_type::unique_ptr_type SLCP(new cst_succinct_lcp_type(ISI,*SA));
-		return UNIQUE_PTR_MOVE(SLCP);
+		return SLCP;
 	}
 }
 
@@ -394,7 +394,7 @@ libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::cst_succinct_lcp_type::unique_
 )
 {
 	cst_succinct_lcp_type::unique_ptr_type SLCP(loadSuccinctLCP(FM->lf.get(),FM->sa.get(),FM->isa.get(),numthreads,tmpprefix,logstr));
-	return UNIQUE_PTR_MOVE(SLCP);
+	return SLCP;
 }
 
 libmaus2::suffixsort::bwtb3m::BwtMergeSortResult libmaus2::suffixsort::bwtb3m::BwtMergeSortResult::setupBwtSa(

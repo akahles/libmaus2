@@ -51,7 +51,7 @@ namespace libmaus2
 					new libmaus2::aio::InputStreamInstance(filename)
 				);
 
-				return UNIQUE_PTR_MOVE(tCIS);
+				return tCIS;
 			}
 
 			static uint64_t getSparseCount(std::istream & CIS)
@@ -82,7 +82,7 @@ namespace libmaus2
 					new libmaus2::aio::SynchronousGenericInput<uint64_t>(CIS,1024,2*restel)
 				);
 
-				return UNIQUE_PTR_MOVE(tSGI);
+				return tSGI;
 			}
 
 			GapArrayByteDecoder(

@@ -113,7 +113,7 @@ namespace libmaus2
 				unique_ptr_type ptr(
                                                 new this_type(CIS,B)
                                         );
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			uint64_t operator()(unsigned int const level, uint64_t const i) const
@@ -219,7 +219,7 @@ namespace libmaus2
 					hist(libmaus2::math::bitsPerNum(vmin));
 				}
 
-				return UNIQUE_PTR_MOVE(phist);
+				return phist;
 			}
 
 			template<typename in_iterator>

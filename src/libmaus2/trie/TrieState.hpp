@@ -197,7 +197,7 @@ namespace libmaus2
 				unique_ptr_type O(new this_type);
 				O->V = V;
 				O->H = UNIQUE_PTR_MOVE(H->uclone());
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			shared_ptr_type sclone() const
@@ -763,7 +763,7 @@ namespace libmaus2
 
 				LHT->fillDepthParent();
 
-				return UNIQUE_PTR_MOVE(LHT);
+				return LHT;
 			}
 		};
 

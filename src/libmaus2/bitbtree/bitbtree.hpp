@@ -676,7 +676,7 @@ namespace libmaus2
 				newtree->aleafnodes = aleafnodes->clone();
 				newtree->leafnodes = newtree->aleafnodes.get();
 
-				return UNIQUE_PTR_MOVE(newtree);
+				return newtree;
 			}
 
 			struct VectorConstructionTuple

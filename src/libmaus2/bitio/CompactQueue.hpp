@@ -259,8 +259,8 @@ namespace libmaus2
 
                         EnqueBuffer::unique_ptr_type createEnqueBuffer(uint64_t const bufsize = 64*1024)
                         {
-				EnqueBuffer::unique_ptr_type ptr(new EnqueBuffer(this,bufsize));
-                                return UNIQUE_PTR_MOVE(ptr);
+				                EnqueBuffer::unique_ptr_type ptr(new EnqueBuffer(this,bufsize));
+                                return ptr;
                         }
                 };
         }

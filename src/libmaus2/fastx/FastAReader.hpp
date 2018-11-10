@@ -913,7 +913,7 @@ namespace libmaus2
                                                 );
 			        }
 
-			        return UNIQUE_PTR_MOVE(Phist);
+			        return Phist;
 			}
 
 			static ::libmaus2::util::Histogram::unique_ptr_type getHistogram(
@@ -940,7 +940,7 @@ namespace libmaus2
                                         lock.unlock();
                                 }
 
-                                return UNIQUE_PTR_MOVE(Phist);
+                                return Phist;
 			}
 
 			static std::vector < ::libmaus2::aio::FileFragment > getDataFragments(std::vector < std::string > const & filenames)

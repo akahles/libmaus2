@@ -526,14 +526,14 @@ struct BalancedParenthesesBase
 
 		pioneer_bitmap.setupIndex();
 
-		return UNIQUE_PTR_MOVE(Ppioneer_bitmap);
+		return Ppioneer_bitmap;
 	}
 
 	static libmaus2::util::NearestNeighbourDictionary::unique_ptr_type calculatePioneerBitVectorNND(::libmaus2::bitio::BitVector const & bp, uint64_t const block_size)
 	{
 		::libmaus2::bitio::IndexedBitVector::unique_ptr_type pion = calculatePioneerBitVector(bp,block_size);
 		libmaus2::util::NearestNeighbourDictionary::unique_ptr_type ptr(new libmaus2::util::NearestNeighbourDictionary(*pion));
-		return UNIQUE_PTR_MOVE(ptr);
+		return ptr;
 	}
 
 	template<typename piovectype>
@@ -567,7 +567,7 @@ struct BalancedParenthesesBase
 
 		// std::cerr << "excess " << excess << std::endl;
 
-		return UNIQUE_PTR_MOVE(Ppfamily);
+		return Ppfamily;
 	}
 };
 #endif

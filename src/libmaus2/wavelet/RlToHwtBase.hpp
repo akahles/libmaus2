@@ -54,7 +54,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(hwt);
 				libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type pICHWT(new libmaus2::wavelet::ImpCompactHuffmanWaveletTree(CIS));
-				return UNIQUE_PTR_MOVE(pICHWT);
+				return pICHWT;
 			}
 
 			struct RlDecoderInfoObject
@@ -753,7 +753,7 @@ namespace libmaus2
 				#endif
 				#endif
 
-				return UNIQUE_PTR_MOVE(pICHWT);
+				return pICHWT;
 			}
 
 			/**
@@ -1270,7 +1270,7 @@ namespace libmaus2
 
 				#endif
 
-				return UNIQUE_PTR_MOVE(pICHWT);
+				return pICHWT;
 			}
 
 			#if 0
@@ -1287,7 +1287,7 @@ namespace libmaus2
 				::libmaus2::huffman::HuffmanTree::unique_ptr_type UH = loadCompactHuffmanTree(huftreefilename);
 				::libmaus2::huffman::HuffmanTree & H = *UH;
 				libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type ptr(rlToHwtSmallAlphabet(bwt,H,numthreads));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 			#endif
 
@@ -1332,7 +1332,7 @@ namespace libmaus2
 					histlock.unlock();
 				}
 
-				return UNIQUE_PTR_MOVE(mhist);
+				return mhist;
 			}
 
 			static unsigned int utf8WaveletMaxThreads()
@@ -1365,7 +1365,7 @@ namespace libmaus2
 						utf8WaveletMaxThreads());
 
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type IHWT(libmaus2::wavelet::ImpCompactHuffmanWaveletTree::load(hwt,numthreads));
-					return UNIQUE_PTR_MOVE(IHWT);
+					return IHWT;
 
 					#if 0
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type IHWT(libmaus2::wavelet::ImpCompactHuffmanWaveletTree::load(hwt,numthreads));
@@ -1400,7 +1400,7 @@ namespace libmaus2
 						ptr->serialise(COS);
 						COS.flush();
 						// COS.close();
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else if ( H.maxDepth() <= 8*sizeof(uint16_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 					{
@@ -1409,7 +1409,7 @@ namespace libmaus2
 						ptr->serialise(COS);
 						COS.flush();
 						//COS.close();
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else if ( H.maxDepth() <= 8*sizeof(uint32_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 					{
@@ -1418,7 +1418,7 @@ namespace libmaus2
 						ptr->serialise(COS);
 						COS.flush();
 						//COS.close();
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else if ( H.maxDepth() <= 8*sizeof(uint64_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 					{
@@ -1427,7 +1427,7 @@ namespace libmaus2
 						ptr->serialise(COS);
 						COS.flush();
 						//COS.close();
-						return UNIQUE_PTR_MOVE(ptr);
+						return ptr;
 					}
 					else
 					{
@@ -1474,7 +1474,7 @@ namespace libmaus2
 						IEWGH.createFinalStream(hwt,numthreads);
 
 						libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type IHWT(libmaus2::wavelet::ImpCompactHuffmanWaveletTree::load(hwt,numthreads));
-						return UNIQUE_PTR_MOVE(IHWT);
+						return IHWT;
 					}
 				}
 			}
@@ -1620,7 +1620,7 @@ namespace libmaus2
 				// CIN->close();
 				CIN.reset();
 
-				return UNIQUE_PTR_MOVE(tH);
+				return tH;
 			}
 
 			static ::libmaus2::huffman::HuffmanTreeNode::shared_ptr_type loadHuffmanTree(std::string const & huftreefilename)
@@ -1654,25 +1654,25 @@ namespace libmaus2
 				{
 					// std::cerr << "(small)";
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tICHWT(rlToHwtTermSmallAlphabet<uint8_t>(bwt,huftreefilename,bwtterm,p0r,numthreads));
-					return UNIQUE_PTR_MOVE(tICHWT);
+					return tICHWT;
 				}
 				else if ( H.maxDepth() <= 8*sizeof(uint16_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 				{
 					// std::cerr << "(small)";
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tICHWT(rlToHwtTermSmallAlphabet<uint16_t>(bwt,huftreefilename,bwtterm,p0r,numthreads));
-					return UNIQUE_PTR_MOVE(tICHWT);
+					return tICHWT;
 				}
 				else if ( H.maxDepth() <= 8*sizeof(uint32_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 				{
 					// std::cerr << "(small)";
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tICHWT(rlToHwtTermSmallAlphabet<uint32_t>(bwt,huftreefilename,bwtterm,p0r,numthreads));
-					return UNIQUE_PTR_MOVE(tICHWT);
+					return tICHWT;
 				}
 				else if ( H.maxDepth() <= 8*sizeof(uint64_t) && H.maxSymbol() <= std::numeric_limits<uint16_t>::max() )
 				{
 					// std::cerr << "(small)";
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tICHWT(rlToHwtTermSmallAlphabet<uint64_t>(bwt,huftreefilename,bwtterm,p0r,numthreads));
-					return UNIQUE_PTR_MOVE(tICHWT);
+					return tICHWT;
 				}
 				else
 				{
@@ -1680,7 +1680,7 @@ namespace libmaus2
 					// std::cerr << "(large)";
 					rlToHwtTerm(bwt,hwt,tmpprefix,H,bwtterm,p0r,numthreads);
 					libmaus2::wavelet::ImpCompactHuffmanWaveletTree::unique_ptr_type tICHWT(loadWaveletTree(hwt));
-					return UNIQUE_PTR_MOVE(tICHWT);
+					return tICHWT;
 				}
 			}
 

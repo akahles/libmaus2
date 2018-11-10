@@ -83,13 +83,13 @@ namespace libmaus2
 				if ( ! V.size() )
 				{
 					libmaus2::util::IntervalTree::unique_ptr_type ptr;
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 
 				libmaus2::autoarray::AutoArray< std::pair<uint64_t,uint64_t> > H = toIntervalVector(V);
 				libmaus2::util::IntervalTree::unique_ptr_type PIT(new libmaus2::util::IntervalTree(H,0,H.size()));
 
-				return UNIQUE_PTR_MOVE(PIT);
+				return PIT;
 			}
 
 			/**

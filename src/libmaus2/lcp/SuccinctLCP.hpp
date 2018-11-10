@@ -612,7 +612,7 @@ namespace libmaus2
 			{
 				libmaus2::aio::InputStreamInstance CIS(fn);
 				unique_ptr_type ptr(new this_type(CIS,rsa));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			uint64_t operator[](uint64_t i) const

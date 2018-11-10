@@ -52,7 +52,7 @@ namespace libmaus2
 			libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type operator()() const
 			{
 				libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(construct(BADI,putrank));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type construct(
@@ -68,12 +68,12 @@ namespace libmaus2
 					if ( cat )
 					{
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(new libmaus2::bambam::BamCatWrapper(BADI,putrank,streaming));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 					else
 					{
 						libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(new libmaus2::bambam::BamMergeCoordinate(BADI,putrank));
-						return UNIQUE_PTR_MOVE(tptr);
+						return tptr;
 					}
 				}
 				else
@@ -81,7 +81,7 @@ namespace libmaus2
 					libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(
 						libmaus2::bambam::BamAlignmentDecoderFactory::construct(BADI[0],putrank,istdin)
 					);
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 			}
 
@@ -103,7 +103,7 @@ namespace libmaus2
 					V.push_back(libmaus2::bambam::BamAlignmentDecoderInfo::constructInfo(arginfo,"-",false,copystr));
 
 				libmaus2::bambam::BamAlignmentDecoderWrapper::unique_ptr_type tptr(construct(V,putrank,istdin,cat,streaming));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 		};
 	}

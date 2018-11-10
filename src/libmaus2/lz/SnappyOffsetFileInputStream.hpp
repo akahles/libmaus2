@@ -43,7 +43,7 @@ namespace libmaus2
 				stream_ptr_type Pistr(libmaus2::aio::InputStreamFactoryContainer::constructUnique(filename));
 				Pistr->seekg(offset,std::ios::beg);
 
-				return UNIQUE_PTR_MOVE(Pistr);
+				return Pistr;
 			}
 
 			SnappyOffsetFileInputStream(std::string const & filename, uint64_t const roffset)

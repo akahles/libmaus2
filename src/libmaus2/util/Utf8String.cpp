@@ -348,7 +348,7 @@ struct HistogramThread : public ::libmaus2::parallel::PosixThread
 		lock.unlock();
 	}
 
-	return UNIQUE_PTR_MOVE(hist);
+	return hist;
 }
 
 ::libmaus2::util::Histogram::unique_ptr_type libmaus2::util::Utf8String::getHistogram() const
@@ -363,7 +363,7 @@ struct HistogramThread : public ::libmaus2::parallel::PosixThread
 			(*hist)(v);
 		}
 
-	return UNIQUE_PTR_MOVE(hist);
+	return hist;
 }
 
 std::map<int64_t,uint64_t> libmaus2::util::Utf8String::getHistogramAsMap() const

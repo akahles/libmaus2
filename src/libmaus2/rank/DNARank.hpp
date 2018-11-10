@@ -1331,7 +1331,7 @@ namespace libmaus2
 			static unique_ptr_type loadFromRunLength(std::string const & rl, uint64_t const numthreads)
 			{
 				unique_ptr_type tptr(loadFromRunLength(std::vector<std::string>(1,rl),numthreads));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			this_type const & getW() const
@@ -1482,7 +1482,7 @@ namespace libmaus2
 				P->testFromRunLength(rl,numthreads);
 				#endif
 
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			static unique_ptr_type loadFromSerialised(std::istream & in)
@@ -1490,14 +1490,14 @@ namespace libmaus2
 				unique_ptr_type P(new this_type);
 				P->deserialise(in);
 				P->computeD();
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			static unique_ptr_type loadFromSerialised(std::string const & fn)
 			{
 				libmaus2::aio::InputStreamInstance ISI(fn);
 				unique_ptr_type tptr(loadFromSerialised(ISI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			uint64_t getD(unsigned int const sym) const

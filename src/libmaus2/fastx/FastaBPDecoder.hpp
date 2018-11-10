@@ -212,7 +212,7 @@ namespace libmaus2
 				in.clear();
 				in.seekg(bp);
 				sequence_decoder_pointer_type tptr(new sequence_decoder_type(in,bs,checkcrc));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 

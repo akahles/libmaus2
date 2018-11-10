@@ -37,7 +37,7 @@ libmaus2::digest::DigestInterface::unique_ptr_type libmaus2::digest::DigestFacto
 	if ( name == "crc32c" && libmaus2::util::I386CacheLineSize::hasSSE42() )
 	{
 		libmaus2::digest::DigestInterface::unique_ptr_type tptr(new libmaus2::digest::CRC32C_sse42);
-		return UNIQUE_PTR_MOVE(tptr);
+		return tptr;
 	}
 	else
 	#endif

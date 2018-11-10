@@ -112,13 +112,13 @@ namespace libmaus2
 					throw se;
 				}
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			static unique_ptr_type load(std::string const & filename)
 			{
 				unique_ptr_type ptr(new this_type(filename));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			ImpHuffmanWaveletLF(std::istream & in)

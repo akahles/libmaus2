@@ -102,7 +102,7 @@ namespace libmaus2
 
 				::libmaus2::bambam::BamHeader::unique_ptr_type tptr(new ::libmaus2::bambam::BamHeader(istr.str()));
 
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			public:

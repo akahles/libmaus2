@@ -307,7 +307,7 @@ template<typename input_array_type>
 			<< std::endl;
 	}
 
-	return UNIQUE_PTR_MOVE(sastsaisbwt);
+	return sastsaisbwt;
 }
 
 #include <libmaus2/bitio/CompactArray.hpp>
@@ -429,7 +429,7 @@ template<typename input_array_type>
 	if ( verbose )
 		std::cerr << "done, time " << rrtc.getElapsedSeconds() << std::endl;
 
-	return UNIQUE_PTR_MOVE(sastsaisbwt);
+	return sastsaisbwt;
 }
 
 
@@ -498,7 +498,7 @@ template<typename input_array_type>
 		else
 			BWT -> set ( i, C.get(n-1) );
 
-	return UNIQUE_PTR_MOVE(BWT);
+	return BWT;
 }
 
 ::libmaus2::bitio::CompactArray::unique_ptr_type bwtDivSufSort(::libmaus2::bitio::CompactArray const & C, bool const verbose = false)
@@ -532,7 +532,7 @@ template<typename input_array_type>
 			else
 				BWT -> set ( i, C.get(n-1) );
 
-		return UNIQUE_PTR_MOVE(BWT);
+		return BWT;
 	}
 	else
 	{
@@ -563,7 +563,7 @@ template<typename input_array_type>
 			else
 				BWT -> set ( i, C.get(n-1) );
 
-		return UNIQUE_PTR_MOVE(BWT);
+		return BWT;
 
 	}
 }
@@ -575,7 +575,7 @@ template<typename input_array_type>
 		maxi = std::max(maxi,reinterpret_cast<unsigned char const *>(s.c_str())[i]);
 	unsigned int b = ::libmaus2::math::bitsPerNum(maxi);
 	::libmaus2::bitio::CompactArray::unique_ptr_type ptr(new ::libmaus2::bitio::CompactArray(s.begin(),s.end(),b,pad));
-	return UNIQUE_PTR_MOVE(ptr);
+	return ptr;
 }
 
 #if 0

@@ -649,7 +649,7 @@ namespace libmaus2
 
 				bamheader.text = headerostr.str();
 
-				return UNIQUE_PTR_MOVE(Pbamheader);
+				return Pbamheader;
 			}
 		};
 	}

@@ -218,7 +218,7 @@ namespace libmaus2
 					new LongestIncreasingSubsequenceExtendedResult(P,L)
 				);
 
-				return UNIQUE_PTR_MOVE(R);
+				return R;
 			}
 		};
 	}

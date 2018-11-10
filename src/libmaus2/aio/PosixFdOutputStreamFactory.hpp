@@ -44,13 +44,13 @@ namespace libmaus2
 				{
 					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(STDOUT_FILENO));
 					libmaus2::aio::OutputStream::unique_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
-					return UNIQUE_PTR_MOVE(istr);
+					return istr;
 				}
 				else
 				{
 					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(filename));
 					libmaus2::aio::OutputStream::unique_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
-					return UNIQUE_PTR_MOVE(istr);
+					return istr;
 				}
 			}
 			virtual libmaus2::aio::OutputStream::shared_ptr_type constructShared(std::string const & filename)

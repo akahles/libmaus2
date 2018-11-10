@@ -25,7 +25,7 @@
 libmaus2::aio::InputStreamInstance::unique_ptr_type openFile(std::string const & fn)
 {
 	libmaus2::aio::InputStreamInstance::unique_ptr_type bamCIS(new libmaus2::aio::InputStreamInstance(fn));
-	return UNIQUE_PTR_MOVE(bamCIS);
+	return bamCIS;
 }
 
 int main(int argc, char * argv[])

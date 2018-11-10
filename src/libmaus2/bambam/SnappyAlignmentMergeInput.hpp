@@ -67,7 +67,7 @@ namespace libmaus2
 			static unique_ptr_type construct(std::vector < std::pair < uint64_t, uint64_t > > const & rindex, std::string const & fn)
 			{
 				unique_ptr_type ptr(new this_type(rindex,fn));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			/**

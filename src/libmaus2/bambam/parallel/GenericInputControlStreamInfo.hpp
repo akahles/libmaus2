@@ -62,7 +62,7 @@ namespace libmaus2
 						tptr->seekg(start,std::ios::beg);
 					}
 
-					return UNIQUE_PTR_MOVE(tptr);
+					return tptr;
 				}
 
 				size_t byteSize() const

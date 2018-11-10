@@ -943,7 +943,7 @@ namespace libmaus2
 				try
 				{
 					SocketBase::unique_ptr_type ptr ( new SocketBase(fd) );
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 				catch(...)
 				{
@@ -956,13 +956,13 @@ namespace libmaus2
 			{
 				ClientSocket::unique_ptr_type ptr ( new ClientSocket(port,hostname) );
 				SocketBase::unique_ptr_type baseptr = baseCast(ptr);
-				return UNIQUE_PTR_MOVE(baseptr);
+				return baseptr;
 			}
 			static SocketBase::unique_ptr_type baseAlloc(unsigned short const port, std::string const & hostname)
 			{
 
 				SocketBase::unique_ptr_type baseptr = baseAlloc(port,hostname.c_str());
-				return UNIQUE_PTR_MOVE(baseptr);
+				return baseptr;
 			}
 		};
 
@@ -985,7 +985,7 @@ namespace libmaus2
 				unsigned int tries)
 			{
 				unique_ptr_type ptr(allocateServerSocket(port,backlog,hostname.c_str(),tries));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			static unique_ptr_type allocateServerSocket(
@@ -1123,7 +1123,7 @@ namespace libmaus2
 					}
 				}
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 

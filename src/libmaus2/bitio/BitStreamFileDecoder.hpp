@@ -37,7 +37,7 @@ namespace libmaus2
 			{
 				::libmaus2::aio::InputStreamInstance::unique_ptr_type istr(new ::libmaus2::aio::InputStreamInstance(filename));
 				istr->seekg(pos,std::ios::beg);
-				return UNIQUE_PTR_MOVE(istr);
+				return istr;
 			}
 
 			BitStreamFileDecoder(std::string const & infile, uint64_t const bitpos = 0)

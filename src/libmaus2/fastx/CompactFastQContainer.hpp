@@ -55,7 +55,7 @@ namespace libmaus2
 
 			static unique_ptr_type construct(std::istream & textstr)
 			{
-				return UNIQUE_PTR_MOVE(unique_ptr_type(new this_type(textstr)));
+				return unique_ptr_type(new this_type(textstr));
 			}
 
 			CompactFastQContainer(std::istream & textstr)
@@ -92,7 +92,7 @@ namespace libmaus2
 					throw se;
 				}
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			void serialise(std::ostream & out) const

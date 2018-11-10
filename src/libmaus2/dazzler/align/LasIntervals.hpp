@@ -135,7 +135,7 @@ namespace libmaus2
 						)
 					);
 
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 
 				int64_t size() const

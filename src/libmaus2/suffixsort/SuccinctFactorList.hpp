@@ -531,7 +531,7 @@ namespace libmaus2
 				P->outptr = 0;
 				P->inptr = (inptr-outptr);
 
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			// look at last character of front element
@@ -897,7 +897,7 @@ namespace libmaus2
 				::libmaus2::util::Histogram::unique_ptr_type hist(new ::libmaus2::util::Histogram);
 				for ( const_iterator it = begin(); it != end(); ++it )
 					(*hist)(it.size());
-				return UNIQUE_PTR_MOVE(hist);
+				return hist;
 			}
 
 			void extendBlockArray()

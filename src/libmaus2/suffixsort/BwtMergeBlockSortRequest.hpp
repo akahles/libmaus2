@@ -309,7 +309,7 @@ namespace libmaus2
 				// CIN->close();
 				CIN.reset();
 
-				return UNIQUE_PTR_MOVE(tH);
+				return tH;
 			}
 
 			static ::libmaus2::huffman::HuffmanTreeNode::shared_ptr_type loadHuffmanTree(std::string const & huftreefilename)

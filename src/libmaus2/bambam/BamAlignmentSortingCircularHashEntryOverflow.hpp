@@ -124,7 +124,7 @@ namespace libmaus2
 				pCOS.reset();
 				B.release();
 				libmaus2::bambam::SnappyAlignmentMergeInput::unique_ptr_type ptr(libmaus2::bambam::SnappyAlignmentMergeInput::construct(index,fn));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			/**

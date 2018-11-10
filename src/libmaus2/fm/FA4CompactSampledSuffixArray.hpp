@@ -94,14 +94,14 @@ namespace libmaus2
 			static unique_ptr_type load(std::istream & in)
 			{
 				unique_ptr_type tptr(new this_type(in));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			static unique_ptr_type load(std::string const & s)
 			{
 				libmaus2::aio::InputStreamInstance ISI(s);
 				unique_ptr_type tptr(new this_type(ISI));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			std::ostream & serialise(std::ostream & out) const
@@ -123,7 +123,7 @@ namespace libmaus2
 			static unique_ptr_type construct(rank_type const & Prank, index_type const & Pindex, std::string const & isaname)
 			{
 				unique_ptr_type tptr(new this_type(Prank,Pindex,isaname));
-				return UNIQUE_PTR_MOVE(tptr);
+				return tptr;
 			}
 
 			uint64_t operator[](uint64_t const i) const

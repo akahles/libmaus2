@@ -899,7 +899,7 @@ namespace libmaus2
 				unique_ptr_type P(new BamAlignment);
 				P->D = D.clone();
 				P->blocksize = blocksize;
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			/**

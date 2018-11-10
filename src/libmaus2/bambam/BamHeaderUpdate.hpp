@@ -61,13 +61,13 @@ namespace libmaus2
 				// construct new header
 				::libmaus2::bambam::BamHeader::unique_ptr_type uphead(new ::libmaus2::bambam::BamHeader(upheadtext));
 
-				return UNIQUE_PTR_MOVE(uphead);
+				return uphead;
 			}
 
 			::libmaus2::bambam::BamHeader::unique_ptr_type operator()(::libmaus2::bambam::BamHeader const & header)  const
 			{
 				::libmaus2::bambam::BamHeader::unique_ptr_type ptr(updateHeader(arginfo,header,id,packageversion));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 	}

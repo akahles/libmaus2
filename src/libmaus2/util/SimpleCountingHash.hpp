@@ -150,13 +150,13 @@ namespace libmaus2
 				for ( uint64_t i = 0; i < H.size(); ++i )
 					if ( H[i] != base_type::unused() )
 						O->insert ( H[i], C[i] );
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			unique_ptr_type extendEmpty() const
 			{
 				unique_ptr_type O(new this_type(slog+1));
-				return UNIQUE_PTR_MOVE(O);
+				return O;
 			}
 
 			void extendInternal()

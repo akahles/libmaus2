@@ -103,14 +103,14 @@ namespace libmaus2
 			{
 				unique_ptr_type P(new this_type);
 				P->deserialise(in);
-				return UNIQUE_PTR_MOVE(P);
+				return P;
 			}
 
 			static unique_ptr_type loadFile(std::string const & filename)
 			{
 				libmaus2::aio::InputStreamInstance CIS(filename);
 				unique_ptr_type ptr(load(CIS));
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			uint64_t operator[](uint64_t const i) const
@@ -208,7 +208,7 @@ namespace libmaus2
 					add(*(it_in++));
 				ImpCompactNumberArray::unique_ptr_type ptr(createFinal());
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 
 			template<typename iterator_in>
@@ -222,7 +222,7 @@ namespace libmaus2
 
 				ImpCompactNumberArray::unique_ptr_type ptr(gen.construct(it_in,n));
 
-				return UNIQUE_PTR_MOVE(ptr);
+				return ptr;
 			}
 		};
 	}

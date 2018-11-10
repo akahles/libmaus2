@@ -218,12 +218,12 @@ namespace libmaus2
 				static unique_ptr_type construct(std::string const & filename, uint64_t const n, bool const writeHeader = true)
 				{
 					unique_ptr_type ptr(new this_type(filename,n,writeHeader));
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 				static unique_ptr_type construct(std::ostream & out, uint64_t const n, bool const writeHeader = true)
 				{
 					unique_ptr_type ptr(new this_type(out,n,writeHeader));
-					return UNIQUE_PTR_MOVE(ptr);
+					return ptr;
 				}
 
 				uint64_t bitpos;

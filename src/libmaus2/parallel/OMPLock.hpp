@@ -21,12 +21,11 @@
 #if ! defined(LIBMAUS2_PARALLEL_LOCK_HPP)
 #define LIBMAUS2_PARALLEL_LOCK_HPP
 
+#include <memory>
+
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
-
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
 
 namespace libmaus2
 {
@@ -35,8 +34,8 @@ namespace libmaus2
 		struct OMPLock
 		{
 			typedef OMPLock this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 #if defined(_OPENMP)
 			omp_lock_t lock_obj;

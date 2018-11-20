@@ -32,8 +32,8 @@ namespace libmaus2
 		struct PosixFdOutputStreamFactory : public libmaus2::aio::OutputStreamFactory
 		{
 			typedef PosixFdOutputStreamFactory this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			void copy(std::string const & from, std::string const & to);
 
@@ -42,13 +42,13 @@ namespace libmaus2
 			{
 				if ( filename == "-" )
 				{
-					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(STDOUT_FILENO));
+					std::shared_ptr<std::ostream> iptr(new PosixFdOutputStream(STDOUT_FILENO));
 					libmaus2::aio::OutputStream::unique_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 					return istr;
 				}
 				else
 				{
-					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(filename));
+					std::shared_ptr<std::ostream> iptr(new PosixFdOutputStream(filename));
 					libmaus2::aio::OutputStream::unique_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 					return istr;
 				}
@@ -57,13 +57,13 @@ namespace libmaus2
 			{
 				if ( filename == "-" )
 				{
-					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(STDOUT_FILENO));
+					std::shared_ptr<std::ostream> iptr(new PosixFdOutputStream(STDOUT_FILENO));
 					libmaus2::aio::OutputStream::shared_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 					return istr;
 				}
 				else
 				{
-					libmaus2::util::shared_ptr<std::ostream>::type iptr(new PosixFdOutputStream(filename));
+					std::shared_ptr<std::ostream> iptr(new PosixFdOutputStream(filename));
 					libmaus2::aio::OutputStream::shared_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 					return istr;
 				}

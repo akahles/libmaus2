@@ -28,17 +28,17 @@ namespace libmaus2
 		{
 			libmaus2::aio::InputStream::unique_ptr_type ptr;
 
-			InputStreamPointerWrapper(libmaus2::aio::InputStream::unique_ptr_type rptr)
-			: ptr(UNIQUE_PTR_MOVE(rptr)) {}
+			InputStreamPointerWrapper(libmaus2::aio::InputStream::unique_ptr_type&& rptr)
+			: ptr(std::move(rptr)) {}
 
 			std::istream & getStreamReference()
 			{
 				return *ptr;
 			}
 
-			void reset(libmaus2::aio::InputStream::unique_ptr_type tptr)
+			void reset(libmaus2::aio::InputStream::unique_ptr_type&& tptr)
 			{
-				ptr = UNIQUE_PTR_MOVE(tptr);
+				ptr = std::move(tptr);
 			}
 		};
 	}

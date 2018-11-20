@@ -24,7 +24,7 @@
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/util/GetFileSize.hpp>
 #include <libmaus2/util/ArgInfo.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
+#include <memory>
 #include <libmaus2/aio/SynchronousGenericOutput.hpp>
 #include <libmaus2/aio/PutOutputIterator.hpp>
 #include <string>
@@ -45,15 +45,15 @@ namespace libmaus2
                 	//! this type
                         typedef SynchronousGenericOutput<data_type> this_type;
                         //! unique pointer type
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			//! output file stream type
 			typedef ::libmaus2::aio::OutputStreamInstance ofstream_type;
 			//! output file stream pointer type
-			typedef ::libmaus2::util::unique_ptr< ofstream_type >::type ofstream_ptr_type;
+			typedef std::unique_ptr<ofstream_type> ofstream_ptr_type;
 
 			//! file stream type
-			typedef ::libmaus2::util::unique_ptr< std::fstream  >::type  fstream_ptr_type;
+			typedef std::unique_ptr<std::fstream>  fstream_ptr_type;
 			//! iterator type
 			typedef PutOutputIterator<data_type,this_type> iterator_type;
 

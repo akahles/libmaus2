@@ -29,19 +29,19 @@ namespace libmaus2
 		struct PosixFdInputOutputStreamFactory : public libmaus2::aio::InputOutputStreamFactory
 		{
 			typedef PosixFdInputOutputStreamFactory this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			virtual ~PosixFdInputOutputStreamFactory() {}
 			virtual libmaus2::aio::InputOutputStream::unique_ptr_type constructUnique(std::string const & filename, std::ios_base::openmode mode)
 			{
-				libmaus2::util::shared_ptr<std::iostream>::type iptr(new PosixFdInputOutputStream(filename,mode));
+				std::shared_ptr<std::iostream> iptr(new PosixFdInputOutputStream(filename,mode));
 				libmaus2::aio::InputOutputStream::unique_ptr_type istr(new libmaus2::aio::InputOutputStream(iptr));
 				return istr;
 			}
 			virtual libmaus2::aio::InputOutputStream::shared_ptr_type constructShared(std::string const & filename, std::ios_base::openmode mode)
 			{
-				libmaus2::util::shared_ptr<std::iostream>::type iptr(new PosixFdInputOutputStream(filename,mode));
+                std::shared_ptr<std::iostream> iptr(new PosixFdInputOutputStream(filename,mode));
 				libmaus2::aio::InputOutputStream::shared_ptr_type istr(new libmaus2::aio::InputOutputStream(iptr));
 				return istr;
 			}

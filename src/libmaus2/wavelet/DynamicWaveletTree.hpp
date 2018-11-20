@@ -39,7 +39,7 @@ namespace libmaus2
 			static unsigned int const k = _k;
 			static unsigned int const w = _w;
 			typedef DynamicWaveletTree<k,w> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			typename ::libmaus2::bitbtree::BitBTree<k,w>::unique_ptr_type R;
 			uint64_t const b;

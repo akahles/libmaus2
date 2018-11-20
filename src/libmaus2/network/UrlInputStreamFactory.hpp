@@ -29,19 +29,19 @@ namespace libmaus2
 		struct UrlInputStreamFactory : public libmaus2::aio::InputStreamFactory
 		{
 			typedef UrlInputStreamFactory this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			virtual ~UrlInputStreamFactory() {}
 			virtual libmaus2::aio::InputStream::unique_ptr_type constructUnique(std::string const & filename)
 			{
-				libmaus2::util::shared_ptr<std::istream>::type iptr(new UrlInputStream(filename));
+				std::shared_ptr<std::istream> iptr(new UrlInputStream(filename));
 				libmaus2::aio::InputStream::unique_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 				return istr;
 			}
 			virtual libmaus2::aio::InputStream::shared_ptr_type constructShared(std::string const & filename)
 			{
-				libmaus2::util::shared_ptr<std::istream>::type iptr(new UrlInputStream(filename));
+				std::shared_ptr<std::istream> iptr(new UrlInputStream(filename));
 				libmaus2::aio::InputStream::shared_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 				return istr;
 			}

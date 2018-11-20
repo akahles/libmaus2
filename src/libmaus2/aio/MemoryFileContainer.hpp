@@ -31,8 +31,8 @@ namespace libmaus2
 		struct MemoryFileContainer
 		{
 			typedef MemoryFileContainer this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			static libmaus2::parallel::PosixMutex lock;
 			static std::map <

@@ -25,8 +25,6 @@
 #include <cassert>
 #include <libmaus2/autoarray/GenericAlignedAllocation.hpp>
 #include <libmaus2/serialize/Serialize.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
 #include <libmaus2/parallel/OMPLock.hpp>
 #include <libmaus2/util/Demangle.hpp>
 #include <libmaus2/exception/LibMausException.hpp>
@@ -292,7 +290,6 @@ namespace libmaus2
 			static void erase(N * array, uint64_t const n);
 		};
 
-		#if defined(LIBMAUS2_USE_STD_UNIQUE_PTR)
 		/**
 		 * class for erasing an array of std::unique_ptr objects
 		 **/
@@ -306,22 +303,6 @@ namespace libmaus2
 			 **/
 			static void erase(std::unique_ptr<N> * array, uint64_t const n);
 		};
-		#endif
-		#if defined(LIBMAUS2_USE_BOOST_UNIQUE_PTR)
-		/**
-		 * class for erasing an array of boost::interprocess::unique_ptr<N,::libmaus2::deleter::Deleter<N> > objects
-		 **/
-		template<typename N>
-		struct ArrayErase< typename ::boost::interprocess::unique_ptr<N,::libmaus2::deleter::Deleter<N> > >
-		{
-			/**
-			 * erase an array of n elements of type boost::interprocess::unique_ptr<N,::libmaus2::deleter::Deleter<N> >
-			 * @param array to be erased
-			 * @param n number of elements in array
-			 **/
-			static void erase(typename ::libmaus2::util::unique_ptr<N>::type * array, uint64_t const n);
-		};
-		#endif
 
 		#if defined(LIBMAUS2_AUTOARRAY_AUTOARRAYTRACE)
 		extern std::vector< AutoArrayBackTrace<LIBMAUS2_AUTOARRAY_AUTOARRAYTRACE> > tracevector;
@@ -345,9 +326,9 @@ namespace libmaus2
 			//! this type
 			typedef AutoArray<value_type,atype,erase_type> this_type;
 			//! unique pointer object for this type
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 			//! shared pointer object for this type
-			typedef typename ::libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			//! iterator: pointer to N
 			typedef N * iterator;
@@ -1786,25 +1767,12 @@ namespace libmaus2
 				array[i] = N();
 		}
 
-		#if defined(LIBMAUS2_USE_STD_UNIQUE_PTR)
 		template<typename N>
 		void ArrayErase< std::unique_ptr<N> >::erase(std::unique_ptr<N> * array, uint64_t const n)
 		{
 			for ( uint64_t i = 0; i < n; ++i )
-				array[i] = UNIQUE_PTR_MOVE(std::unique_ptr<N>());
+				array[i] = std::move(std::unique_ptr<N>());
 		}
-		#endif
-		#if defined(LIBMAUS2_USE_BOOST_UNIQUE_PTR)
-		template<typename N>
-		void ArrayErase< typename ::boost::interprocess::unique_ptr<N,::libmaus2::deleter::Deleter<N> > >::erase(typename ::libmaus2::util::unique_ptr<N>::type * array, uint64_t const n)
-		{
-			for ( uint64_t i = 0; i < n; ++i )
-			{
-				typename ::libmaus2::util::unique_ptr<N>::type ptr;
-				array[i] = UNIQUE_PTR_MOVE(ptr);
-			}
-		}
-		#endif
 
 
 		template<typename N, alloc_type atype>

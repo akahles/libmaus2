@@ -30,8 +30,8 @@ namespace libmaus2
 		struct PosixFdInputStream : public PosixFdInputWrapper, public PosixFdInputStreamBuffer, public std::istream
 		{
 			typedef PosixFdInputStream this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			PosixFdInputStream(int const rfd, int64_t const bufsize = -1, uint64_t const pushbacksize = 0)
 			: PosixFdInputWrapper(rfd), PosixFdInputStreamBuffer(PosixFdInputWrapper::object,bufsize,pushbacksize),

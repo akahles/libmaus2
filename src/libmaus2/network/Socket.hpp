@@ -43,8 +43,7 @@
 #include <set>
 
 #include <libmaus2/exception/LibMausException.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
+#include <memory>
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/timing/RealTimeClock.hpp>
 #include <libmaus2/network/GetHostName.hpp>
@@ -62,8 +61,8 @@ namespace libmaus2
 		{
 			public:
 			typedef SocketBase this_type;
-			typedef ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef ::libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			static int multiPoll(std::vector<int> const & fds, int & pfd)
 			{
@@ -915,7 +914,7 @@ namespace libmaus2
 		struct ClientSocket : public SocketBase
 		{
 			typedef ClientSocket this_type;
-			typedef ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			// sockaddr_in recadr;
 
@@ -969,7 +968,7 @@ namespace libmaus2
 		struct ServerSocket : public SocketBase
 		{
 			typedef ServerSocket this_type;
-			typedef ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			sockaddr_in recadr;
 
@@ -1115,7 +1114,7 @@ namespace libmaus2
 						SocketBase::unique_ptr_type cand = accept();
 						std::string const remsid = cand->readString();
 						if ( remsid == sid )
-							ptr = UNIQUE_PTR_MOVE(cand);
+							ptr = std::move(cand);
 					}
 					catch(std::exception const & ex)
 					{
@@ -1132,7 +1131,7 @@ namespace libmaus2
 		{
 			typedef _data_type data_type;
 			typedef SocketOutputBuffer<data_type> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			::libmaus2::network::SocketBase * const socket;
 			::libmaus2::autoarray::AutoArray< data_type > B;
@@ -1186,7 +1185,7 @@ namespace libmaus2
 		{
 			typedef _data_type data_type;
 			typedef SocketOutputBufferIterator<data_type> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			SocketOutputBuffer<data_type> * SOB;
 
@@ -1205,7 +1204,7 @@ namespace libmaus2
 		{
 			typedef _data_type data_type;
 			typedef SocketInputBuffer<data_type> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			::libmaus2::network::SocketBase * const socket;
 			uint64_t const limit;
@@ -1318,7 +1317,7 @@ namespace libmaus2
 		{
 			typedef _data_type data_type;
 			typedef AsynchronousSocketInputBuffer<data_type> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			::libmaus2::network::SocketBase * const socket;
  			::libmaus2::autoarray::AutoArray< data_type > B;

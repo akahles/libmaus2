@@ -19,6 +19,16 @@
 
 #include <libmaus2/autoarray/AutoArray.hpp>
 
+uint64_t volatile libmaus2::autoarray::AutoArray_memusage;
+uint64_t volatile libmaus2::autoarray::AutoArray_peakmemusage;
+uint64_t volatile libmaus2::autoarray::AutoArray_maxmem = static_cast<uint64_t>(-1);
+#if defined(LIBMAUS2_HAVE_POSIX_SPINLOCKS)
+::libmaus2::parallel::PosixSpinLock libmaus2::autoarray::AutoArray_lock;
+#elif defined(_OPENMP)
+::libmaus2::parallel::OMPLock libmaus2::autoarray::AutoArray_lock;
+#endif
+
+
 /**
  * constructor copying current values of AutoArray memory usage
  **/

@@ -22,7 +22,7 @@
 
 #include <libmaus2/types/types.hpp>
 #include <libmaus2/bitio/OutputBuffer.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
+#include <memory>
 #include <libmaus2/math/lowbits.hpp>
 #include <libmaus2/math/numbits.hpp>
 #include <libmaus2/aio/SynchronousGenericOutputPosix.hpp>
@@ -69,7 +69,7 @@ namespace libmaus2
 			typedef _data_iterator data_iterator;
 
 			typedef FastWriteBitWriterTemplate<data_type,data_iterator,basemask,fullmask,_write_safe> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			private:
 			data_iterator U;

@@ -36,8 +36,8 @@ namespace libmaus2
 		struct FtpSocket : public SocketInputInterface
 		{
 			typedef FtpSocket this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			typedef ::libmaus2::network::ServerSocket server_socket_type;
 			typedef server_socket_type::unique_ptr_type server_socket_ptr_type;
@@ -284,7 +284,7 @@ namespace libmaus2
 					libmaus2::network::SocketBase::unique_ptr_type tCS(
 						new libmaus2::network::ClientSocket(passiveport,passivehost.c_str())
 					);
-					recsock = UNIQUE_PTR_MOVE(tCS);
+					recsock = std::move(tCS);
 				}
 				// server does not support passive mode, try active
 				else
@@ -294,7 +294,7 @@ namespace libmaus2
 					std::string const & hostname = libmaus2::network::GetHostName::getHostName();
 					server_socket_ptr_type tseso(
 						server_socket_type::allocateServerSocket(serverport,128,hostname.c_str(),32*1024));
-					seso = UNIQUE_PTR_MOVE(tseso);
+					seso = std::move(tseso);
 
 					// construct PORT command
 					uint32_t const servadr = ntohl(seso->recadr.sin_addr.s_addr);
@@ -344,13 +344,13 @@ namespace libmaus2
 				{
 					// wait for connection from ftp server
 					libmaus2::network::SocketBase::unique_ptr_type trecsock = seso->accept();
-					recsock = UNIQUE_PTR_MOVE(trecsock);
+					recsock = std::move(trecsock);
 				}
 
 				libmaus2::network::SocketInputStream::unique_ptr_type Tstream(
 					new libmaus2::network::SocketInputStream(*this,64*1024)
 				);
-				Pstream = UNIQUE_PTR_MOVE(Tstream);
+				Pstream = std::move(Tstream);
 
 			}
 

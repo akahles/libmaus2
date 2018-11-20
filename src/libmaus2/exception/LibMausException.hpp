@@ -23,8 +23,6 @@
 #include <memory>
 #include <sstream>
 #include <libmaus2/util/StackTrace.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
 
 namespace libmaus2
 {
@@ -33,9 +31,9 @@ namespace libmaus2
 		struct LibMausException : std::exception, ::libmaus2::util::StackTrace
 		{
 			typedef LibMausException this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
-			::libmaus2::util::shared_ptr<std::ostringstream>::type postr;
+            std::shared_ptr<std::ostringstream> postr;
 			std::string s;
 
 			LibMausException()
@@ -52,7 +50,7 @@ namespace libmaus2
 			{
 				unique_ptr_type uptr(new this_type);
 
-				uptr->postr = libmaus2::util::shared_ptr<std::ostringstream>::type(new std::ostringstream(postr->str()));
+				uptr->postr = std::shared_ptr<std::ostringstream>(new std::ostringstream(postr->str()));
 				uptr->s = s;
 
 				return uptr;

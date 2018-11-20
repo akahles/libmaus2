@@ -37,8 +37,8 @@ namespace libmaus2
 		struct PosixThread
 		{
 			typedef PosixThread this_type;
-			typedef ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef ::libmaus2::util::unique_ptr<pthread_t>::type thread_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::unique_ptr<pthread_t> thread_ptr_type;
 
 			private:
 			thread_ptr_type thread;
@@ -111,8 +111,8 @@ namespace libmaus2
 			{
 				if ( ! thread.get() )
 				{
-					thread_ptr_type tthread(new pthread_t);
-					thread = UNIQUE_PTR_MOVE(tthread);
+                    thread_ptr_type tthread(new pthread_t);
+                    thread = std::move(tthread);
 
 					#if 0
 					std::cerr << "Creating thread without affinity." << std::endl;
@@ -176,8 +176,8 @@ namespace libmaus2
 			{
 				if ( ! thread.get() )
 				{
-					thread_ptr_type tthread(new pthread_t);
-					thread = UNIQUE_PTR_MOVE(tthread);
+                    thread_ptr_type tthread(new pthread_t);
+                    thread = std::move(tthread);
 
 					#if 0
 					std::cerr << "Creating thread without affinity." << std::endl;
@@ -218,8 +218,8 @@ namespace libmaus2
 			{
 				if ( ! thread.get() )
 				{
-					thread_ptr_type tthread(new pthread_t);
-					thread = UNIQUE_PTR_MOVE(tthread);
+                    thread_ptr_type tthread(new pthread_t);
+                    thread = std::move(tthread);
 
 					#if defined(LIBMAUS2_HAVE_PTHREAD_ATTR_SETAFFINITY_NP)
 					pthread_attr_t attr;

@@ -240,7 +240,7 @@ namespace libmaus2
 						{
 							#if defined(LIBMAUS2_HAVE_GNUTLS)
 							libmaus2::network::GnuTLSSocket::unique_ptr_type tGTLSIOS(new libmaus2::network::GnuTLSSocket(proxyurl.host,proxyurl.port,"/etc/ssl/certs/ca-certificates.crt","/etc/ssl/certs",true));
-							GTLSIOS = UNIQUE_PTR_MOVE(tGTLSIOS);
+							GTLSIOS = std::move(tGTLSIOS);
 							SIOS = GTLSIOS.get();
 							#else
 							libmaus2::exception::LibMausException lme;
@@ -250,17 +250,17 @@ namespace libmaus2
 							#endif
 
 							libmaus2::network::SocketInputStream::unique_ptr_type tSIS(new libmaus2::network::SocketInputStream(*SIOS,64*1024));
-							SIS = UNIQUE_PTR_MOVE(tSIS);
+							SIS = std::move(tSIS);
 						}
 						else
 						{
 							libmaus2::network::ClientSocket::unique_ptr_type tCS(new libmaus2::network::ClientSocket(proxyurl.port,proxyurl.host.c_str()));
-							CS = UNIQUE_PTR_MOVE(tCS);
+							CS = std::move(tCS);
 
 							SIOS = CS.get();
 
 							libmaus2::network::SocketInputStream::unique_ptr_type tSIS(new libmaus2::network::SocketInputStream(*CS,64*1024));
-							SIS = UNIQUE_PTR_MOVE(tSIS);
+							SIS = std::move(tSIS);
 						}
 					}
 					else
@@ -269,7 +269,7 @@ namespace libmaus2
 						{
 							#if defined(LIBMAUS2_HAVE_GNUTLS)
 							libmaus2::network::GnuTLSSocket::unique_ptr_type tGTLSIOS(new libmaus2::network::GnuTLSSocket(host,port,"/etc/ssl/certs/ca-certificates.crt","/etc/ssl/certs",true));
-							GTLSIOS = UNIQUE_PTR_MOVE(tGTLSIOS);
+							GTLSIOS = std::move(tGTLSIOS);
 
 							SIOS = GTLSIOS.get();
 							#else
@@ -280,17 +280,17 @@ namespace libmaus2
 							#endif
 
 							libmaus2::network::SocketInputStream::unique_ptr_type tSIS(new libmaus2::network::SocketInputStream(*SIOS,64*1024));
-							SIS = UNIQUE_PTR_MOVE(tSIS);
+							SIS = std::move(tSIS);
 						}
 						else
 						{
 							libmaus2::network::ClientSocket::unique_ptr_type tCS(new libmaus2::network::ClientSocket(port,host.c_str()));
-							CS = UNIQUE_PTR_MOVE(tCS);
+							CS = std::move(tCS);
 
 							SIOS = CS.get();
 
 							libmaus2::network::SocketInputStream::unique_ptr_type tSIS(new libmaus2::network::SocketInputStream(*CS,64*1024));
-							SIS = UNIQUE_PTR_MOVE(tSIS);
+							SIS = std::move(tSIS);
 						}
 					}
 

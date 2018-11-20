@@ -48,14 +48,14 @@ namespace libmaus2
 						libmaus2::network::HttpSocketInputStreamBuffer::unique_ptr_type tptr(
 							new libmaus2::network::HttpSocketInputStreamBuffer(url,bufsize,pushbacksize)
 						);
-						httpstreambuffer = UNIQUE_PTR_MOVE(tptr);
+						httpstreambuffer = std::move(tptr);
 					}
 					else if ( prot == "ftp" )
 					{
 						libmaus2::network::FtpSocketInputStreamBuffer::unique_ptr_type tptr(
 							new libmaus2::network::FtpSocketInputStreamBuffer(url,bufsize,pushbacksize)
 						);
-						ftpstreambuffer = UNIQUE_PTR_MOVE(tptr);
+						ftpstreambuffer = std::move(tptr);
 					}
 					else if ( prot == "file" )
 					{
@@ -63,11 +63,11 @@ namespace libmaus2
 						libmaus2::aio::PosixFdInput::unique_ptr_type tfileinput(
 							new libmaus2::aio::PosixFdInput(fu.filename)
 						);
-						fileinput = UNIQUE_PTR_MOVE(tfileinput);
+						fileinput = std::move(tfileinput);
 						libmaus2::aio::PosixFdInputStreamBuffer::unique_ptr_type tptr(
 							new libmaus2::aio::PosixFdInputStreamBuffer(*fileinput,bufsize,pushbacksize)
 						);
-						filestreambuffer = UNIQUE_PTR_MOVE(tptr);
+						filestreambuffer = std::move(tptr);
 					}
 					else
 					{

@@ -104,7 +104,7 @@ libmaus2::network::GnuTLSSocket::GnuTLSSocket(
 {
 	#if defined(LIBMAUS2_HAVE_GNUTLS)
 	libmaus2::network::ClientSocket::unique_ptr_type TCS(new libmaus2::network::ClientSocket(port,hostname.c_str()));
-	PCS = UNIQUE_PTR_MOVE(TCS);
+	PCS = std::move(TCS);
 
 	/* X509 stuff */
 	gnutls_certificate_allocate_credentials(&xcred);

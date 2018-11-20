@@ -33,8 +33,8 @@ libmaus2::util::HugePages & libmaus2::util::HugePages::getHugePageObject()
 	libmaus2::parallel::ScopePosixSpinLock slock(createLock);
 	if ( ! sObject )
 	{
-		unique_ptr_type tObject(new this_type);
-		sObject = UNIQUE_PTR_MOVE(tObject);
+        unique_ptr_type tObject(new this_type);
+		sObject = std::move(tObject);
 	}
 	return *sObject;
 }

@@ -29,21 +29,21 @@ namespace libmaus2
 		struct PosixFdInputStreamFactory : public libmaus2::aio::InputStreamFactory
 		{
 			typedef PosixFdInputStreamFactory this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			virtual ~PosixFdInputStreamFactory() {}
 			virtual libmaus2::aio::InputStream::unique_ptr_type constructUnique(std::string const & filename)
 			{
 				if ( filename == "-" )
 				{
-					libmaus2::util::shared_ptr<std::istream>::type iptr(new PosixFdInputStream(STDIN_FILENO));
+                    std::shared_ptr<std::istream> iptr(new PosixFdInputStream(STDIN_FILENO));
 					libmaus2::aio::InputStream::unique_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 					return istr;
 				}
 				else
 				{
-					libmaus2::util::shared_ptr<std::istream>::type iptr(new PosixFdInputStream(filename));
+                    std::shared_ptr<std::istream> iptr(new PosixFdInputStream(filename));
 					libmaus2::aio::InputStream::unique_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 					return istr;
 				}
@@ -52,13 +52,13 @@ namespace libmaus2
 			{
 				if ( filename == "-" )
 				{
-					libmaus2::util::shared_ptr<std::istream>::type iptr(new PosixFdInputStream(STDIN_FILENO));
+					std::shared_ptr<std::istream> iptr(new PosixFdInputStream(STDIN_FILENO));
 					libmaus2::aio::InputStream::shared_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 					return istr;
 				}
 				else
 				{
-					libmaus2::util::shared_ptr<std::istream>::type iptr(new PosixFdInputStream(filename));
+					std::shared_ptr<std::istream> iptr(new PosixFdInputStream(filename));
 					libmaus2::aio::InputStream::shared_ptr_type istr(new libmaus2::aio::InputStream(iptr));
 					return istr;
 				}

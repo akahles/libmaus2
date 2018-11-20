@@ -27,6 +27,18 @@ intend to compile libmaus2 for production (i.e. non development) use.
 
 Compilation
 -----------
+A new Makefile generator has been written for use with cmake. To compile, run the following
+
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=$(pwd)
+	make
+	make install
+
+Legacy documentation
+====================
+Compilation
+-----------
 
 libmaus2 uses the GNU autoconf/automake tool set. It can be compiled on Linux
 using:

@@ -28,8 +28,8 @@ namespace libmaus2
 		struct MemoryInputStream : public MemoryInputStreamBuffer, public std::istream
 		{
 			typedef MemoryInputStream this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			MemoryInputStream(std::string const & filename, int64_t const bufsize = -1, uint64_t const pushbacksize = 0)
 			: MemoryInputStreamBuffer(filename,bufsize,pushbacksize),

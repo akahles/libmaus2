@@ -38,7 +38,7 @@ namespace libmaus2
                 {
                 	typedef _value_type value_type;
                 	typedef SynchronousQueue<value_type> this_type;
-                	typedef typename libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+                    typedef std::unique_ptr<this_type> unique_ptr_type;
 
                         std::deque < value_type > Q;
                         PosixSpinLock lock;

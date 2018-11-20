@@ -28,8 +28,8 @@ namespace libmaus2
 		struct PosixFdInputOutputStream : public PosixFdInputOutputStreamBuffer, public std::iostream
 		{
 			typedef PosixFdInputOutputStream this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			PosixFdInputOutputStream(int const rfd, int64_t const bufsize = -1)
 			: PosixFdInputOutputStreamBuffer(rfd,bufsize),

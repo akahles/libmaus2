@@ -29,19 +29,19 @@ namespace libmaus2
 		struct MemoryOutputStreamFactory : public libmaus2::aio::OutputStreamFactory
 		{
 			typedef MemoryOutputStreamFactory this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			virtual ~MemoryOutputStreamFactory() {}
 			virtual libmaus2::aio::OutputStream::unique_ptr_type constructUnique(std::string const & filename)
 			{
-				libmaus2::util::shared_ptr<std::ostream>::type iptr(new MemoryOutputStream(filename));
+                std::shared_ptr<std::ostream> iptr(new MemoryOutputStream(filename));
 				libmaus2::aio::OutputStream::unique_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 				return istr;
 			}
 			virtual libmaus2::aio::OutputStream::shared_ptr_type constructShared(std::string const & filename)
 			{
-				libmaus2::util::shared_ptr<std::ostream>::type iptr(new MemoryOutputStream(filename));
+				std::shared_ptr<std::ostream> iptr(new MemoryOutputStream(filename));
 				libmaus2::aio::OutputStream::shared_ptr_type istr(new libmaus2::aio::OutputStream(iptr));
 				return istr;
 			}

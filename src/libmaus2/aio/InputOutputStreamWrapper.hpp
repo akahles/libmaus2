@@ -19,8 +19,7 @@
 #if ! defined(LIBMAUS2_AIO_INPUTOUTPUTSTREAMWRAPPER_HPP)
 #define LIBMAUS2_AIO_INPUTOUTPUTSTREAMWRAPPER_HPP
 
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
+#include <memory>
 #include <iostream>
 
 namespace libmaus2
@@ -30,11 +29,11 @@ namespace libmaus2
 		struct InputOutputStreamWrapper
 		{
 			typedef InputOutputStreamWrapper this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			typedef std::iostream stream_type;
-			typedef libmaus2::util::shared_ptr<stream_type>::type shared_stream_ptr_type;
+			typedef std::shared_ptr<stream_type> shared_stream_ptr_type;
 
 			shared_stream_ptr_type Sstream;
 			stream_type & stream;

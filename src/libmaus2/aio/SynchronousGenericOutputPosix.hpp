@@ -28,7 +28,7 @@
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/util/GetFileSize.hpp>
 #include <libmaus2/util/ArgInfo.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
+#include <memory>
 #include <libmaus2/aio/PutOutputIterator.hpp>
 #include <string>
 #include <fstream>
@@ -52,7 +52,7 @@ namespace libmaus2
 			//! this type
 			typedef SynchronousGenericOutputPosix<data_type> this_type;
 			//! unique pointer type
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 			//! iterator type
 			typedef PutOutputIterator<data_type,this_type> iterator_type;
 

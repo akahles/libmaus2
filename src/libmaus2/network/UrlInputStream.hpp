@@ -28,8 +28,8 @@ namespace libmaus2
 		struct UrlInputStream : public UrlInputStreamBufferWrapper, public std::istream
 		{
 			typedef UrlInputStream this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-			typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
+			typedef std::shared_ptr<this_type> shared_ptr_type;
 
 			public:
 			UrlInputStream(std::string const & url, uint64_t const bufsize = 64*1024, uint64_t const pushbacksize = 0)

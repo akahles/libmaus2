@@ -40,7 +40,7 @@ namespace libmaus2
 		struct GnuTLSSocket : private libmaus2::network::GnuTLSInit, public SocketInputOutputInterface
 		{
 			typedef GnuTLSSocket this_type;
-			typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			std::string const hostname;
 

@@ -25,7 +25,7 @@
 #include <vector>
 #include <sstream>
 #include <libmaus2/util/stringFunctions.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
+#include <memory>
 #include <libmaus2/exception/LibMausException.hpp>
 #include <libmaus2/util/Demangle.hpp>
 #include <climits>
@@ -54,7 +54,7 @@ namespace libmaus2
 			//! this type
 			typedef ArgInfo this_type;
 			//! unique pointer type
-			typedef ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			//! complete command line
 			std::string commandline;

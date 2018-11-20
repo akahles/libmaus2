@@ -22,8 +22,7 @@
 #include <libmaus2/LibMausConfig.hpp>
 #include <libmaus2/exception/LibMausException.hpp>
 #include <libmaus2/parallel/PosixMutex.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
+#include <memory>
 #include <cerrno>
 
 #if defined(LIBMAUS2_HAVE_DARWIN_SPINLOCKS)
@@ -42,8 +41,8 @@ namespace libmaus2
                 struct PosixSpinLock
                 {
                 	typedef PosixSpinLock this_type;
-                	typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-                	typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+                    typedef std::unique_ptr<this_type> unique_ptr_type;
+                    typedef std::shared_ptr<this_type> shared_ptr_type;
 
                         pthread_spinlock_t spinlock;
 
@@ -123,8 +122,8 @@ namespace libmaus2
                 struct PosixSpinLock
                 {
                 	typedef PosixSpinLock this_type;
-                	typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-                	typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+                    typedef std::unique_ptr<this_type> unique_ptr_type;
+                    typedef std::shared_ptr<this_type> shared_ptr_type;
 
                 	os_unfair_lock spinlock;
 
@@ -169,8 +168,8 @@ namespace libmaus2
                 struct PosixSpinLock
                 {
                 	typedef PosixSpinLock this_type;
-                	typedef libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-                	typedef libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+                    typedef std::unique_ptr<this_type> unique_ptr_type;
+                    typedef std::shared_ptr<this_type> shared_ptr_type;
 
                 	unsigned int volatile spinlock;
 

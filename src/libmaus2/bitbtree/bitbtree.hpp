@@ -28,8 +28,6 @@
 
 #include <libmaus2/autoarray/AutoArray.hpp>
 #include <libmaus2/uint/uint.hpp>
-#include <libmaus2/util/unique_ptr.hpp>
-#include <libmaus2/util/shared_ptr.hpp>
 #include <libmaus2/bitio/FastWriteBitWriter.hpp>
 #include <libmaus2/bitio/getBit.hpp>
 #include <libmaus2/types/types.hpp>
@@ -87,7 +85,7 @@ namespace libmaus2
 			typedef BitBTreeInnerNode<node_ptr_type,bit_count_type,one_count_type,k> inner_node_type;
 
 			typedef BitBTree<k,w> this_type;
-			typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
+			typedef std::unique_ptr<this_type> unique_ptr_type;
 
 			#if defined(__GNUC__) && ((__GNUC__ >= 5) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1)))
 			static node_ptr_type const bitbtree_leaf_mask = (1ull << (8*sizeof(node_ptr_type)-1));
@@ -321,8 +319,8 @@ namespace libmaus2
 			struct NodeAllocator
 			{
 				typedef NodeAllocator<node_type, node_ptr_type, mask, bitbtree_node_base_mask_value> this_type;
-				typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-				typedef typename ::libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+				typedef std::unique_ptr<this_type> unique_ptr_type;
+				typedef std::shared_ptr<this_type> shared_ptr_type;
 
 				autoarray::AutoArray< node_type > Anodes;
 				node_type * nodes;
@@ -395,8 +393,8 @@ namespace libmaus2
 			struct BlockNodeAllocator
 			{
 				typedef BlockNodeAllocator<node_type,node_ptr_type,mask,bitbtree_node_base_mask_value> this_type;
-				typedef typename ::libmaus2::util::unique_ptr<this_type>::type unique_ptr_type;
-				typedef typename ::libmaus2::util::shared_ptr<this_type>::type shared_ptr_type;
+				typedef std::unique_ptr<this_type> unique_ptr_type;
+				typedef std::shared_ptr<this_type> shared_ptr_type;
 
 				static unsigned int const blockshift = 16;
 				static uint64_t const blocksize = 1ull<<blockshift;

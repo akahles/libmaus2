@@ -31,7 +31,7 @@ A new Makefile generator has been written for use with cmake. To compile, run th
 
 	mkdir build
 	cd build
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=$(pwd)
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=$(pwd) ..
 	make
 	make install
 

@@ -398,6 +398,7 @@ link_directories(
 
 file(GLOB_RECURSE src_files
   "src/libmaus2/*/*.cpp"
+  "src/libmaus2/*.cpp"
 )
 
 add_library(maus2 STATIC ${src_files})

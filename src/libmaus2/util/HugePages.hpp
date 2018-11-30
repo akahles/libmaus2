@@ -78,6 +78,7 @@ namespace libmaus2
 
 			private:
 			std::map<std::string,std::string> meminfo;
+            #if defined(__linux__) && defined(LIBMAUS2_HAVE_MMAP_HUGEPAGES)
 			bool setup;
 
 			uint64_t pagesize;
@@ -88,6 +89,7 @@ namespace libmaus2
 
 			uint64_t alloc;
 			void * base;
+            #endif
 
 			libmaus2::parallel::PosixMutex lock;
 

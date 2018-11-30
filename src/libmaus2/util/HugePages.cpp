@@ -571,7 +571,11 @@ std::map<std::string,std::string> libmaus2::util::HugePages::getFileMap(std::str
 	return M;
 }
 
-libmaus2::util::HugePages::HugePages() : setup(false), alloc(0), base(0), cmpblock(new MemoryBlock())
+libmaus2::util::HugePages::HugePages() :
+	#if defined(__linux__) && defined(LIBMAUS2_HAVE_MMAP_HUGEPAGES)
+    setup(false), alloc(0), base(0),
+    #endif
+    cmpblock(new MemoryBlock())
 {
 	#if defined(__linux__) && defined(LIBMAUS2_HAVE_MMAP_HUGEPAGES)
 	meminfo = getFileMap("/proc/meminfo");

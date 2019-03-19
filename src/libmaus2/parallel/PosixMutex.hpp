@@ -22,9 +22,13 @@
 #include <libmaus2/LibMausConfig.hpp>
 #include <libmaus2/exception/LibMausException.hpp>
 #include <cerrno>
-#include <memory>
 
 #if defined(LIBMAUS2_HAVE_PTHREADS)
+
+#if defined(LIBMAUS2_HAVE_PTHREAD_SETAFFINITY_NP) && defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 #include <pthread.h>
 
 namespace libmaus2
@@ -34,16 +38,21 @@ namespace libmaus2
                 struct PosixMutex
                 {
                 	typedef PosixMutex this_type;
-                    typedef std::unique_ptr<this_type> unique_ptr_type;
-                    typedef std::shared_ptr<this_type> shared_ptr_type;
+                	typedef std::unique_ptr<this_type> unique_ptr_type;
+                	typedef std::shared_ptr<this_type> shared_ptr_type;
 
+                	private:
+                	PosixMutex & operator=(PosixMutex const & O) const;
+                	PosixMutex(PosixMutex const & O);
+
+                	public:
                         pthread_mutex_t mutex;
 
                         PosixMutex() : mutex()
                         {
                                 pthread_mutex_init(&mutex,0);
                         }
-                        ~PosixMutex()
+                        ~PosixMutex() throw()
                         {
                                 pthread_mutex_destroy(&mutex);
                         }

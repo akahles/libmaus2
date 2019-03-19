@@ -62,11 +62,22 @@ namespace libmaus2
 			 *
 			 * @param rSGOP owner
 			 **/
-                	PutOutputIterator(owner_type & rSGOP) : SGOP(&rSGOP) {}
-                	/**
-                	 * destructor
-                	 **/
-                	~PutOutputIterator() {}
+			PutOutputIterator(owner_type & rSGOP) : SGOP(&rSGOP) {}
+			/*
+			 *
+			 */
+			PutOutputIterator(this_type const & O) : SGOP(O.SGOP) {}
+			/**
+			 * destructor
+			 **/
+			~PutOutputIterator() {}
+
+			PutOutputIterator & operator=(PutOutputIterator const & O)
+			{
+				if ( this != &O )
+					SGOP = O.SGOP;
+				return *this;
+			}
 
                 	/**
                 	 * operator dereference

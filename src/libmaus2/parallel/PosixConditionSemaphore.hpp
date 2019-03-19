@@ -23,9 +23,14 @@
 #include <cerrno>
 #include <libmaus2/exception/LibMausException.hpp>
 #include <libmaus2/parallel/SimpleSemaphoreInterface.hpp>
+#include <libmaus2/parallel/PosixMutex.hpp>
 
 #if defined(LIBMAUS2_HAVE_PTHREADS)
-#include <pthread.h>
+/*
+ * the following is included by PosixMutex.hpp:
+ *
+ * #include <pthread.h>
+ */
 
 namespace libmaus2
 {
@@ -123,6 +128,33 @@ namespace libmaus2
 				}
 
 				return r;
+			}
+
+			bool timedWait()
+			{
+				ScopeMutexLock slock(mutex);
+
+				bool done = false;
+				while ( ! done )
+				{
+					if ( sigcnt )
+					{
+						sigcnt -= 1;
+						done = true;
+					}
+					else
+					{
+						struct timespec ts;
+						ts.tv_sec = 1;
+						ts.tv_nsec = 0;
+						int const r = pthread_cond_timedwait(&cond,&mutex,&ts);
+
+						if ( r == ETIMEDOUT )
+							return false;
+					}
+				}
+
+				return true;
 			}
 
 			void wait()

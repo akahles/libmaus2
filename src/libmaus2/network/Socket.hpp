@@ -53,6 +53,10 @@
 #include <libmaus2/parallel/PosixThread.hpp>
 #include <libmaus2/parallel/SynchronousQueue.hpp>
 
+#if defined(__APPLE__)
+#include <netinet/tcp.h>
+#endif
+
 namespace libmaus2
 {
 	namespace network
@@ -347,6 +351,36 @@ namespace libmaus2
 				}
 
 				return totalred;
+			}
+
+			void setKeepAlive(
+				int const enable, // boolean
+				int const timeout, // time until first check/ping (seconds)
+				int const
+					#if defined(__linux__)
+					num
+					#endif
+					// number of checks
+					,
+				int const
+					#if defined(__linux__)
+					intv
+					#endif
+					// interval between checks/pings (seconds)
+			)
+			{
+				setsockopt(getFD(), SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
+
+				#if defined(__linux__)
+				setsockopt(getFD(), IPPROTO_TCP, TCP_KEEPIDLE, &timeout, sizeof(timeout));
+				#elif defined(__APPLE__)
+				setsockopt(getFD(), IPPROTO_TCP, TCP_KEEPALIVE, &timeout, sizeof(timeout));
+				#endif
+
+				#if defined(__linux__)
+				setsockopt(getFD(), IPPROTO_TCP, TCP_KEEPCNT, &num, sizeof(num));
+				setsockopt(getFD(), IPPROTO_TCP, TCP_KEEPINTVL, &intv, sizeof(intv));
+				#endif
 			}
 
 			protected:

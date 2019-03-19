@@ -67,6 +67,8 @@ namespace libmaus2
 
 			static void rename(std::string const & from, std::string const & to)
 			{
+				libmaus2::parallel::ScopePosixMutex slock(lock);
+
 				std::map < std::string, MemoryFile::shared_ptr_type >::iterator it = M.find(from);
 
 				if ( it != M.end() )

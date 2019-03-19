@@ -26,6 +26,14 @@
 
 namespace libmaus2
 {
+	namespace parallel
+	{
+		struct PosixSpinLock;
+	}
+}
+
+namespace libmaus2
+{
 	namespace exception
 	{
 		struct LibMausException : std::exception, ::libmaus2::util::StackTrace
@@ -41,6 +49,9 @@ namespace libmaus2
 			{
 
 			}
+			LibMausException(LibMausException const & LME)
+			: postr(LME.postr), s(LME.s) {}
+
 			~LibMausException() throw()
 			{
 
@@ -75,6 +86,8 @@ namespace libmaus2
 				s += "\n";
 				s += ::libmaus2::util::StackTrace::toString(translateStackTrace);
 			}
+
+			std::ostream & print(std::ostream & out, libmaus2::parallel::PosixSpinLock & lock);
 
 			char const * what() const throw()
 			{

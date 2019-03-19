@@ -36,22 +36,43 @@ namespace libmaus2
 {
 	namespace bitbtree
 	{
-		template< typename node_ptr_type, typename bit_count_type, typename one_count_type>
+		template< typename _node_ptr_type, typename _bit_count_type, typename _one_count_type>
 		struct BitBTreeInnerNodeData
 		{
+			typedef _node_ptr_type node_ptr_type;
+			typedef _bit_count_type bit_count_type;
+			typedef _one_count_type one_count_type;
+			typedef BitBTreeInnerNodeData<node_ptr_type,bit_count_type,one_count_type> this_type;
+
 			node_ptr_type ptr;
 			bit_count_type cnt;
 			one_count_type bcnt;
 
 			BitBTreeInnerNodeData() : ptr(0), cnt(0), bcnt(0) {}
-			BitBTreeInnerNodeData(BitBTreeInnerNodeData<node_ptr_type,bit_count_type,one_count_type> const & o)
+			BitBTreeInnerNodeData(this_type const & o)
 			: ptr(o.ptr), cnt(o.cnt), bcnt(o.bcnt) {}
+
+			this_type operator=(this_type const & O)
+			{
+				if ( this != &O )
+				{
+					ptr = O.ptr;
+					cnt = O.cnt;
+					bcnt = O.bcnt;
+				}
+				return *this;
+			}
 		};
 
-		template< typename node_ptr_type, typename bit_count_type, typename one_count_type, unsigned int k>
+		template< typename _node_ptr_type, typename _bit_count_type, typename _one_count_type, unsigned int k>
 		struct BitBTreeInnerNode
 		{
+			typedef _node_ptr_type node_ptr_type;
+			typedef _bit_count_type bit_count_type;
+			typedef _one_count_type one_count_type;
+
 			typedef BitBTreeInnerNodeData<node_ptr_type,bit_count_type,one_count_type> data_type;
+			typedef BitBTreeInnerNode<node_ptr_type,bit_count_type,one_count_type,k> this_type;
 
 			data_type data[2*k];
 			unsigned int dataFilled;
@@ -307,8 +328,9 @@ namespace libmaus2
 				uint64_t const n = root_cnt;
 				::libmaus2::serialize::Serialize<uint64_t>::serialize(out,n);
 
-				bitio::OutputBuffer<uint64_t> ob(16*1024,out);
-				bitio::FastWriteBitWriterBuffer64 writer(ob);
+				libmaus2::bitio::OutputBuffer<uint64_t> ob(16*1024,out);
+				libmaus2::bitio::OutputBufferIterator<uint64_t> OBI(&ob);
+				libmaus2::bitio::FastWriteBitWriterBuffer64 writer(OBI);
 				serialize ( writer );
 				writer.flush();
 				ob.flush();
@@ -889,6 +911,47 @@ namespace libmaus2
 				one_count_type newnodebcnt;
 
 				InsertInfo() : nodeCreated(false), newnode(0), oldnodecnt(0), newnodecnt(0), oldnodebcnt(0), newnodebcnt(0) {}
+				InsertInfo(InsertInfo const & O)
+				:
+					nodeCreated(O.nodeCreated),
+					newnode(O.newnode),
+					oldnodecnt(O.oldnodecnt),
+					newnodecnt(O.newnodecnt),
+					oldnodebcnt(O.oldnodebcnt),
+					newnodebcnt(O.newnodebcnt)
+				{
+
+				}
+
+				InsertInfo & operator=(InsertInfo const & O)
+				{
+					if ( this != &O )
+					{
+						nodeCreated = O.nodeCreated;
+						newnode = O.newnode;
+						oldnodecnt = O.oldnodecnt;
+						newnodecnt = O.newnodecnt;
+						oldnodebcnt = O.oldnodebcnt;
+						newnodebcnt = O.newnodebcnt;
+					}
+
+					return *this;
+				}
+
+				std::string toString() const
+				{
+					std::ostringstream ostr;
+
+					ostr << "InsertInfo("
+						<< "nodeCreated=" << nodeCreated << ","
+						<< "newnode=" << newnode << ","
+						<< "oldnodecnt=" << oldnodecnt << ","
+						<< "newnodecnt=" << newnodecnt << ","
+						<< "oldnodebcnt=" << oldnodebcnt << ","
+						<< "newnodebcnt=" << newnodebcnt << ")";
+
+					return ostr.str();
+				}
 			};
 
 			struct DeleteInfo
@@ -1200,12 +1263,18 @@ namespace libmaus2
 
 			InsertInfo insertBit(uint64_t const node, uint64_t pos, bool const b, uint64_t const cnt)
 			{
+				// #define INSERT_BIT_DEBUG
+
+				#if defined(INSERT_BIT_DEBUG)
+				std::cerr << "inserBit node=" << node << " pos=" << pos << " b=" << b << " cnt=" << cnt << std::endl;
+				#endif
+
 				if ( isLeaf(node) )
 				{
 					InsertInfo info;
 
-					#if 0
-					std::cerr << "Inserting into leaf." << std::endl;
+					#if defined(INSERT_BIT_DEBUG)
+					std::cerr << "Inserting into leaf cnt=" << cnt << " 64*w=" << (64*w) << std::endl;
 					#endif
 
 					if ( cnt < 64*w )
@@ -1215,21 +1284,40 @@ namespace libmaus2
 						leaf.data.insertBit(pos,b);
 						info.oldnodecnt = cnt+1;
 						info.oldnodebcnt = leaf.data.rank1(info.oldnodecnt-1);
-						#if 0
+
+						#if defined(INSERT_BIT_DEBUG)
 						std::cerr << "Leaf not split." << std::endl;
 						#endif
 					}
 					else
 					{
+						#if defined(INSERT_BIT_DEBUG)
+						std::cerr << "Creating node" << std::endl;
+						#endif
+
 						info.nodeCreated = true;
 
 						info.newnode = allocateLeaf();
-						leaf_type & leaf = getLeaf(node);
+						leaf_type & leaf    = getLeaf(node);
 						leaf_type & newleaf = getLeaf(info.newnode);
 
+						#if defined(INSERT_BIT_DEBUG)
+						std::cerr << "*leaf.data=" << leaf.data << std::endl;
+						#endif
+
 						newleaf.data = leaf.data;
+
+						#if defined(INSERT_BIT_DEBUG)
+						std::cerr << "*1newleaf.data=" << leaf.data << std::endl;
+						#endif
+
 						newleaf.data >>= ((64*w)/2);
 						leaf.data.keepLowHalf();
+
+						#if defined(INSERT_BIT_DEBUG)
+						std::cerr << "leaf.data=" << leaf.data << std::endl;
+						std::cerr << "newleaf.data=" << newleaf.data << std::endl;
+						#endif
 
 						if ( pos <= ((64*w)/2) )
 						{
@@ -1247,8 +1335,8 @@ namespace libmaus2
 						info.oldnodebcnt = leaf.data.rank1(info.oldnodecnt-1);
 						info.newnodebcnt = newleaf.data.rank1(info.newnodecnt-1);
 
-						#if 0
-						std::cerr << "Leaf split." << std::endl;
+						#if defined(INSERT_BIT_DEBUG)
+						std::cerr << "Leaf split: " << info.toString() << std::endl;
 						#endif
 					}
 

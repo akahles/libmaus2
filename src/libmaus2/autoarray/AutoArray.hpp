@@ -312,6 +312,31 @@ namespace libmaus2
 		extern void autoArrayPrintTraces(std::ostream & out);
 		#endif
 
+		template<typename N, alloc_type atype = alloc_type_cxx>
+		struct AutoArrayReallocate
+		{
+			static N * reallocate(N * p, uint64_t const rn, uint64_t const n)
+			{
+				N * np = new N[n];
+				uint64_t const tocopy = std::min(rn,n);
+				std::copy(p,p+tocopy,np);
+				delete [] p;
+				return np;
+			}
+		};
+
+		template<typename N>
+		struct AutoArrayReallocate<N,alloc_type_c>
+		{
+			static N * reallocate(N * p, uint64_t const /* rn */, uint64_t const n)
+			{
+				N * np = reinterpret_cast<N *>(realloc(p,n*sizeof(N)));
+				if ( ! np )
+					throw std::bad_alloc();
+				return np;
+			}
+		};
+
 		/**
 		 * array with automatic deallocation
 		 */
@@ -958,6 +983,12 @@ namespace libmaus2
 			 **/
 			void resize(uint64_t const rn)
 			{
+				array = AutoArrayReallocate<N,atype>::reallocate(array,n,rn);
+				decreaseTotalAllocation(n);
+				n = rn;
+				increaseTotalAllocation(n);
+
+				#if 0
 				switch ( atype )
 				{
 					case alloc_type_c:
@@ -1001,6 +1032,7 @@ namespace libmaus2
 						}
 						break;
 				}
+				#endif
 			}
 
 			/**

@@ -88,9 +88,7 @@ namespace libmaus2
 				#else
 				uint64_t const allocbytes = (sizeof(uint8_t *) - 1) + align  + n * objsize;
 				uint8_t * const allocp = new uint8_t[ allocbytes ];
-                #if defined(LIBMAUS2_DEBUG_COMPILATION)
 				uint8_t * const alloce = allocp + allocbytes;
-                #endif
 				uint64_t const mod = reinterpret_cast<uint64_t>(allocp) % align;
 
 				uint8_t * alignedp = mod ? (allocp + (align-mod)) : allocp;

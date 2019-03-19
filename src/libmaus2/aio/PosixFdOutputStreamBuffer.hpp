@@ -44,6 +44,255 @@ namespace libmaus2
 	{
 		struct PosixFdOutputStreamBuffer : public ::std::streambuf
 		{
+			public:
+			static off_t doSeekAbsolute(int const fd, std::string const & filename, uint64_t const p, int const whence /* = SEEK_SET */)
+			{
+				off_t off = static_cast<off_t>(-1);
+
+				while ( off == static_cast<off_t>(-1) )
+				{
+					double const time_bef = getTime();
+					off = ::lseek(fd,p,whence);
+					double const time_aft = getTime();
+					printWarning("lseek",time_aft-time_bef,filename,fd);
+
+					if ( off == static_cast<off_t>(-1) )
+					{
+						int const error = errno;
+
+						switch ( error )
+						{
+							case EINTR:
+							case EAGAIN:
+							break;
+							default:
+							{
+								libmaus2::exception::LibMausException se;
+								se.getStream() << "PosixOutputStreamBuffer::doSeekkAbsolute(): lseek() failed: " << strerror(error) << std::endl;
+								se.finish();
+								// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+								throw se;
+							}
+						}
+					}
+				}
+
+				return off;
+			}
+
+			static void doClose(int const fd, std::string const & filename)
+			{
+				int r = -1;
+
+				while ( r < 0 )
+				{
+					double const time_bef = getTime();
+					r = ::close(fd);
+					double const time_aft = getTime();
+					printWarning("close",time_aft-time_bef,filename,fd);
+
+					if ( r < 0 )
+					{
+						int const error = errno;
+
+						switch ( error )
+						{
+							case EINTR:
+							case EAGAIN:
+								break;
+							default:
+							{
+								libmaus2::exception::LibMausException se;
+								se.getStream() << "PosixOutputStreamBuffer::doClose(): close() failed: " << strerror(error) << std::endl;
+								se.finish();
+								// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+								throw se;
+							}
+						}
+					}
+				}
+			}
+
+			static int doOpen(std::string const & filename, int const flags = O_WRONLY | O_CREAT | O_TRUNC, int const mode = 0644)
+			{
+				int fd = -1;
+
+				while ( fd < 0 )
+				{
+					double const time_bef = getTime();
+					fd = ::open(filename.c_str(),flags,mode);
+					double const time_aft = getTime();
+					printWarning("open",time_aft-time_bef,filename,fd);
+
+					if ( fd < 0 )
+					{
+						int const error = errno;
+
+						switch ( error )
+						{
+							case EINTR:
+							case EAGAIN:
+								break;
+							default:
+							{
+								libmaus2::exception::LibMausException se;
+								se.getStream() << "PosixOutputStreamBuffer::doOpen(): open("<<filename<<") failed: " << strerror(error) << std::endl;
+								se.finish();
+								// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+								throw se;
+							}
+						}
+					}
+				}
+
+				return fd;
+			}
+
+			static void doFlush(int const fd, std::string const & filename)
+			{
+				int r = -1;
+
+				while ( r < 0 )
+				{
+					double const time_bef = getTime();
+					r = ::fsync(fd);
+					double const time_aft = getTime();
+					printWarning("fsync",time_aft-time_bef,filename,fd);
+
+					if ( r < 0 )
+					{
+						int const error = errno;
+
+						switch ( error )
+						{
+							case EINTR:
+							case EAGAIN:
+								break;
+							case EROFS:
+							case EINVAL:
+								// descriptor does not support flushing
+								return;
+							default:
+							{
+								libmaus2::exception::LibMausException se;
+								se.getStream() << "PosixOutputStreamBuffer::doFlush(): fsync() failed: " << strerror(error) << std::endl;
+								se.finish();
+								// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+								throw se;
+							}
+						}
+					}
+				}
+			}
+
+			static uint64_t
+				doWrite(
+					int const fd,
+					std::string const & filename,
+					char * p,
+					uint64_t n,
+					int64_t const optblocksize,
+					uint64_t writepos
+				)
+			{
+				while ( n )
+				{
+					size_t const towrite = std::min(n,static_cast<uint64_t>(optblocksize));
+
+					#if defined(__linux__)
+					pollfd pfd = { fd, POLLOUT, 0 };
+					double const time_bef_poll = getTime();
+					int const polltimeout = (warnThreshold > 0.0) ? static_cast<int>(std::floor(warnThreshold+0.5) * 1000ull) : -1;
+					int const ready = poll(&pfd, 1, polltimeout);
+					double const time_aft_poll = getTime();
+
+					if ( ready == 1 && (pfd.revents & POLLOUT) )
+					{
+						double const time_bef = getTime();
+						ssize_t const w = ::write(fd,p,towrite);
+						double const time_aft = getTime();
+						printWarning("write",time_aft-time_bef,filename,fd);
+
+						if ( w < 0 )
+						{
+							int const error = errno;
+
+							switch ( error )
+							{
+								case EINTR:
+								case EAGAIN:
+									break;
+								default:
+								{
+									libmaus2::exception::LibMausException se;
+									se.getStream() << "PosixOutputStreamBuffer::doSync(): write() failed: " << strerror(error) << std::endl;
+									se.finish();
+									// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+									throw se;
+								}
+							}
+						}
+						else
+						{
+							totaloutlock.lock();
+							totalout += w;
+							totaloutlock.unlock();
+
+							assert ( w <= static_cast<int64_t>(n) );
+							n -= w;
+							writepos += w;
+						}
+					}
+					// file descriptor not ready for writing
+					else
+					{
+						printWarning("poll",time_aft_poll-time_bef_poll,filename,fd);
+					}
+					#else
+					{
+						double const time_bef = getTime();
+						ssize_t const w = ::write(fd,p,towrite);
+						double const time_aft = getTime();
+						printWarning("write",time_aft-time_bef,filename,fd);
+
+						if ( w < 0 )
+						{
+							int const error = errno;
+
+							switch ( error )
+							{
+								case EINTR:
+								case EAGAIN:
+									break;
+								default:
+								{
+									libmaus2::exception::LibMausException se;
+									se.getStream() << "PosixOutputStreamBuffer::doSync(): write() failed: " << strerror(error) << std::endl;
+									se.finish();
+									// se.print(std::cerr,libmaus2::aio::StreamLock::cerrlock);
+									throw se;
+								}
+							}
+						}
+						else
+						{
+							totaloutlock.lock();
+							totalout += w;
+							totaloutlock.unlock();
+
+							assert ( w <= static_cast<int64_t>(n) );
+							n -= w;
+							writepos += w;
+						}
+					}
+					#endif
+				}
+
+				assert ( ! n );
+
+				return writepos;
+			}
+
 			private:
 			static double const warnThreshold;
 			static int const check;
@@ -105,39 +354,6 @@ namespace libmaus2
 			::libmaus2::autoarray::AutoArray<char> buffer;
 			uint64_t writepos;
 
-			static off_t doSeekAbsolute(int const fd, std::string const & filename, uint64_t const p, int const whence /* = SEEK_SET */)
-			{
-				off_t off = static_cast<off_t>(-1);
-
-				while ( off == static_cast<off_t>(-1) )
-				{
-					double const time_bef = getTime();
-					off = ::lseek(fd,p,whence);
-					double const time_aft = getTime();
-					printWarning("lseek",time_aft-time_bef,filename,fd);
-
-					if ( off == static_cast<off_t>(-1) )
-					{
-						int const error = errno;
-
-						switch ( error )
-						{
-							case EINTR:
-							case EAGAIN:
-							break;
-							default:
-							{
-								libmaus2::exception::LibMausException se;
-								se.getStream() << "PosixOutputStreamBuffer::doSeekkAbsolute(): lseek() failed: " << strerror(error) << std::endl;
-								se.finish();
-								throw se;
-							}
-						}
-					}
-				}
-
-				return off;
-			}
 
 			static off_t doGetFileSize(int const fd, std::string const & filename)
 			{
@@ -158,213 +374,6 @@ namespace libmaus2
 				return end;
 			}
 
-			static void doClose(int const fd, std::string const & filename)
-			{
-				int r = -1;
-
-				while ( r < 0 )
-				{
-					double const time_bef = getTime();
-					r = ::close(fd);
-					double const time_aft = getTime();
-					printWarning("close",time_aft-time_bef,filename,fd);
-
-					if ( r < 0 )
-					{
-						int const error = errno;
-
-						switch ( error )
-						{
-							case EINTR:
-							case EAGAIN:
-								break;
-							default:
-							{
-								libmaus2::exception::LibMausException se;
-								se.getStream() << "PosixOutputStreamBuffer::doClose(): close() failed: " << strerror(error) << std::endl;
-								se.finish();
-								throw se;
-							}
-						}
-					}
-				}
-			}
-
-			static int doOpen(std::string const & filename, int const flags = O_WRONLY | O_CREAT | O_TRUNC, int const mode = 0644)
-			{
-				int fd = -1;
-
-				while ( fd < 0 )
-				{
-					double const time_bef = getTime();
-					fd = ::open(filename.c_str(),flags,mode);
-					double const time_aft = getTime();
-					printWarning("open",time_aft-time_bef,filename,fd);
-
-					if ( fd < 0 )
-					{
-						int const error = errno;
-
-						switch ( error )
-						{
-							case EINTR:
-							case EAGAIN:
-								break;
-							default:
-							{
-								libmaus2::exception::LibMausException se;
-								se.getStream() << "PosixOutputStreamBuffer::doOpen(): open("<<filename<<") failed: " << strerror(error) << std::endl;
-								se.finish();
-								throw se;
-							}
-						}
-					}
-				}
-
-				return fd;
-			}
-
-			static void doFlush(int const fd, std::string const & filename)
-			{
-				int r = -1;
-
-				while ( r < 0 )
-				{
-					double const time_bef = getTime();
-					r = ::fsync(fd);
-					double const time_aft = getTime();
-					printWarning("fsync",time_aft-time_bef,filename,fd);
-
-					if ( r < 0 )
-					{
-						int const error = errno;
-
-						switch ( error )
-						{
-							case EINTR:
-							case EAGAIN:
-								break;
-							case EROFS:
-							case EINVAL:
-								// descriptor does not support flushing
-								return;
-							default:
-							{
-								libmaus2::exception::LibMausException se;
-								se.getStream() << "PosixOutputStreamBuffer::doFlush(): fsync() failed: " << strerror(error) << std::endl;
-								se.finish();
-								throw se;
-							}
-						}
-					}
-				}
-			}
-
-			static uint64_t
-				doWrite(
-					int const fd,
-					std::string const & filename,
-					char * p,
-					uint64_t n,
-					int64_t const optblocksize,
-					uint64_t writepos
-				)
-			{
-				while ( n )
-				{
-					size_t const towrite = std::min(n,static_cast<uint64_t>(optblocksize));
-
-					#if defined(__linux__)
-					pollfd pfd = { fd, POLLOUT, 0 };
-					double const time_bef_poll = getTime();
-					int const polltimeout = (warnThreshold > 0.0) ? static_cast<int>(std::floor(warnThreshold+0.5) * 1000ull) : -1;
-					int const ready = poll(&pfd, 1, polltimeout);
-					double const time_aft_poll = getTime();
-
-					if ( ready == 1 && (pfd.revents & POLLOUT) )
-					{
-						double const time_bef = getTime();
-						ssize_t const w = ::write(fd,p,towrite);
-						double const time_aft = getTime();
-						printWarning("write",time_aft-time_bef,filename,fd);
-
-						if ( w < 0 )
-						{
-							int const error = errno;
-
-							switch ( error )
-							{
-								case EINTR:
-								case EAGAIN:
-									break;
-								default:
-								{
-									libmaus2::exception::LibMausException se;
-									se.getStream() << "PosixOutputStreamBuffer::doSync(): write() failed: " << strerror(error) << std::endl;
-									se.finish();
-									throw se;
-								}
-							}
-						}
-						else
-						{
-							totaloutlock.lock();
-							totalout += w;
-							totaloutlock.unlock();
-
-							assert ( w <= static_cast<int64_t>(n) );
-							n -= w;
-							writepos += w;
-						}
-					}
-					// file descriptor not ready for writing
-					else
-					{
-						printWarning("poll",time_aft_poll-time_bef_poll,filename,fd);
-					}
-					#else
-					{
-						double const time_bef = getTime();
-						ssize_t const w = ::write(fd,p,towrite);
-						double const time_aft = getTime();
-						printWarning("write",time_aft-time_bef,filename,fd);
-
-						if ( w < 0 )
-						{
-							int const error = errno;
-
-							switch ( error )
-							{
-								case EINTR:
-								case EAGAIN:
-									break;
-								default:
-								{
-									libmaus2::exception::LibMausException se;
-									se.getStream() << "PosixOutputStreamBuffer::doSync(): write() failed: " << strerror(error) << std::endl;
-									se.finish();
-									throw se;
-								}
-							}
-						}
-						else
-						{
-							totaloutlock.lock();
-							totalout += w;
-							totaloutlock.unlock();
-
-							assert ( w <= static_cast<int64_t>(n) );
-							n -= w;
-							writepos += w;
-						}
-					}
-					#endif
-				}
-
-				assert ( ! n );
-
-				return writepos;
-			}
 
 			void doSync()
 			{

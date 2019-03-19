@@ -38,6 +38,12 @@ namespace libmaus2
 	namespace uint
 	{
 		template<unsigned int _words>
+		struct UInt;
+
+		template<unsigned int words>
+		std::ostream & operator<< (std::ostream & out, UInt<words> const & u);
+
+		template<unsigned int _words>
 		struct UInt
 		{
 			static unsigned int const words = _words;
@@ -356,19 +362,25 @@ namespace libmaus2
 			template<unsigned int otherwords>
 			UInt(UInt<otherwords> const & u)
 			{
-				for ( unsigned int i = 0; i < ((words<otherwords)?words:otherwords); ++i )
+				unsigned int const copy = (otherwords < words) ? otherwords : words;
+
+				for ( unsigned int i = 0; i < copy; ++i )
 					A[i] = u.A[i];
 				if ( words > otherwords )
 					for ( unsigned int i = otherwords; i != words; ++i )
 						A[i] = 0;
 			}
+
 			template<unsigned int otherwords>
 			UInt<words> & operator=(UInt<otherwords> const & u)
 			{
-				for ( unsigned int i = 0; i < ((words<otherwords)?words:otherwords); ++i )
+				unsigned int const copy = (otherwords < words) ? otherwords : words;
+
+				for ( unsigned int i = 0; i < copy; ++i )
 					A[i] = u.A[i];
 				return *this;
 			}
+
 			UInt(std::istream & in)
 			{
 				deserialize(in);
@@ -419,20 +431,23 @@ namespace libmaus2
 
 					c -= fullwords * 64;
 
-					#if 0
-					std::cerr << "rest of c is " << c << std::endl;
-					#endif
-
-					uint64_t const andmask = (1ull << c) - 1;
-					unsigned int const shift = 64-c;
-
-					for ( unsigned int i = 0; i+1 < words; ++i )
+					if ( c )
 					{
-						A[ words - i - 1 ] <<= c;
-						A[ words - i - 1 ] |= (A [ words - i - 2 ] >> shift) & andmask;
-					}
+						#if 0
+						std::cerr << "rest of c is " << c << std::endl;
+						#endif
 
-					A [ 0 ] <<= c;
+						uint64_t const andmask = (1ull << c) - 1;
+						unsigned int const shift = 64-c;
+
+						for ( unsigned int i = 0; i+1 < words; ++i )
+						{
+							A[ words - i - 1 ] <<= c;
+							A[ words - i - 1 ] |= (A [ words - i - 2 ] >> shift) & andmask;
+						}
+
+						A [ 0 ] <<= c;
+					}
 				}
 			}
 			void operator>>=(unsigned int c)
@@ -440,20 +455,23 @@ namespace libmaus2
 				unsigned int const fullwords = c/64;
 
 				#if 0
-				std::cerr << "fullwords: " << fullwords << std::endl;
+				std::cerr << "uint::operator>>=: fullwords: " << fullwords << " words: " << words << std::endl;
+				std::cerr << "uint::operator>>=: data: " << *this << std::endl;
 				#endif
 
 				if ( fullwords >= words )
 				{
-					for ( unsigned int i = 0; i < words; ++i ) A[i] = 0;
+					for ( unsigned int i = 0; i < words; ++i )
+						A[i] = 0;
 				}
 				else
 				{
+					assert ( fullwords < words );
+
 					for ( unsigned int i = 0; i < words-fullwords; ++i )
 					{
 						#if 0
-						std::cerr << "Assigning " << i
-							<< " to " << i+fullwords << std::endl;
+						std::cerr << "Copying " << i << " to " << i+fullwords << std::endl;
 						#endif
 						A [ i ] = A [ i+fullwords ];
 					}
@@ -466,16 +484,20 @@ namespace libmaus2
 					std::cerr << "rest of c is " << c << std::endl;
 					#endif
 
-					uint64_t const andmask = (1ull<<c)-1;
-					unsigned int const shift = 64-c;
-
-					for ( unsigned int i = 0; i+1 < words; ++i )
+					if ( c )
 					{
-						A[ i ] >>= c;
-						A[ i ] |= (A [ i+1 ] & andmask) << shift;
-					}
 
-					A [ words-1 ] >>= c;
+						uint64_t const andmask = (1ull<<c)-1;
+						unsigned int const shift = 64-c;
+
+						for ( unsigned int i = 0; i+1 < words; ++i )
+						{
+							A[ i ] >>= c;
+							A[ i ] |= (A [ i+1 ] & andmask) << shift;
+						}
+
+						A [ words-1 ] >>= c;
+					}
 				}
 			}
 

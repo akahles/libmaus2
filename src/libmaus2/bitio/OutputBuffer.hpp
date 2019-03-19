@@ -84,15 +84,27 @@ namespace libmaus2
                 {
                         typedef _data_type data_type;
 
-                        OutputBuffer<_data_type> & buffer;
+                        OutputBuffer<_data_type> * buffer;
 
-                        OutputBufferIteratorProxy(OutputBuffer<_data_type> & rbuffer) : buffer(rbuffer) {}
+                        OutputBufferIteratorProxy() : buffer(0) {}
+                        OutputBufferIteratorProxy(OutputBuffer<_data_type> * rbuffer) : buffer(rbuffer) {}
+                        OutputBufferIteratorProxy(OutputBufferIteratorProxy<data_type> const & O) : buffer(O.buffer) {}
 
-                         OutputBufferIteratorProxy<data_type> & operator=(data_type D)
-                         {
-                                buffer.writeData(D);
-                                return *this;
-                         }
+                        OutputBufferIteratorProxy<data_type> operator=(OutputBufferIteratorProxy<data_type> const & O)
+                        {
+                        	if ( this != &O )
+                        	{
+                        		buffer = O.buffer;
+                        	}
+
+                        	return *this;
+                        }
+
+                        OutputBufferIteratorProxy<data_type> & operator=(data_type D)
+                        {
+                        	buffer->writeData(D);
+                        	return *this;
+			}
                 };
 
                 template<typename _data_type>
@@ -101,8 +113,22 @@ namespace libmaus2
                         typedef _data_type data_type;
                         OutputBufferIteratorProxy<data_type> proxy;
 
-                        OutputBufferIterator(OutputBuffer<data_type> & rbuffer) : proxy(rbuffer) {}
+                        private:
+
+                        public:
+			OutputBufferIterator() : proxy() {}
+                        OutputBufferIterator(OutputBufferIterator const & O) : proxy(O.proxy) {}
+                        OutputBufferIterator(OutputBuffer<data_type> * rbuffer) : proxy(rbuffer) {}
                         ~OutputBufferIterator() {}
+
+                        OutputBufferIterator & operator=(OutputBufferIterator const & O)
+                        {
+                        	if ( this != &O )
+                        	{
+	                        	proxy = O.proxy;
+				}
+				return *this;
+                        }
 
                         OutputBufferIteratorProxy<data_type> & operator*()
                         {

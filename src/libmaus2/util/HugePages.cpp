@@ -161,7 +161,6 @@ bool libmaus2::util::HugePages::checkAligned(void * p, ::std::size_t align)
 /**
  * allocate block of size rs in huge pages
  **/
-#if defined(__linux__) && defined(LIBMAUS2_HAVE_MMAP_HUGEPAGES)
 void * libmaus2::util::HugePages::hpmalloc(size_t const rs, size_t const align)
 {
 	libmaus2::parallel::ScopePosixMutex slock(lock);
@@ -171,6 +170,7 @@ void * libmaus2::util::HugePages::hpmalloc(size_t const rs, size_t const align)
 	#endif
 
 	// check();
+	#if defined(__linux__) && defined(LIBMAUS2_HAVE_MMAP_HUGEPAGES)
 	init();
 
 	size_t const s = rs;
@@ -280,13 +280,10 @@ void * libmaus2::util::HugePages::hpmalloc(size_t const rs, size_t const align)
 	// check();
 
 	return pblock->p;
-}
-#else
-void * libmaus2::util::HugePages::hpmalloc(size_t const /*rs*/, size_t const /*align*/)
-{
+	#else
 	return NULL;
+	#endif
 }
-#endif
 
 /**
  * deallocate block p

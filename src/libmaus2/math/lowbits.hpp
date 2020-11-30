@@ -22,6 +22,7 @@
 
 #include <libmaus2/types/types.hpp>
 #include <climits>
+#include <cstdint>
 
 namespace libmaus2
 {
